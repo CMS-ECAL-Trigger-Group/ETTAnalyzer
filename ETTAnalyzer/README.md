@@ -10,7 +10,9 @@ cmsrel CMSSW_11_0_2
 cd CMSSW_11_0_2/src
 cmsenv 
 git clone git@github.com:CMS-ECAL-Trigger-Group/ECALDoubleWeights.git
-cd ECALDoubleWeights/ETTAnalyzer/
+cd ECALDoubleWeights
+git checkout CMSSW_11_0_2
+cd ETTAnalyzer/
 scramv1 b -j 10 
 cmsRun conf_11_0_2.py ## test it on the .root file already added to the config file. 
 ```

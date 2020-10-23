@@ -6,13 +6,13 @@ export USER_CXXFLAGS="-Wno-delete-non-virtual-dtor -Wno-error=unused-but-set-var
 
 
 ```
-cmsrel CMSSW_11_0_2 
-cd CMSSW_11_0_2/src
+cmsrel CMSSW_11_1_4 
+cd CMSSW_11_1_4/src
 cmsenv 
 git clone git@github.com:CMS-ECAL-Trigger-Group/ECALDoubleWeights.git
 cd ECALDoubleWeights
-git checkout CMSSW_11_0_2
+git checkout CMSSW_11_1_4
 cd ETTAnalyzer/
 scramv1 b -j 10 
-cmsRun conf_11_0_2.py ## test it on the .root file already added to the config file. 
+cmsRun conf_11_1_4.py ## test it on the .root file already added to the config file. 
 ```

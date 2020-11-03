@@ -1,9 +1,9 @@
 // -*- C++ -*-v_
 //
-// Package:    L1Prefiring/ETTAnalyzer
-// Class:      PrefiETTAnalyzer
+// Package:    ECALDoubleWeights/ETTAnalyzer
+// Class:      ETTAnalyzer
 //
-/**\class ETTAnalyzer ETTAnalyzer.cc L1Prefiring/ETTAnalyzer/plugins/ETTAnalyzer.cc
+/**\class ETTAnalyzer ETTAnalyzer.cc ECALDoubleWeights/ETTAnalyzer/plugins/ETTAnalyzer.cc
 
  Description: [one line class summary]
 
@@ -12,15 +12,10 @@
 */
 //
 // Original Author:  Raman Khurana
-//         Created:  Wed, 24 Apr 2019 08:53:01 GMT
+//         Created:  Wed, 1 November 2020 08:53:01 GMT
 //
 //
 
-
-// This has skimmed information about TPs needed for prefiring study and also the L1 Trigger DQM plots in order to validate the code. 
-// L1T code works fine. 
-// TPs work fine. 
-// 
 
 
 // system include files
@@ -103,15 +98,6 @@ public:
   }
 };
 
-//
-// class declaration
-//
-
-// If the analyzer does not use TFileService, please remove
-// the template argument to the base class so the class inherits
-// from  edm::one::EDAnalyzer<>
-// This will improve performance in multithreaded jobs.
-
 
 
 class ETTAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
@@ -166,7 +152,8 @@ private:
 
   unsigned int useAlgoDecision_;
   edm::Service<TFileService> fs;
-
+  int myevt;
+  const EcalElectronicsMapping* theMapping_;
   // variables for branches 
   uint runNb ;
   ULong64_t evtNb ;
@@ -218,7 +205,11 @@ private:
   int spike[4032] ;
   int twrADC[4032];
   int sFGVB[4032];
-
+  // Suggested by David 
+  int twrEmulMaxADC[4032];
+  int twrEmul3ADC[4032];
+  
+  
   int ttFlag[4032];
   int TCCid[4032];
   int TowerInTCC[4032] ;
@@ -323,9 +314,7 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
 
 {
   
-
-      
-
+  
   useAlgoDecision_ = 0;
   /*
   if (ps.getUntrackedParameter<std::string>("useAlgoDecision").find("final") == 0) {
@@ -350,25 +339,6 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   ibx_vs_ieta_NonIso = fs->make<TH2F>("ibx_vs_ieta_NonIso","ibx_vs_ieta_NonIso", 5, -2.5, 2.5, 70, -70, 70);
 
 
-
-    
-  /*
-    C : a character string terminated by the 0 character
-B : an 8 bit signed integer (Char_t)
-b : an 8 bit unsigned integer (UChar_t)
-S : a 16 bit signed integer (Short_t)
-s : a 16 bit unsigned integer (UShort_t)
-I : a 32 bit signed integer (Int_t)
-i : a 32 bit unsigned integer (UInt_t)
-F : a 32 bit floating point (Float_t)
-f : a 24 bit floating point with truncated mantissa (Float16_t)
-D : a 64 bit floating point (Double_t)
-d : a 24 bit truncated floating point (Double32_t)
-L : a 64 bit signed integer (Long64_t)
-l : a 64 bit unsigned integer (ULong64_t)
-O : [the letter o, not a zero] a boolean (Bool_t)
-  */
-  
   prefiringTree->Branch("b_runNb", &runNb ,"b_runNb/i");
   prefiringTree->Branch("b_evtNb", &evtNb ,"b_evtNb/L");
   prefiringTree->Branch("b_bxNb", &bxNb ,"b_bxNb/i");
@@ -417,6 +387,9 @@ O : [the letter o, not a zero] a boolean (Bool_t)
   prefiringTree->Branch("b_TCCid", TCCid ,"b_TCCid[b_nbOfTowers]/I");
   prefiringTree->Branch("b_TowerInTCC", TowerInTCC ,"b_TowerInTCC[b_nbOfTowers]/I");
   prefiringTree->Branch("b_strip", strip ,"b_strip[b_nbOfTowers]/I");
+  
+  prefiringTree->Branch("b_twrEmulMaxADC", twrEmulMaxADC ,"b_twrEmulMaxADC[b_nbOfTowers]/I");
+  prefiringTree->Branch("b_twrEmul3ADC", twrEmul3ADC ,"b_twrEmul3ADC[b_nbOfTowers]/I");
   
   
   //counters 
@@ -509,13 +482,12 @@ void
 ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 {
    using namespace edm;
+   myevt++;
+
+   ESHandle< EcalElectronicsMapping > ecalmapping;
+   c.get< EcalMappingRcd >().get(ecalmapping);
+   theMapping_ = ecalmapping.product();
    
-   std::cout<<" checking eta values -2.45, -2.7, -3.0, -1.44"
-	    <<" " << abs( -2.45)
-	    <<" " << abs( -2.7 )
-	    <<" " << abs(-3.0 )
-	    <<" " << abs(-1.44 )
-	    <<std::endl;
    
    
    for (int i=0; i<4032;i++){
@@ -586,6 +558,7 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    v_isocounterzero   = 0 ;
    v_isocounterp1     = 0 ;
    v_isocounterp2     = 0 ;
+
 
    
    
@@ -983,9 +956,12 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
      EcalTriggerPrimitiveDigi d = (*(tp.product()))[i];
      const EcalTrigTowerDetId TPtowid= d.id();
      towerEner tE ;
-     //tE.TCCid_= theMapping_->TCCid(TPtowid);                                                                                                                                                           
-     //tE.TowerInTCC_ = theMapping_->iTT(TPtowid);                                                                                                                                                       
-     //      const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;                                                                                                            
+     
+     // suggested by David 
+     // follow from https://github.com/cms-ecal-L1TriggerTeam/CMS-ECAL_TPGAnalysis/blob/master/TriggerAnalysis/plugins/EcalTPGAnalyzer.cc#L845
+     tE.TCCid_= theMapping_->TCCid(TPtowid);                                                                                                                                                           
+     tE.TowerInTCC_ = theMapping_->iTT(TPtowid);                                                                                                                                                       
+     //const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;                                                                                                            
      //tE.strip_ = 0;//elId.pseudoStripId() ;                                                                                                                                                            
      
      tE.iphi_ = TPtowid.iphi() ;
@@ -1035,43 +1011,47 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
        if (false) std::cout<<std::endl ;
      }
 
-     // fill everything in the ttree
-     //      fill=true;                                                                                                                                                                                  
-     if (fill) {
-       ieta[towerNb] = (itTT->second).ieta_ ;
-       iphi[towerNb] = (itTT->second).iphi_ ;
-       nbOfXtals[towerNb] = (itTT->second).nbXtal_ ;
-       rawTPData[towerNb] = (itTT->second).tpgADC_ ;
-       rawTPEmul1[towerNb] = (itTT->second).tpgEmul_[0] ;
-       rawTPEmul2[towerNb] = (itTT->second).tpgEmul_[1] ;
-       rawTPEmul3[towerNb] = (itTT->second).tpgEmul_[2] ;
-       rawTPEmul4[towerNb] = (itTT->second).tpgEmul_[3] ;
-       rawTPEmul5[towerNb] = (itTT->second).tpgEmul_[4] ;
-       rawTPEmulttFlag1[towerNb] = (itTT->second).tpgEmulFlag_[0] ;
-       rawTPEmulttFlag2[towerNb] = (itTT->second).tpgEmulFlag_[1] ;
-       rawTPEmulttFlag3[towerNb] = (itTT->second).tpgEmulFlag_[2] ;
-       rawTPEmulttFlag4[towerNb] = (itTT->second).tpgEmulFlag_[3] ;
-       rawTPEmulttFlag5[towerNb] = (itTT->second).tpgEmulFlag_[4] ;
-       rawTPEmulsFGVB1[towerNb] = (itTT->second).tpgEmulsFGVB_[0] ;
-       rawTPEmulsFGVB2[towerNb] = (itTT->second).tpgEmulsFGVB_[1] ;
-       rawTPEmulsFGVB3[towerNb] = (itTT->second).tpgEmulsFGVB_[2] ;
-       rawTPEmulsFGVB4[towerNb] = (itTT->second).tpgEmulsFGVB_[3] ;
-       rawTPEmulsFGVB5[towerNb] = (itTT->second).tpgEmulsFGVB_[4] ;
-       crystNb[towerNb] = (itTT->second).crystNb_ ;
-       eRec[towerNb] = (itTT->second).eRec_ ;
-       sevlv[towerNb] = (itTT->second).sevlv_ ;
-       ttFlag[towerNb] = (itTT->second).ttFlag_ ;
-       spike[towerNb] = (itTT->second).spike_ ;
-       twrADC[towerNb] =  (itTT->second).twrADC;
-       sFGVB[towerNb] =  (itTT->second).sFGVB;
-
-       if (abs(ieta[towerNb])>17) {
-	 unsigned int maxEmul = 0 ;
-	 for (int i=0 ; i<5 ; i++) if (((itTT->second).tpgEmul_[i]&0xff) > maxEmul) maxEmul = ((itTT->second).tpgEmul_[i]&0xff) ;
-       }
-       towerNb++ ;
-     }
-
+     
+     ieta[towerNb] = (itTT->second).ieta_ ;
+     iphi[towerNb] = (itTT->second).iphi_ ;
+     nbOfXtals[towerNb] = (itTT->second).nbXtal_ ;
+     rawTPData[towerNb] = (itTT->second).tpgADC_ ;
+     rawTPEmul1[towerNb] = (itTT->second).tpgEmul_[0] ;
+     rawTPEmul2[towerNb] = (itTT->second).tpgEmul_[1] ;
+     rawTPEmul3[towerNb] = (itTT->second).tpgEmul_[2] ;
+     rawTPEmul4[towerNb] = (itTT->second).tpgEmul_[3] ;
+     rawTPEmul5[towerNb] = (itTT->second).tpgEmul_[4] ;
+     
+     // Et values for emulated TP with index 2
+     twrEmul3ADC[towerNb] = ((itTT->second).tpgEmul_[2]&0xff) ;
+     
+     rawTPEmulttFlag1[towerNb] = (itTT->second).tpgEmulFlag_[0] ;
+     rawTPEmulttFlag2[towerNb] = (itTT->second).tpgEmulFlag_[1] ;
+     rawTPEmulttFlag3[towerNb] = (itTT->second).tpgEmulFlag_[2] ;
+     rawTPEmulttFlag4[towerNb] = (itTT->second).tpgEmulFlag_[3] ;
+     rawTPEmulttFlag5[towerNb] = (itTT->second).tpgEmulFlag_[4] ;
+     rawTPEmulsFGVB1[towerNb] = (itTT->second).tpgEmulsFGVB_[0] ;
+     rawTPEmulsFGVB2[towerNb] = (itTT->second).tpgEmulsFGVB_[1] ;
+     rawTPEmulsFGVB3[towerNb] = (itTT->second).tpgEmulsFGVB_[2] ;
+     rawTPEmulsFGVB4[towerNb] = (itTT->second).tpgEmulsFGVB_[3] ;
+     rawTPEmulsFGVB5[towerNb] = (itTT->second).tpgEmulsFGVB_[4] ;
+     crystNb[towerNb] = (itTT->second).crystNb_ ;
+     eRec[towerNb] = (itTT->second).eRec_ ;
+     sevlv[towerNb] = (itTT->second).sevlv_ ;
+     ttFlag[towerNb] = (itTT->second).ttFlag_ ;
+     spike[towerNb] = (itTT->second).spike_ ;
+     twrADC[towerNb] =  (itTT->second).twrADC;
+     sFGVB[towerNb] =  (itTT->second).sFGVB;
+    
+     TCCid[towerNb] = (itTT->second).TCCid_;
+     TowerInTCC[towerNb] = (itTT->second).TowerInTCC_;
+     unsigned int maxEmul = 0 ;
+     for (int i=0 ; i<5 ; i++) if (((itTT->second).tpgEmul_[i]&0xff) > maxEmul) maxEmul = ((itTT->second).tpgEmul_[i]&0xff) ;
+     //for the emulated TP with max ADC of the 5
+     twrEmulMaxADC[towerNb] = maxEmul;
+     towerNb++ ;
+     
+     
    }
 
    nbOfTowers = towerNb ;
@@ -1094,11 +1074,12 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 void
 ETTAnalyzer::beginJob()
 {
-  
+  myevt = 0;
 }
 
 void ETTAnalyzer::beginRun(const edm::Run& r, const edm::EventSetup& c) {
-
+  myevt = 0;
+  
   
 }
 

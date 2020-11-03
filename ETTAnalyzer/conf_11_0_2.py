@@ -122,7 +122,7 @@ process.tuplizer = cms.EDAnalyzer('ETTAnalyzer',
 
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('Histo_L1Prefiring_TIME.root')
+                                   fileName = cms.string('ecal_l1t_team_tuples.root')
                                    #fileName = cms.string('Histo_L1Prefiring_0ns_FixLabel.root')
                                   )
 

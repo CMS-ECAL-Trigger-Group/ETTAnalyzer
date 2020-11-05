@@ -81,7 +81,7 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
 
 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.source = cms.Source("PoolSource",
                             # replace 'myfile.root' with the source file you want to use
@@ -109,9 +109,14 @@ process.tuplizer = cms.EDAnalyzer('ETTAnalyzer',
                                   ## for mc 
                                   #stage2CaloLayer2EGammaProducer = cms.InputTag("hltGtStage2Digis","EGamma"),
                                   
-                                  ## for data
-                                  EBdigis      = cms.InputTag("selectDigi","selectedEcalEBDigiCollection"),
-                                  EEdigis      = cms.InputTag("selectDigi","selectedEcalEEDigiCollection"),
+                                  ## for data on Raw
+                                  
+                                  EBdigis      = cms.InputTag("ecalDigis","ebDigis"),
+                                  EEdigis      = cms.InputTag("ecalDigis","eeDigis"),
+                                  
+                                  ## for data on DIGIS : make sure why is this diff, w.r.t. RAW
+                                  #EBdigis      = cms.InputTag("selectDigi","selectedEcalEBDigiCollection"),
+                                  #EEdigis      = cms.InputTag("selectDigi","selectedEcalEEDigiCollection"),
                                   
                                   ## for mc
                                   #EBdigis      = cms.InputTag("simEcalDigis","ebDigis"),

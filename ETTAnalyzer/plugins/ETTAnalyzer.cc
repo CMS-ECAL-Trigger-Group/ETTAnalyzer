@@ -1,3 +1,13 @@
+/* To do: 
+For the extra variables, I think the rechit severity level is an important one.  Here you need to add some extra commands to the python to run the rechit producer, and add an extra part to the analyser to find  the rechits corresponding to each tower and check the rechit severity level
+
+
+The other thing we will probably need is a way of extracting the digis for specific towers. In TPGAnalysis, this takes the form of a separate tree with one entry per channel. Maybe we can come up with a better and more compact structure, i.e. for each tower we have an array with a set of 25x10 numbers  (25 crystals and 10 samples per crystal). The issue here might be that the ntuple will become large. Perhaps it could be a configurable option, or something that just dumps a text file of the digis, since we might only want to do it for a few selected events
+
+Add verbosity and debug statement in this piece of code to understand the steps and whats going on.. 
+https://cmssdt.cern.ch/lxr/source/SimCalorimetry/EcalTrigPrimAlgos/src/
+*/
+
 // -*- C++ -*-v_
 //
 // Package:    ECALDoubleWeights/ETTAnalyzer
@@ -119,6 +129,8 @@ private:
 
   //virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
   
+  edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
+
   edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtProducer_; // input tag for L1 uGT DAQ readout record
   edm::EDGetTokenT<l1t::EGammaBxCollection> stage2CaloLayer2EGammaToken_;
   
@@ -898,34 +910,32 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    map<EcalTrigTowerDetId, towerEner>::iterator itTT ;
    map<EcalTrigTowerDetId, towerEner> mapTower ;
 
-   // pulseshape
-   // EEDigiCollection                      "selectDigi"                "selectedEcalEEDigiCollection"   "RECO"
-   // EBDigiCollection                      "selectDigi"                "selectedEcalEBDigiCollection"   "RECO"
    
-
-   // begin of mc 
-   bool ismc = false; 
-   if (ismc){
-   
-   std::vector<int> Rechit_adc;
-   Rechit_adc.clear();
    edm::Handle<EEDigiCollection>  EEdigis;
-   if(true)     {
-     e.getByToken(EEdigistoken_,EEdigis);
-     if(not e.getByToken(EEdigistoken_,EEdigis)){
-       std::cout<<"FATAL EXCEPTION: "<<"Following Not Found: "<<"simEcalUnsuppressedDigis:APD"<<std::endl;
-       exit(0);
-     }
+   e.getByToken(EEdigistoken_,EEdigis);
+   if(not e.getByToken(EEdigistoken_,EEdigis)){
+     std::cout<<"FATAL EXCEPTION: "<<"Following Not Found: EEdigistoken_ "<<std::endl;
+     exit(0);
    }
 
    int j=0;
    int countNadc=0;
+   c.get<IdealGeometryRecord>().get(eTTmap_);
+
+   
    for ( EEDigiCollection::const_iterator hitItr = EEdigis->begin(); hitItr != EEdigis->end(); ++hitItr ) {
      EEDataFrame df(*hitItr);
+     const EEDetId & id = df.id();
+     const EcalTrigTowerDetId towid = (*eTTmap_).towerOf(id);
+     
+     
+
+     std::cout<<" df id = "<<df.id()
+       	      <<" tower id: "<<towid.ieta() 
+	      <<std::endl;
      
      for(int i=0; i<10;++i){
        std::cout<<" ADC count for EEDataFrame number = "<<j << "  sample number "<<i<<"  "<<df.sample(i).adc()<<std::endl;
-       //Rechit_adc.push_back(df.sample(i).adc());
        index_df[countNadc] = j;
        index_ts[countNadc] = i;
        count_ADC[countNadc] = df.sample(i).adc();
@@ -940,7 +950,6 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    nADC       = countNadc;
    
    
-   }// end of mc
    /*
        uint ndataframe;
   uint nADC;
@@ -948,7 +957,7 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   uint index_ts[4032];
   int count_ADC[4032];
    */
-   
+
    // pulseshape setup ends here 
 
 

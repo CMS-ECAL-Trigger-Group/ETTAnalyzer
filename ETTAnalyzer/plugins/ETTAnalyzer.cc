@@ -745,7 +745,7 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    for (int itBX = std::max(EGammaBxCollection->getFirstBX(), EGammaBxCollection->getFirstBX() + bxShiftFirst); itBX <= std::min(EGammaBxCollection->getLastBX(), EGammaBxCollection->getLastBX() + bxShiftFirst); ++itBX) {
      std::cout<<"inside itBx" <<std::endl;
      
-     int index = itBX - bxShiftFirst - uGtAlgs->getFirstBX();
+     //int index = itBX - bxShiftFirst - uGtAlgs->getFirstBX();
      for (l1t::EGammaBxCollection::const_iterator egamma = EGammaBxCollection->begin(itBX); egamma != EGammaBxCollection->end(itBX); ++egamma) {
        std::cout<<"inside egamma" <<std::endl;
        

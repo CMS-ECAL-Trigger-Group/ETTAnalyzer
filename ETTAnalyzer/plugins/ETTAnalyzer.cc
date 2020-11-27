@@ -1,6 +1,8 @@
 /* To do: 
-For the extra variables, I think the rechit severity level is an important one.  Here you need to add some extra commands to the python to run the rechit producer, and add an extra part to the analyser to find  the rechits corresponding to each tower and check the rechit severity level
 
+
+For the extra variables, I think the rechit severity level is an important one.  Here you need to add some extra commands to the python to run the rechit producer, and add an extra part to the analyser to find  the rechits corresponding to each tower and check the rechit severity level
+https://gitlab.cern.ch/ECALPFG/EcalTPGAnalysis/-/blob/tpganalysis2018/TriggerAnalysis/plugins/EcalTPGAnalyzer.cc#L935
 
 The other thing we will probably need is a way of extracting the digis for specific towers. In TPGAnalysis, this takes the form of a separate tree with one entry per channel. Maybe we can come up with a better and more compact structure, i.e. for each tower we have an array with a set of 25x10 numbers  (25 crystals and 10 samples per crystal). The issue here might be that the ntuple will become large. Perhaps it could be a configurable option, or something that just dumps a text file of the digis, since we might only want to do it for a few selected events
 
@@ -185,9 +187,14 @@ private:
   // variables for pulse shape
   uint ndataframe;
   uint nADC;
-  int index_df[14032];
-  int index_ts[14032];
-  int count_ADC[14032];
+  int index_df[8064];
+  int index_ts[8064];
+  int count_ADC[8064];
+  int gain_id[8064];
+  int tower_eta[8064];
+  int tower_phi[8064];
+  int xtal_ix[8064];
+  int xtal_iy[8064];
   
   
   
@@ -367,7 +374,13 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   prefiringTree->Branch("b_index_df", index_df,"b_index_df[b_nADC]/I");
   prefiringTree->Branch("b_index_ts", index_ts,"b_index_ts[b_nADC]/I");
   prefiringTree->Branch("b_count_ADC", count_ADC,"b_count_ADC[b_nADC]/I");
-  
+  prefiringTree->Branch("b_gain_id", gain_id,"b_gain_id[b_nADC]/I");
+
+  prefiringTree->Branch("b_tower_eta",tower_eta ,"b_tower_eta[b_nADC]/I");
+  prefiringTree->Branch("b_tower_phi",tower_phi ,"b_tower_phi[b_nADC]/I");
+  prefiringTree->Branch("b_xtal_ix", xtal_ix,"b_xtal_ix[b_nADC]/I");
+  prefiringTree->Branch("b_xtal_iy", xtal_iy,"b_xtal_iy[b_nADC]/I");
+
   
   prefiringTree->Branch ("b_nbOfTowers",&nbOfTowers, "b_nbOfTowers/i");
   prefiringTree->Branch("b_ieta", ieta ,"b_ieta[b_nbOfTowers]/I");
@@ -503,11 +516,15 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    
    
    for (int i=0; i<4032;i++){
+     count_ADC[i] = -999;
+     gain_id[i] = -999;
      index_df[i] = -999;
      index_ts[i] = -999;
-     count_ADC[i] = -999;
+     tower_eta[i] = -999;
+     tower_phi[i] = -999;
+     xtal_ix[i] = -999;
+     xtal_iy[i] = -999;
    }
-
    for (int i=0; i<10; i++){
      L1preIsoIetam2[i] = -999;
      L1preIsoIetam1[i] = -999;
@@ -928,19 +945,32 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
      const EEDetId & id = df.id();
      const EcalTrigTowerDetId towid = (*eTTmap_).towerOf(id);
      
+     // testing 
+     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(df.id());
+     uint32_t stripid = elId.rawId() & 0xfffffff8;  // from Pascal
+     std::cout<<" strip id : "<<stripid<<std::endl;
+
      
 
-     std::cout<<" df id = "<<df.id()
-       	      <<" tower id: "<<towid.ieta() 
-	      <<std::endl;
+
      
      for(int i=0; i<10;++i){
-       std::cout<<" ADC count for EEDataFrame number = "<<j << "  sample number "<<i<<"  "<<df.sample(i).adc()<<std::endl;
-       index_df[countNadc] = j;
-       index_ts[countNadc] = i;
-       count_ADC[countNadc] = df.sample(i).adc();
-       countNadc++;
+     std::cout<<" tower (eta, phi): ("<<towid.ieta() << ", "<<towid.iphi()<<")"
+	      <<" xtal (ix, iy): ("<<id.ix() <<", "<<id.iy()<<")"
+	      <<" ADC for EEDataFrame: "<<j << "  sample number "<<i<<"  "<<df.sample(i).adc()<<std::endl;
+     
+     tower_eta[countNadc] = towid.ieta();
+     tower_phi[countNadc] = towid.iphi();
+     xtal_ix[countNadc] = id.ix();
+     xtal_iy[countNadc] = id.iy();
+     
+     index_df[countNadc] = j;
+     index_ts[countNadc] = i;
+     count_ADC[countNadc] = df.sample(i).adc();
+     gain_id[countNadc]    = df.sample(i).gainId();
        
+     countNadc++;
+     
      }
      j++;
      
@@ -950,14 +980,6 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    nADC       = countNadc;
    
    
-   /*
-       uint ndataframe;
-  uint nADC;
-  uint index_df[4032];
-  uint index_ts[4032];
-  int count_ADC[4032];
-   */
-
    // pulseshape setup ends here 
 
 

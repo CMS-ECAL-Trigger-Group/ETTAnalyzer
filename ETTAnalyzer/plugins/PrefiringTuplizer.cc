@@ -304,21 +304,22 @@ private:
 //
 // constructors and destructor
 //
+
 PrefiringTuplizer::PrefiringTuplizer(const edm::ParameterSet& ps)
   :
   l1tStage2uGtProducer_(consumes<GlobalAlgBlkBxCollection>(ps.getParameter<edm::InputTag>("ugtProducer"))),
-  gtUtil_(new l1t::L1TGlobalUtil(ps, consumesCollector(), *this, ps.getParameter<edm::InputTag>("ugtProducer"), ps.getParameter<edm::InputTag>("ugtProducer"))),
-  algoNameFirstBxInTrain_(ps.getUntrackedParameter<std::string>("firstBXInTrainAlgo","")),
-  algoNameLastBxInTrain_(ps.getUntrackedParameter<std::string>("lastBXInTrainAlgo","")),
-  algoNameIsoBx_(ps.getUntrackedParameter<std::string>("isoBXAlgo","")),
-  algoBitFirstBxInTrain_(-1),
-  algoBitLastBxInTrain_(-1),
-  algoBitIsoBx_(-1),
   stage2CaloLayer2EGammaToken_(consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2EGammaProducer"))),
   tpEmulatorCollection_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("TPEmulatorCollection"))),
   tpCollection_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("TPCollection"))),
   EBdigistoken_(consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBdigis") )  ),
-  EEdigistoken_(consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigis") )  )
+  EEdigistoken_(consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigis") )  ),    
+  gtUtil_(new l1t::L1TGlobalUtil(ps, consumesCollector(), *this, ps.getParameter<edm::InputTag>("ugtProducer"), ps.getParameter<edm::InputTag>("ugtProducer"))),
+  algoBitFirstBxInTrain_(-1),
+  algoBitLastBxInTrain_(-1),  
+  algoBitIsoBx_(-1),
+  algoNameFirstBxInTrain_(ps.getUntrackedParameter<std::string>("firstBXInTrainAlgo","")),
+  algoNameLastBxInTrain_(ps.getUntrackedParameter<std::string>("lastBXInTrainAlgo","")),
+  algoNameIsoBx_(ps.getUntrackedParameter<std::string>("isoBXAlgo",""))
 
 
 {
@@ -727,7 +728,7 @@ PrefiringTuplizer::analyze(const edm::Event& e, const edm::EventSetup& c)
    for (int itBX = std::max(EGammaBxCollection->getFirstBX(), EGammaBxCollection->getFirstBX() + bxShiftFirst); itBX <= std::min(EGammaBxCollection->getLastBX(), EGammaBxCollection->getLastBX() + bxShiftFirst); ++itBX) {
      std::cout<<"inside itBx" <<std::endl;
      
-     int index = itBX - bxShiftFirst - uGtAlgs->getFirstBX();
+    //  int index = itBX - bxShiftFirst - uGtAlgs->getFirstBX();
      for (l1t::EGammaBxCollection::const_iterator egamma = EGammaBxCollection->begin(itBX); egamma != EGammaBxCollection->end(itBX); ++egamma) {
        std::cout<<"inside egamma" <<std::endl;
        

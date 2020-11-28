@@ -33,4 +33,9 @@ python readlog.py ## a few exmaples given already.
 
 ```
 
+## Examples
 
+Example commands to run:
+
+	cmsRun conf_11_0_2.py 
+	cmsRun conf_11_0_2.py debug=1 ##-- For extra debug statements 

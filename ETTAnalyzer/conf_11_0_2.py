@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-
-
+import FWCore.ParameterSet.VarParsing as VarParsing
 from Configuration.StandardSequences.Eras import eras
 process = cms.Process("ECALDoubleWeightsETTAnalyzer",eras.Run2_2017)
-#process = cms.Process("L1PrefiringAnalyzerTPGANALYSIS")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -19,8 +17,16 @@ process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 
 process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 
+##-- Options that can be set on the command line 
+options = VarParsing.VarParsing('analysis')
 
-
+# Add debug statements in EcalTrigPrimProducer
+options.register ('debug',
+                False, # default value
+                VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                VarParsing.VarParsing.varType.bool,          # string, int, or float
+                "debug")
+options.parseArguments()
 
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string("EcalTPGLinearizationConstRcd"),
@@ -67,7 +73,7 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    BarrelOnly = cms.bool(False),
    Famos = cms.bool(False),
    TcpOutput = cms.bool(False),
-                                                   Debug = cms.bool(False),
+                                                   Debug = cms.bool(options.debug),
    binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
 
 )

@@ -75,6 +75,7 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    TcpOutput = cms.bool(False),
                                                    Debug = cms.bool(options.debug),
    binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
+   oddWeightsTxtFile = cms.string("RandomEvenWeights.txt")
 
 )
 

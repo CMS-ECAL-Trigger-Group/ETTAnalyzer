@@ -1,9 +1,21 @@
+/* To do: 
+
+
+For the extra variables, I think the rechit severity level is an important one.  Here you need to add some extra commands to the python to run the rechit producer, and add an extra part to the analyser to find  the rechits corresponding to each tower and check the rechit severity level
+https://gitlab.cern.ch/ECALPFG/EcalTPGAnalysis/-/blob/tpganalysis2018/TriggerAnalysis/plugins/EcalTPGAnalyzer.cc#L935
+
+The other thing we will probably need is a way of extracting the digis for specific towers. In TPGAnalysis, this takes the form of a separate tree with one entry per channel. Maybe we can come up with a better and more compact structure, i.e. for each tower we have an array with a set of 25x10 numbers  (25 crystals and 10 samples per crystal). The issue here might be that the ntuple will become large. Perhaps it could be a configurable option, or something that just dumps a text file of the digis, since we might only want to do it for a few selected events
+
+Add verbosity and debug statement in this piece of code to understand the steps and whats going on.. 
+https://cmssdt.cern.ch/lxr/source/SimCalorimetry/EcalTrigPrimAlgos/src/
+*/
+
 // -*- C++ -*-v_
 //
-// Package:    L1Prefiring/PrefiringTuplizer
-// Class:      PrefiringTuplizer
+// Package:    ECALDoubleWeights/ETTAnalyzer
+// Class:      ETTAnalyzer
 //
-/**\class PrefiringTuplizer PrefiringTuplizer.cc L1Prefiring/PrefiringTuplizer/plugins/PrefiringTuplizer.cc
+/**\class ETTAnalyzer ETTAnalyzer.cc ECALDoubleWeights/ETTAnalyzer/plugins/ETTAnalyzer.cc
 
  Description: [one line class summary]
 
@@ -12,15 +24,10 @@
 */
 //
 // Original Author:  Raman Khurana
-//         Created:  Wed, 24 Apr 2019 08:53:01 GMT
+//         Created:  Wed, 1 November 2020 08:53:01 GMT
 //
 //
 
-
-// This has skimmed information about TPs needed for prefiring study and also the L1 Trigger DQM plots in order to validate the code. 
-// L1T code works fine. 
-// TPs work fine. 
-// 
 
 
 // system include files
@@ -103,24 +110,15 @@ public:
   }
 };
 
-//
-// class declaration
-//
-
-// If the analyzer does not use TFileService, please remove
-// the template argument to the base class so the class inherits
-// from  edm::one::EDAnalyzer<>
-// This will improve performance in multithreaded jobs.
 
 
-
-class PrefiringTuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class ETTAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 
 
 public:
-  explicit PrefiringTuplizer(const edm::ParameterSet&);
+  explicit ETTAnalyzer(const edm::ParameterSet&);
   
-  ~PrefiringTuplizer();
+  ~ETTAnalyzer();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
@@ -133,6 +131,8 @@ private:
 
   //virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
   
+  edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
+
   edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtProducer_; // input tag for L1 uGT DAQ readout record
   edm::EDGetTokenT<l1t::EGammaBxCollection> stage2CaloLayer2EGammaToken_;
   
@@ -166,7 +166,8 @@ private:
 
   unsigned int useAlgoDecision_;
   edm::Service<TFileService> fs;
-
+  int myevt;
+  const EcalElectronicsMapping* theMapping_;
   // variables for branches 
   uint runNb ;
   ULong64_t evtNb ;
@@ -186,9 +187,14 @@ private:
   // variables for pulse shape
   uint ndataframe;
   uint nADC;
-  int index_df[14032];
-  int index_ts[14032];
-  int count_ADC[14032];
+  int index_df[8064];
+  int index_ts[8064];
+  int count_ADC[8064];
+  int gain_id[8064];
+  int tower_eta[8064];
+  int tower_phi[8064];
+  int xtal_ix[8064];
+  int xtal_iy[8064];
   
   
   
@@ -218,7 +224,11 @@ private:
   int spike[4032] ;
   int twrADC[4032];
   int sFGVB[4032];
-
+  // Suggested by David 
+  int twrEmulMaxADC[4032];
+  int twrEmul3ADC[4032];
+  
+  
   int ttFlag[4032];
   int TCCid[4032];
   int TowerInTCC[4032] ;
@@ -305,8 +315,9 @@ private:
 // constructors and destructor
 //
 
-PrefiringTuplizer::PrefiringTuplizer(const edm::ParameterSet& ps)
+ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   :
+
   l1tStage2uGtProducer_(consumes<GlobalAlgBlkBxCollection>(ps.getParameter<edm::InputTag>("ugtProducer"))),
   stage2CaloLayer2EGammaToken_(consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2EGammaProducer"))),
   tpEmulatorCollection_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("TPEmulatorCollection"))),
@@ -320,13 +331,19 @@ PrefiringTuplizer::PrefiringTuplizer(const edm::ParameterSet& ps)
   algoNameFirstBxInTrain_(ps.getUntrackedParameter<std::string>("firstBXInTrainAlgo","")),
   algoNameLastBxInTrain_(ps.getUntrackedParameter<std::string>("lastBXInTrainAlgo","")),
   algoNameIsoBx_(ps.getUntrackedParameter<std::string>("isoBXAlgo",""))
-
+  
+  /*
+  l1tStage2uGtProducer_(consumes<GlobalAlgBlkBxCollection>(ps.getParameter<edm::InputTag>("ugtProducer"))),
+  stage2CaloLayer2EGammaToken_(consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2EGammaProducer"))),
+  tpEmulatorCollection_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("TPEmulatorCollection"))),
+  tpCollection_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("TPCollection"))),
+  EBdigistoken_(consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBdigis") )  ),
+  EEdigistoken_(consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigis") )  )
+  */
 
 {
   
-
-      
-
+  
   useAlgoDecision_ = 0;
   /*
   if (ps.getUntrackedParameter<std::string>("useAlgoDecision").find("final") == 0) {
@@ -351,25 +368,6 @@ PrefiringTuplizer::PrefiringTuplizer(const edm::ParameterSet& ps)
   ibx_vs_ieta_NonIso = fs->make<TH2F>("ibx_vs_ieta_NonIso","ibx_vs_ieta_NonIso", 5, -2.5, 2.5, 70, -70, 70);
 
 
-
-    
-  /*
-    C : a character string terminated by the 0 character
-B : an 8 bit signed integer (Char_t)
-b : an 8 bit unsigned integer (UChar_t)
-S : a 16 bit signed integer (Short_t)
-s : a 16 bit unsigned integer (UShort_t)
-I : a 32 bit signed integer (Int_t)
-i : a 32 bit unsigned integer (UInt_t)
-F : a 32 bit floating point (Float_t)
-f : a 24 bit floating point with truncated mantissa (Float16_t)
-D : a 64 bit floating point (Double_t)
-d : a 24 bit truncated floating point (Double32_t)
-L : a 64 bit signed integer (Long64_t)
-l : a 64 bit unsigned integer (ULong64_t)
-O : [the letter o, not a zero] a boolean (Bool_t)
-  */
-  
   prefiringTree->Branch("b_runNb", &runNb ,"b_runNb/i");
   prefiringTree->Branch("b_evtNb", &evtNb ,"b_evtNb/L");
   prefiringTree->Branch("b_bxNb", &bxNb ,"b_bxNb/i");
@@ -386,7 +384,13 @@ O : [the letter o, not a zero] a boolean (Bool_t)
   prefiringTree->Branch("b_index_df", index_df,"b_index_df[b_nADC]/I");
   prefiringTree->Branch("b_index_ts", index_ts,"b_index_ts[b_nADC]/I");
   prefiringTree->Branch("b_count_ADC", count_ADC,"b_count_ADC[b_nADC]/I");
-  
+  prefiringTree->Branch("b_gain_id", gain_id,"b_gain_id[b_nADC]/I");
+
+  prefiringTree->Branch("b_tower_eta",tower_eta ,"b_tower_eta[b_nADC]/I");
+  prefiringTree->Branch("b_tower_phi",tower_phi ,"b_tower_phi[b_nADC]/I");
+  prefiringTree->Branch("b_xtal_ix", xtal_ix,"b_xtal_ix[b_nADC]/I");
+  prefiringTree->Branch("b_xtal_iy", xtal_iy,"b_xtal_iy[b_nADC]/I");
+
   
   prefiringTree->Branch ("b_nbOfTowers",&nbOfTowers, "b_nbOfTowers/i");
   prefiringTree->Branch("b_ieta", ieta ,"b_ieta[b_nbOfTowers]/I");
@@ -418,6 +422,9 @@ O : [the letter o, not a zero] a boolean (Bool_t)
   prefiringTree->Branch("b_TCCid", TCCid ,"b_TCCid[b_nbOfTowers]/I");
   prefiringTree->Branch("b_TowerInTCC", TowerInTCC ,"b_TowerInTCC[b_nbOfTowers]/I");
   prefiringTree->Branch("b_strip", strip ,"b_strip[b_nbOfTowers]/I");
+  
+  prefiringTree->Branch("b_twrEmulMaxADC", twrEmulMaxADC ,"b_twrEmulMaxADC[b_nbOfTowers]/I");
+  prefiringTree->Branch("b_twrEmul3ADC", twrEmul3ADC ,"b_twrEmul3ADC[b_nbOfTowers]/I");
   
   
   //counters 
@@ -492,7 +499,7 @@ O : [the letter o, not a zero] a boolean (Bool_t)
 }
 
 
-PrefiringTuplizer::~PrefiringTuplizer()
+ETTAnalyzer::~ETTAnalyzer()
 {
 
    // do anything here that needs to be done at desctruction time
@@ -507,24 +514,27 @@ PrefiringTuplizer::~PrefiringTuplizer()
 
 // ------------ method called for each event  ------------
 void
-PrefiringTuplizer::analyze(const edm::Event& e, const edm::EventSetup& c)
+ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 {
    using namespace edm;
+   myevt++;
+
+   ESHandle< EcalElectronicsMapping > ecalmapping;
+   c.get< EcalMappingRcd >().get(ecalmapping);
+   theMapping_ = ecalmapping.product();
    
-   std::cout<<" checking eta values -2.45, -2.7, -3.0, -1.44"
-	    <<" " << abs( -2.45)
-	    <<" " << abs( -2.7 )
-	    <<" " << abs(-3.0 )
-	    <<" " << abs(-1.44 )
-	    <<std::endl;
    
    
    for (int i=0; i<4032;i++){
+     count_ADC[i] = -999;
+     gain_id[i] = -999;
      index_df[i] = -999;
      index_ts[i] = -999;
-     count_ADC[i] = -999;
+     tower_eta[i] = -999;
+     tower_phi[i] = -999;
+     xtal_ix[i] = -999;
+     xtal_iy[i] = -999;
    }
-
    for (int i=0; i<10; i++){
      L1preIsoIetam2[i] = -999;
      L1preIsoIetam1[i] = -999;
@@ -587,6 +597,7 @@ PrefiringTuplizer::analyze(const edm::Event& e, const edm::EventSetup& c)
    v_isocounterzero   = 0 ;
    v_isocounterp1     = 0 ;
    v_isocounterp2     = 0 ;
+
 
    
    
@@ -728,7 +739,8 @@ PrefiringTuplizer::analyze(const edm::Event& e, const edm::EventSetup& c)
    for (int itBX = std::max(EGammaBxCollection->getFirstBX(), EGammaBxCollection->getFirstBX() + bxShiftFirst); itBX <= std::min(EGammaBxCollection->getLastBX(), EGammaBxCollection->getLastBX() + bxShiftFirst); ++itBX) {
      std::cout<<"inside itBx" <<std::endl;
      
-    //  int index = itBX - bxShiftFirst - uGtAlgs->getFirstBX();
+
+     //int index = itBX - bxShiftFirst - uGtAlgs->getFirstBX();
      for (l1t::EGammaBxCollection::const_iterator egamma = EGammaBxCollection->begin(itBX); egamma != EGammaBxCollection->end(itBX); ++egamma) {
        std::cout<<"inside egamma" <<std::endl;
        
@@ -926,39 +938,50 @@ PrefiringTuplizer::analyze(const edm::Event& e, const edm::EventSetup& c)
    map<EcalTrigTowerDetId, towerEner>::iterator itTT ;
    map<EcalTrigTowerDetId, towerEner> mapTower ;
 
-   // pulseshape
-   // EEDigiCollection                      "selectDigi"                "selectedEcalEEDigiCollection"   "RECO"
-   // EBDigiCollection                      "selectDigi"                "selectedEcalEBDigiCollection"   "RECO"
    
-
-   // begin of mc 
-   bool ismc = false; 
-   if (ismc){
-   
-   std::vector<int> Rechit_adc;
-   Rechit_adc.clear();
    edm::Handle<EEDigiCollection>  EEdigis;
-   if(true)     {
-     e.getByToken(EEdigistoken_,EEdigis);
-     if(not e.getByToken(EEdigistoken_,EEdigis)){
-       std::cout<<"FATAL EXCEPTION: "<<"Following Not Found: "<<"simEcalUnsuppressedDigis:APD"<<std::endl;
-       exit(0);
-     }
+   e.getByToken(EEdigistoken_,EEdigis);
+   if(not e.getByToken(EEdigistoken_,EEdigis)){
+     std::cout<<"FATAL EXCEPTION: "<<"Following Not Found: EEdigistoken_ "<<std::endl;
+     exit(0);
    }
 
    int j=0;
    int countNadc=0;
+   c.get<IdealGeometryRecord>().get(eTTmap_);
+
+   
    for ( EEDigiCollection::const_iterator hitItr = EEdigis->begin(); hitItr != EEdigis->end(); ++hitItr ) {
      EEDataFrame df(*hitItr);
+     const EEDetId & id = df.id();
+     const EcalTrigTowerDetId towid = (*eTTmap_).towerOf(id);
+     
+     // testing 
+     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(df.id());
+     uint32_t stripid = elId.rawId() & 0xfffffff8;  // from Pascal
+     std::cout<<" strip id : "<<stripid<<std::endl;
+
+     
+
+
      
      for(int i=0; i<10;++i){
-       std::cout<<" ADC count for EEDataFrame number = "<<j << "  sample number "<<i<<"  "<<df.sample(i).adc()<<std::endl;
-       //Rechit_adc.push_back(df.sample(i).adc());
-       index_df[countNadc] = j;
-       index_ts[countNadc] = i;
-       count_ADC[countNadc] = df.sample(i).adc();
-       countNadc++;
+     std::cout<<" tower (eta, phi): ("<<towid.ieta() << ", "<<towid.iphi()<<")"
+	      <<" xtal (ix, iy): ("<<id.ix() <<", "<<id.iy()<<")"
+	      <<" ADC for EEDataFrame: "<<j << "  sample number "<<i<<"  "<<df.sample(i).adc()<<std::endl;
+     
+     tower_eta[countNadc] = towid.ieta();
+     tower_phi[countNadc] = towid.iphi();
+     xtal_ix[countNadc] = id.ix();
+     xtal_iy[countNadc] = id.iy();
+     
+     index_df[countNadc] = j;
+     index_ts[countNadc] = i;
+     count_ADC[countNadc] = df.sample(i).adc();
+     gain_id[countNadc]    = df.sample(i).gainId();
        
+     countNadc++;
+     
      }
      j++;
      
@@ -968,15 +991,6 @@ PrefiringTuplizer::analyze(const edm::Event& e, const edm::EventSetup& c)
    nADC       = countNadc;
    
    
-   }// end of mc
-   /*
-       uint ndataframe;
-  uint nADC;
-  uint index_df[4032];
-  uint index_ts[4032];
-  int count_ADC[4032];
-   */
-   
    // pulseshape setup ends here 
 
 
@@ -984,9 +998,12 @@ PrefiringTuplizer::analyze(const edm::Event& e, const edm::EventSetup& c)
      EcalTriggerPrimitiveDigi d = (*(tp.product()))[i];
      const EcalTrigTowerDetId TPtowid= d.id();
      towerEner tE ;
-     //tE.TCCid_= theMapping_->TCCid(TPtowid);                                                                                                                                                           
-     //tE.TowerInTCC_ = theMapping_->iTT(TPtowid);                                                                                                                                                       
-     //      const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;                                                                                                            
+     
+     // suggested by David 
+     // follow from https://github.com/cms-ecal-L1TriggerTeam/CMS-ECAL_TPGAnalysis/blob/master/TriggerAnalysis/plugins/EcalTPGAnalyzer.cc#L845
+     tE.TCCid_= theMapping_->TCCid(TPtowid);                                                                                                                                                           
+     tE.TowerInTCC_ = theMapping_->iTT(TPtowid);                                                                                                                                                       
+     //const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;                                                                                                            
      //tE.strip_ = 0;//elId.pseudoStripId() ;                                                                                                                                                            
      
      tE.iphi_ = TPtowid.iphi() ;
@@ -1036,43 +1053,47 @@ PrefiringTuplizer::analyze(const edm::Event& e, const edm::EventSetup& c)
        if (false) std::cout<<std::endl ;
      }
 
-     // fill everything in the ttree
-     //      fill=true;                                                                                                                                                                                  
-     if (fill) {
-       ieta[towerNb] = (itTT->second).ieta_ ;
-       iphi[towerNb] = (itTT->second).iphi_ ;
-       nbOfXtals[towerNb] = (itTT->second).nbXtal_ ;
-       rawTPData[towerNb] = (itTT->second).tpgADC_ ;
-       rawTPEmul1[towerNb] = (itTT->second).tpgEmul_[0] ;
-       rawTPEmul2[towerNb] = (itTT->second).tpgEmul_[1] ;
-       rawTPEmul3[towerNb] = (itTT->second).tpgEmul_[2] ;
-       rawTPEmul4[towerNb] = (itTT->second).tpgEmul_[3] ;
-       rawTPEmul5[towerNb] = (itTT->second).tpgEmul_[4] ;
-       rawTPEmulttFlag1[towerNb] = (itTT->second).tpgEmulFlag_[0] ;
-       rawTPEmulttFlag2[towerNb] = (itTT->second).tpgEmulFlag_[1] ;
-       rawTPEmulttFlag3[towerNb] = (itTT->second).tpgEmulFlag_[2] ;
-       rawTPEmulttFlag4[towerNb] = (itTT->second).tpgEmulFlag_[3] ;
-       rawTPEmulttFlag5[towerNb] = (itTT->second).tpgEmulFlag_[4] ;
-       rawTPEmulsFGVB1[towerNb] = (itTT->second).tpgEmulsFGVB_[0] ;
-       rawTPEmulsFGVB2[towerNb] = (itTT->second).tpgEmulsFGVB_[1] ;
-       rawTPEmulsFGVB3[towerNb] = (itTT->second).tpgEmulsFGVB_[2] ;
-       rawTPEmulsFGVB4[towerNb] = (itTT->second).tpgEmulsFGVB_[3] ;
-       rawTPEmulsFGVB5[towerNb] = (itTT->second).tpgEmulsFGVB_[4] ;
-       crystNb[towerNb] = (itTT->second).crystNb_ ;
-       eRec[towerNb] = (itTT->second).eRec_ ;
-       sevlv[towerNb] = (itTT->second).sevlv_ ;
-       ttFlag[towerNb] = (itTT->second).ttFlag_ ;
-       spike[towerNb] = (itTT->second).spike_ ;
-       twrADC[towerNb] =  (itTT->second).twrADC;
-       sFGVB[towerNb] =  (itTT->second).sFGVB;
-
-       if (abs(ieta[towerNb])>17) {
-	 unsigned int maxEmul = 0 ;
-	 for (int i=0 ; i<5 ; i++) if (((itTT->second).tpgEmul_[i]&0xff) > maxEmul) maxEmul = ((itTT->second).tpgEmul_[i]&0xff) ;
-       }
-       towerNb++ ;
-     }
-
+     
+     ieta[towerNb] = (itTT->second).ieta_ ;
+     iphi[towerNb] = (itTT->second).iphi_ ;
+     nbOfXtals[towerNb] = (itTT->second).nbXtal_ ;
+     rawTPData[towerNb] = (itTT->second).tpgADC_ ;
+     rawTPEmul1[towerNb] = (itTT->second).tpgEmul_[0] ;
+     rawTPEmul2[towerNb] = (itTT->second).tpgEmul_[1] ;
+     rawTPEmul3[towerNb] = (itTT->second).tpgEmul_[2] ;
+     rawTPEmul4[towerNb] = (itTT->second).tpgEmul_[3] ;
+     rawTPEmul5[towerNb] = (itTT->second).tpgEmul_[4] ;
+     
+     // Et values for emulated TP with index 2
+     twrEmul3ADC[towerNb] = ((itTT->second).tpgEmul_[2]&0xff) ;
+     
+     rawTPEmulttFlag1[towerNb] = (itTT->second).tpgEmulFlag_[0] ;
+     rawTPEmulttFlag2[towerNb] = (itTT->second).tpgEmulFlag_[1] ;
+     rawTPEmulttFlag3[towerNb] = (itTT->second).tpgEmulFlag_[2] ;
+     rawTPEmulttFlag4[towerNb] = (itTT->second).tpgEmulFlag_[3] ;
+     rawTPEmulttFlag5[towerNb] = (itTT->second).tpgEmulFlag_[4] ;
+     rawTPEmulsFGVB1[towerNb] = (itTT->second).tpgEmulsFGVB_[0] ;
+     rawTPEmulsFGVB2[towerNb] = (itTT->second).tpgEmulsFGVB_[1] ;
+     rawTPEmulsFGVB3[towerNb] = (itTT->second).tpgEmulsFGVB_[2] ;
+     rawTPEmulsFGVB4[towerNb] = (itTT->second).tpgEmulsFGVB_[3] ;
+     rawTPEmulsFGVB5[towerNb] = (itTT->second).tpgEmulsFGVB_[4] ;
+     crystNb[towerNb] = (itTT->second).crystNb_ ;
+     eRec[towerNb] = (itTT->second).eRec_ ;
+     sevlv[towerNb] = (itTT->second).sevlv_ ;
+     ttFlag[towerNb] = (itTT->second).ttFlag_ ;
+     spike[towerNb] = (itTT->second).spike_ ;
+     twrADC[towerNb] =  (itTT->second).twrADC;
+     sFGVB[towerNb] =  (itTT->second).sFGVB;
+    
+     TCCid[towerNb] = (itTT->second).TCCid_;
+     TowerInTCC[towerNb] = (itTT->second).TowerInTCC_;
+     unsigned int maxEmul = 0 ;
+     for (int i=0 ; i<5 ; i++) if (((itTT->second).tpgEmul_[i]&0xff) > maxEmul) maxEmul = ((itTT->second).tpgEmul_[i]&0xff) ;
+     //for the emulated TP with max ADC of the 5
+     twrEmulMaxADC[towerNb] = maxEmul;
+     towerNb++ ;
+     
+     
    }
 
    nbOfTowers = towerNb ;
@@ -1093,13 +1114,14 @@ PrefiringTuplizer::analyze(const edm::Event& e, const edm::EventSetup& c)
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-PrefiringTuplizer::beginJob()
+ETTAnalyzer::beginJob()
 {
-  
+  myevt = 0;
 }
 
-void PrefiringTuplizer::beginRun(const edm::Run& r, const edm::EventSetup& c) {
-
+void ETTAnalyzer::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+  myevt = 0;
+  
   
 }
 
@@ -1107,7 +1129,7 @@ void PrefiringTuplizer::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-PrefiringTuplizer::endJob()
+ETTAnalyzer::endJob()
 {
 
   ibx_vs_ieta_Iso->Write();
@@ -1119,7 +1141,7 @@ PrefiringTuplizer::endJob()
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-PrefiringTuplizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+ETTAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -1140,5 +1162,5 @@ PrefiringTuplizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(PrefiringTuplizer);
+DEFINE_FWK_MODULE(ETTAnalyzer);
 

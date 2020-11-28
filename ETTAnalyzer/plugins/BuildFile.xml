@@ -9,5 +9,7 @@
 <use   name="CondTools/L1Trigger"/>
 <use name="L1Trigger/L1TGlobal"/>
 <use name="DataFormats/HepMCCandidate"/>
+<use name="Geometry/EcalMapping"/>
+<use name="Geometry/CaloTopology"/>
 
 <flags EDM_PLUGIN="1"/>

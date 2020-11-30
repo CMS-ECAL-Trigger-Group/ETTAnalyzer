@@ -1,7 +1,12 @@
 import matplotlib.pyplot as plt 
 import pandas as pd 
+import argparse 
 
-ol = "/eos/user/a/atishelm/www/EcalL1Optimization/Emulator/"
+argparser = argparse.ArgumentParser()
+argparser.add_argument("--outLoc", type=str, default="", required=True)
+args = argparser.parse_args()
+
+outLoc = args.outLoc
 TPinfo = pd.read_csv("TPinfoWithHeader.txt", sep=" ")
 
 recoA = TPinfo["wbf0"] + TPinfo["wbf1"] + TPinfo["wbf2"] + TPinfo["wbf3"] + TPinfo["wbf4"]
@@ -14,7 +19,7 @@ plt.hist(oddRecoAs,
          label = "ODD",
         )
 plt.legend()
-plt.savefig("%s/OddFilterAmplitudes.png"%(ol))
+plt.savefig("%s/OddFilterAmplitudes.png"%(outLoc))
 
 plt.close()
 
@@ -23,4 +28,4 @@ plt.hist(evenRecoAs,
         )
 
 plt.legend()
-plt.savefig("%s/EvenFilterAmplitudes.png"%(ol))
+plt.savefig("%s/EvenFilterAmplitudes.png"%(outLoc))

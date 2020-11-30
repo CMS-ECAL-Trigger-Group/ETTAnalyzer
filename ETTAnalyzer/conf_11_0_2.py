@@ -15,12 +15,18 @@ process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 ##-- Options that can be set on the command line 
 options = VarParsing.VarParsing('analysis')
 
-##-- Add TPinfoPrintout statements in EcalTrigPrimProducer
 options.register ('TPinfoPrintout',
                 False, # default value
                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                 VarParsing.VarParsing.varType.bool,          # string, int, or float
                 "TPinfoPrintout")
+
+options.register ('oddWeightsTxtFile',
+                "/afs/cern.ch/work/a/atishelm/private/ECALDoubleWeights/CMSSW_11_0_2/src/ECALDoubleWeights/ETTAnalyzer/ExtremeOddWeights.txt", # default value
+                VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                VarParsing.VarParsing.varType.string,          # string, int, or float
+                "oddWeightsTxtFile")                
+                   
 options.parseArguments()
 
 process.GlobalTag.toGet = cms.VPSet(
@@ -92,7 +98,7 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    TcpOutput = cms.bool(False),
 #    Debug = cms.bool(options.TPinfoPrintout),
    binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
-   oddWeightsTxtFile = cms.string("/afs/cern.ch/work/a/atishelm/private/ECALDoubleWeights/CMSSW_11_0_2/src/ECALDoubleWeights/ETTAnalyzer/ExtremeOddWeights.txt"),
+   oddWeightsTxtFile = cms.string(options.oddWeightsTxtFile),
    TPinfoPrintout = cms.bool(options.TPinfoPrintout) 
 
 )

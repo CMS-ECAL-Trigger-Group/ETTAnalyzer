@@ -6,7 +6,7 @@ from Configuration.StandardSequences.Eras import eras
 ##-- Define cms process 
 process = cms.Process("ECALDoubleWeightsETTAnalyzer",eras.Run2_2017)
 process.load("FWCore.MessageService.MessageLogger_cfi")
-# process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cff")
+process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = '110X_dataRun2_v12'
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -15,12 +15,12 @@ process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 ##-- Options that can be set on the command line 
 options = VarParsing.VarParsing('analysis')
 
-##-- Add debug statements in EcalTrigPrimProducer
-options.register ('debug',
+##-- Add TPinfoPrintout statements in EcalTrigPrimProducer
+options.register ('TPinfoPrintout',
                 False, # default value
                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                 VarParsing.VarParsing.varType.bool,          # string, int, or float
-                "debug")
+                "TPinfoPrintout")
 options.parseArguments()
 
 process.GlobalTag.toGet = cms.VPSet(
@@ -90,10 +90,10 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
 # #    BarrelOnly = cms.bool(False),
    Famos = cms.bool(False),
    TcpOutput = cms.bool(False),
-   Debug = cms.bool(options.debug),
+#    Debug = cms.bool(options.TPinfoPrintout),
    binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
-#    oddWeightsTxtFile = cms.string('test.txt') # not sure how to implement this 
-   oddWeightsTxtFile = cms.string("/afs/cern.ch/work/a/atishelm/private/ECALDoubleWeights/CMSSW_11_0_2/src/ECALDoubleWeights/ETTAnalyzer/ExtremeOddWeights.txt") # not sure how to implement this 
+   oddWeightsTxtFile = cms.string("/afs/cern.ch/work/a/atishelm/private/ECALDoubleWeights/CMSSW_11_0_2/src/ECALDoubleWeights/ETTAnalyzer/ExtremeOddWeights.txt"),
+   TPinfoPrintout = cms.bool(options.TPinfoPrintout) 
 
 )
 

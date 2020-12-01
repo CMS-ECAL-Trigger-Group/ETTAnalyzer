@@ -52,4 +52,10 @@ The odd weights branches of the ETT analyzer and SimCalorimetry repositories are
 	python preparelog.py ##-- Add header 
 	python PlotTPinfo.py --outLoc /eos/user/a/atishelm/www/EcalL1Optimization/Emulator/ ##-- Create pandas dataframe and plot 
 
-This will compute reconstructed amplitudes with "extreme odd weights", which are all set to 1 (64 / 64). This means you would expect to obtain much greater reco A's from the ODD filter in this case. 
+This will compute reconstructed amplitudes with "extreme odd weights", which are all set to 1 (64 / 64). This means you would expect to obtain much greater reco A's from the ODD filter in this case.
+
+## Examples
+
+To print out both general debug statements and also TP info, after setup described above simply run:
+
+	cmsRun conf_11_0_2.py Debug=1 TPinfoPrintout=1 

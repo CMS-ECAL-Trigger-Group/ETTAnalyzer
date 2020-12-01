@@ -14,19 +14,26 @@ process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 
 ##-- Options that can be set on the command line 
 options = VarParsing.VarParsing('analysis')
-
 options.register ('TPinfoPrintout',
                 False, # default value
                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                 VarParsing.VarParsing.varType.bool,          # string, int, or float
                 "TPinfoPrintout")
-
+options.register ('Debug',
+                False, # default value
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.bool,          
+                "Debug")                
 options.register ('oddWeightsTxtFile',
-                "/afs/cern.ch/work/a/atishelm/private/ECALDoubleWeights/CMSSW_11_0_2/src/ECALDoubleWeights/ETTAnalyzer/ExtremeOddWeights.txt", # default value
-                VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-                VarParsing.VarParsing.varType.string,          # string, int, or float
-                "oddWeightsTxtFile")                
-                   
+                "ExtremeOddWeights.txt", # default value
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "oddWeightsTxtFile") 
+# options.register ('oddPeakFinder',
+#                 False, # default value
+#                 VarParsing.VarParsing.multiplicity.singleton, 
+#                 VarParsing.VarParsing.varType.bool,          
+#                 "oddPeakFinder")                                
 options.parseArguments()
 
 process.GlobalTag.toGet = cms.VPSet(
@@ -39,14 +46,10 @@ process.GlobalTag.toGet = cms.VPSet(
 # ECAL Unpacker
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
-
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff') ##--  --> RawToDigi_cff --> Loads ecalTriggerPrimitiveDigis_cfi.py 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-
-
 process.load('L1Trigger.Configuration.L1TReco_cff')
-
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.raw2digi_step = cms.Path(process.RawToDigi)
@@ -54,7 +57,6 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.raw2digi_step)
-
 
 from L1Trigger.Configuration.customiseReEmul import L1TReEmulFromRAW
 #,L1TEventSetupForHF1x1TPs  this last one is not in the release
@@ -65,38 +67,15 @@ from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import caloStage2Digis
 process.rawCaloStage2Digis = caloStage2Digis.clone()
 process.rawCaloStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 
-# print"simEcalTriggerPrimitiveDigis:",EcalTrigPrimProducer
-
-# from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cfi import simEcalTriggerPrimitiveDigis
-
-# process.ecalTriggerPrimitiveDigis = 
-# process.ecalTriggerPrimitiveDigis = simEcalTriggerPrimitiveDigis.clone()
-# process.load()
-
-
-
-# process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
-#     BarrelOnly = cms.bool(False),
-#     InstanceEB = cms.string('ebDigis'),
-#     InstanceEE = cms.string('eeDigis'),
-#     binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
-#     Famos = cms.bool(False),
-#     TcpOutput = cms.bool(False),
-#     Debug = cms.bool(options.debug),
-#     Label = cms.string('ecalDigis'),
-#     oddWeightsTxtFile = cms.string('test.txt')
-#     # oddWeightsTxtFile = cms.string('')
-# )
-
-
+##-- Create ECAL TP digis module 
 process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    InstanceEB = cms.string('ebDigis'),
    InstanceEE = cms.string('eeDigis'),
    Label = cms.string('ecalDigis'),
-# #    BarrelOnly = cms.bool(False),
+   # BarrelOnly = cms.bool(False),
    Famos = cms.bool(False),
    TcpOutput = cms.bool(False),
-#    Debug = cms.bool(options.TPinfoPrintout),
+   Debug = cms.bool(options.Debug), ##-- Lots of printout 
    binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
    oddWeightsTxtFile = cms.string(options.oddWeightsTxtFile),
    TPinfoPrintout = cms.bool(options.TPinfoPrintout) 
@@ -147,17 +126,15 @@ process.tuplizer = cms.EDAnalyzer('ETTAnalyzer',
                               )
 
 
-
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('ecal_l1t_team_tuples.root')
                                    #fileName = cms.string('Histo_L1Prefiring_0ns_FixLabel.root')
                                   )
 
-
+##-- Define Path 
 process.p = cms.Path(process.L1Reco*
                      process.gtStage2Digis*
                      process.ecalTriggerPrimitiveDigis
                  )
-
 
 process.schedule.append(process.p)

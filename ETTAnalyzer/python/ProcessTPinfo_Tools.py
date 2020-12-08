@@ -42,7 +42,12 @@ class TPInfoProcess:
         evenRecoAs = TPinfo_DF.loc[TPinfo_DF['Filter'] == "EVEN", "recoA"]
         oddRecoAs = TPinfo_DF.loc[TPinfo_DF['Filter'] == "ODD", "recoA"]
 
-        evenDigis = TPinfo_DF.loc[TPinfo_DF['Filter'] == "EVEN"]
+        TPinfo_DF = TPinfo_DF[(TPinfo_DF.d3 > TPinfo_DF.d0)] 
+        TPinfo_DF = TPinfo_DF[(TPinfo_DF.d3 > TPinfo_DF.d1)] 
+        TPinfo_DF = TPinfo_DF[(TPinfo_DF.d3 > TPinfo_DF.d2)] 
+        TPinfo_DF = TPinfo_DF[(TPinfo_DF.d3 > TPinfo_DF.d4)] 
+        evenDigis = TPinfo_DF.loc[TPinfo_DF['Filter'] == "EVEN" ] # find 125 ns peaked events 
+        # evenDigis = TPinfo_DF.loc[TPinfo_DF['Filter'] == "EVEN" and (TPinfo_DF['d3'] > TPinfo_DF['d2']) and (TPinfo_DF['d3'] > TPinfo_DF['d4'])] # find 125 ns peaked events 
 
         digiAverages = []
         for i in range(0,5):

@@ -23,12 +23,22 @@ options.register ('Debug',
                 False, # default value
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.bool,          
-                "Debug")                
+                "Debug")   
+options.register ('BarrelOnly',
+                False, # default value
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.bool,          
+                "BarrelOnly")                                
 options.register ('oddWeightsTxtFile',
                 "ExtremeOddWeights.txt", # default value
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "oddWeightsTxtFile") 
+options.register ('TPmode',
+                "Run2", # default value
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "TPmode")                 
 # options.register ('oddPeakFinder',
 #                 False, # default value
 #                 VarParsing.VarParsing.multiplicity.singleton, 
@@ -72,14 +82,14 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    InstanceEB = cms.string('ebDigis'),
    InstanceEE = cms.string('eeDigis'),
    Label = cms.string('ecalDigis'),
-   # BarrelOnly = cms.bool(False),
+   BarrelOnly = cms.bool(options.TPinfoPrintout),
    Famos = cms.bool(False),
    TcpOutput = cms.bool(False),
    Debug = cms.bool(options.Debug), ##-- Lots of printout 
    binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
    oddWeightsTxtFile = cms.string(options.oddWeightsTxtFile),
-   TPinfoPrintout = cms.bool(options.TPinfoPrintout) 
-
+   TPinfoPrintout = cms.bool(options.TPinfoPrintout),
+   TPmode = cms.string(options.TPmode) 
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )

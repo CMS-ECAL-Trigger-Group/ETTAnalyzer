@@ -17,7 +17,7 @@ options = VarParsing.VarParsing('analysis')
 options.register ('TPinfoPrintout',
                 False, # default value
                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-                VarParsing.VarParsing.varType.bool,          # string, int, or float
+                VarParsing.VarParsing.varType.bool,           # string, int, or float
                 "TPinfoPrintout")
 options.register ('Debug',
                 False, # default value
@@ -38,12 +38,7 @@ options.register ('TPmode',
                 "Run2", # default value
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
-                "TPmode")                 
-# options.register ('oddPeakFinder',
-#                 False, # default value
-#                 VarParsing.VarParsing.multiplicity.singleton, 
-#                 VarParsing.VarParsing.varType.bool,          
-#                 "oddPeakFinder")                                
+                "TPmode")                                              
 options.parseArguments()
 
 process.GlobalTag.toGet = cms.VPSet(

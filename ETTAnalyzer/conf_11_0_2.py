@@ -41,12 +41,32 @@ options.register ('TPmode',
                 "TPmode")                                              
 options.parseArguments()
 
+
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string("EcalTPGLinearizationConstRcd"),
          ),
     cms.PSet(record = cms.string("EcalTPGPedestalsRcd"), 
          )
 )
+
+# Load the odd weights
+process.load("CondCore.CondDB.CondDB_cfi")
+# input database (in this case the local sqlite file)
+process.EcalOddWeights = cms.ESSource("PoolDBESSource",
+    DumpStat=cms.untracked.bool(True),
+    toGet = cms.VPSet(cms.PSet(
+                            record = cms.string('EcalTPGOddWeightIdMapRcd'),
+                            tag = cms.string("EcalTPGOddWeightIdMap_test"),
+                            connect = cms.string('sqlite_file:EcalTPGOddWeightIdMap.db')
+                        ),
+                    cms.PSet(
+                            record = cms.string('EcalTPGOddWeightGroupRcd'),
+                            tag = cms.string("EcalTPGOddWeightGroup_test"),
+                            connect = cms.string('sqlite_file:EcalTPGOddWeightGroup.db')
+                        )
+    ),
+)
+process.es_prefer_ecalweights = cms.ESPrefer("PoolDBESSource","EcalOddWeights")
 
 # ECAL Unpacker
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
@@ -82,9 +102,9 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    TcpOutput = cms.bool(False),
    Debug = cms.bool(options.Debug), ##-- Lots of printout 
    binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
-   oddWeightsTxtFile = cms.string(options.oddWeightsTxtFile),
+  # oddWeightsTxtFile = cms.string(options.oddWeightsTxtFile),
    TPinfoPrintout = cms.bool(options.TPinfoPrintout),
-   TPmode = cms.string(options.TPmode) 
+   TPmode = cms.uint32(0) 
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )

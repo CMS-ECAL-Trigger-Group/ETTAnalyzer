@@ -8,7 +8,7 @@ process = cms.Process("ECALDoubleWeightsETTAnalyzer",eras.Run2_2017)
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = '110X_dataRun2_v12'
+process.GlobalTag.globaltag = '113X_dataRun2_relval_Queue'
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 

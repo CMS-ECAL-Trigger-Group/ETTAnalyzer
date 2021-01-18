@@ -175,6 +175,7 @@ process.TFileService = cms.Service("TFileService",
 process.p = cms.Path(process.L1Reco*
                      process.gtStage2Digis*
                      process.ecalTriggerPrimitiveDigis*
+                     ## following is new, comment if code crashes
                      process.ecalUncalibHit*
                      process.ecalDetIdToBeRecovered*
                      process.ecalRecHit*

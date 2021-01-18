@@ -11,5 +11,6 @@
 <use name="DataFormats/HepMCCandidate"/>
 <use name="Geometry/EcalMapping"/>
 <use name="Geometry/CaloTopology"/>
+<use name="RecoLocalCalo/EcalRecAlgos"/>
 
 <flags EDM_PLUGIN="1"/>

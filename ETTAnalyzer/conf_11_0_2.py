@@ -87,7 +87,7 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    TPmode = cms.string(options.TPmode) 
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
@@ -113,6 +113,11 @@ process.tuplizer = cms.EDAnalyzer('ETTAnalyzer',
                                   ## for mc 
                                   #stage2CaloLayer2EGammaProducer = cms.InputTag("hltGtStage2Digis","EGamma"),
                                   
+                                  ## For rechits 
+                                  EcalRecHitCollectionEB = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+                                  EcalRecHitCollectionEE = cms.InputTag("ecalRecHit","EcalRecHitsEE"),                                                                        
+
+                                  
                                   ## for data on Raw
                                   
                                   EBdigis      = cms.InputTag("ecalDigis","ebDigis"),
@@ -128,6 +133,18 @@ process.tuplizer = cms.EDAnalyzer('ETTAnalyzer',
                                   genparticles = cms.InputTag("genParticles")
                               )
 
+## For rechits 
+process.load("Configuration/StandardSequences/Reconstruction_cff")
+import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
+process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
+process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
+process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
+process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
+process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
+
+
+
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('ecal_l1t_team_tuples.root')
@@ -137,7 +154,11 @@ process.TFileService = cms.Service("TFileService",
 ##-- Define Path 
 process.p = cms.Path(process.L1Reco*
                      process.gtStage2Digis*
-                     process.ecalTriggerPrimitiveDigis
+                     process.ecalTriggerPrimitiveDigis*
+                     process.ecalUncalibHit*
+                     process.ecalDetIdToBeRecovered*
+                     process.ecalRecHit*
+                     process.tuplizer
                  )
 
 process.schedule.append(process.p)

@@ -98,9 +98,10 @@ public:
   int iphi_, ieta_, nbXtal_, spike_ ;
   int twrADC, sFGVB, sevlv_, ttFlag_;
   int TCCid_, TowerInTCC_, strip_;
+  int time_;
   towerEner()
     : eRec_(0),  crystNb_(0), tpgADC_(0),
-      iphi_(-999), ieta_(-999), nbXtal_(0), spike_(0), twrADC(0), sFGVB(-999), sevlv_(0) , ttFlag_(0), TCCid_(0), TowerInTCC_(0), strip_(0)
+      iphi_(-999), ieta_(-999), nbXtal_(0), spike_(0), twrADC(0), sFGVB(-999), sevlv_(-1) , ttFlag_(0), TCCid_(0), TowerInTCC_(0), strip_(0), time_(-999)
   {
     for (int i=0 ; i<5 ; i ++) {
       tpgEmul_[i] = 0 ;
@@ -132,20 +133,20 @@ private:
   //virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
   
   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
-
   edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtProducer_; // input tag for L1 uGT DAQ readout record
   edm::EDGetTokenT<l1t::EGammaBxCollection> stage2CaloLayer2EGammaToken_;
-  
-  
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpEmulatorCollection_ ;
-
-  
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpCollection_ ;
-  
   edm::EDGetTokenT<EBDigiCollection> EBdigistoken_ ;
   edm::EDGetTokenT<EEDigiCollection> EEdigistoken_ ;
   
-  
+  edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollectionEB1_  ;
+  edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollectionEE1_  ;
+
+  const CaloSubdetectorGeometry * theEndcapGeometry_ ;
+  const CaloSubdetectorGeometry * theBarrelGeometry_ ;
+
+
   std::string monitorDir_;
   
   // To get the algo bits corresponding to algo names
@@ -221,6 +222,7 @@ private:
   float eRec[4032] ;
   int crystNb[4032];
   int sevlv[4032];
+  int time[4032];
   int spike[4032] ;
   int twrADC[4032];
   int sFGVB[4032];
@@ -325,6 +327,7 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   EBdigistoken_(consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBdigis") )  ),
   EEdigistoken_(consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigis") )  ),    
   gtUtil_(new l1t::L1TGlobalUtil(ps, consumesCollector(), *this, ps.getParameter<edm::InputTag>("ugtProducer"), ps.getParameter<edm::InputTag>("ugtProducer"))),
+  
   algoBitFirstBxInTrain_(-1),
   algoBitLastBxInTrain_(-1),  
   algoBitIsoBx_(-1),
@@ -342,6 +345,10 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   */
 
 {
+  EcalRecHitCollectionEB1_ = consumes<EcalRecHitCollection>( ps.getParameter<edm::InputTag>("EcalRecHitCollectionEB") );
+  EcalRecHitCollectionEE1_ = consumes<EcalRecHitCollection>( ps.getParameter<edm::InputTag>("EcalRecHitCollectionEE") );
+
+
   
   
   useAlgoDecision_ = 0;
@@ -415,6 +422,7 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   prefiringTree->Branch("b_eRec", eRec ,"b_eRec[b_nbOfTowers]/I");
   prefiringTree->Branch("b_crystNb", crystNb ,"b_crystNb[b_nbOfTowers]/I");
   prefiringTree->Branch("b_sevlv", sevlv ,"b_sevlv[b_nbOfTowers]/I");
+  prefiringTree->Branch("b_time", time ,"b_time[b_nbOfTowers]/I");
   prefiringTree->Branch("b_spike", spike ,"b_spike[b_nbOfTowers]/I");
   prefiringTree->Branch("b_twrADC", twrADC ,"b_twrADC[b_nbOfTowers]/I");
   prefiringTree->Branch("b_sFGVB", sFGVB ,"b_sFGVB[b_nbOfTowers]/I");
@@ -1037,6 +1045,96 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 
    
 
+
+   // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   // ----------------REC HITS -------------------------------------------------------------------------------------------------------------------------------------------------------
+   // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   ESHandle<CaloGeometry> theGeometry;
+   ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
+    
+   c.get<CaloGeometryRecord>().get( theGeometry );
+   c.get<EcalEndcapGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
+   c.get<EcalBarrelGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
+    
+   c.get<IdealGeometryRecord>().get(eTTmap_);
+   theEndcapGeometry_ = &(*theEndcapGeometry_handle);
+   theBarrelGeometry_ = &(*theBarrelGeometry_handle);
+
+   edm::ESHandle<EcalSeverityLevelAlgo> sevlv1;
+   c.get<EcalSeverityLevelAlgoRcd>().get(sevlv1);
+
+
+
+   
+   std::cout<<" inside the code "<<std::endl;
+   edm::Handle<EcalRecHitCollection> rechitsEB; 
+   e.getByToken(EcalRecHitCollectionEB1_,rechitsEB); 
+   std::cout << " rechitsEB size " << rechitsEB.product()->size() << std::endl;
+   float maxRecHitEnergy = 0. ;
+   if (rechitsEB.product()->size()!=0) {
+     for ( EcalRecHitCollection::const_iterator rechitItr = rechitsEB->begin(); rechitItr != rechitsEB->end(); ++rechitItr ) {   
+       EBDetId id = rechitItr->id(); 
+       const EcalTrigTowerDetId towid = id.tower();
+       
+       itTT = mapTower.find(towid) ;
+
+       
+       if (itTT != mapTower.end()) {
+	        
+	 double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
+	 (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
+	 //if (maxRecHitEnergy < rechitItr->energy()*sin(theta) && rechitItr->energy()*sin(theta) > 1. ){
+	 (itTT->second).sevlv_ = sevlv1->severityLevel(id, *rechitsEB); 	
+	 (itTT->second).time_ = rechitItr->time();
+	   //}
+	 (itTT->second).crystNb_++;
+       }
+     }
+   }
+
+
+
+
+   /*
+   std::cout<<" inside the code "<<std::endl;
+   edm::Handle<EcalRecHitCollection> rechitsEE; 
+   e.getByToken(EcalRecHitCollectionEB1_,rechitsEE); 
+   std::cout << " rechitsEE size " << rechitsEE.product()->size() << std::endl;
+   if (rechitsEE.product()->size()!=0) {
+     for ( EcalRecHitCollection::const_iterator rechitItr = rechitsEE->begin(); rechitItr != rechitsEE->end(); ++rechitItr ) {   
+       EEDetId id = rechitItr->id(); 
+       const EcalTrigTowerDetId towid = id.tower();
+       
+       itTT = mapTower.find(towid) ;
+
+       
+       if (itTT != mapTower.end()) {
+	        
+	 //double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
+	 //(itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
+	 //if (maxRecHitEnergy < rechitItr->energy()*sin(theta) && rechitItr->energy()*sin(theta) > 1. ){
+	 (itTT->second).sevlv_ = sevlv1->severityLevel(id, *rechitsEE); 	
+	 (itTT->second).time_ = rechitItr->time();
+	   //}
+	 (itTT->second).crystNb_++;
+       }
+     }
+   }
+   */
+
+
+
+   // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+   // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+   // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+   // -----------write tree----------------------------------------------------------------------------------------------------------------------------------------------------------- 
+   // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+   // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+   // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
    int towerNb = 0 ;
    for (itTT = mapTower.begin() ; itTT != mapTower.end() ; ++itTT) {
 
@@ -1079,7 +1177,8 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
      rawTPEmulsFGVB5[towerNb] = (itTT->second).tpgEmulsFGVB_[4] ;
      crystNb[towerNb] = (itTT->second).crystNb_ ;
      eRec[towerNb] = (itTT->second).eRec_ ;
-     sevlv[towerNb] = (itTT->second).sevlv_ ;
+     sevlv[towerNb] = (itTT->second).sevlv_ ; 
+     time[towerNb] = (itTT->second).time_ ; 
      ttFlag[towerNb] = (itTT->second).ttFlag_ ;
      spike[towerNb] = (itTT->second).spike_ ;
      twrADC[towerNb] =  (itTT->second).twrADC;
@@ -1097,7 +1196,7 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    }
 
    nbOfTowers = towerNb ;
-
+   
    prefiringTree->Fill();
    
 #ifdef THIS_IS_AN_EVENT_EXAMPLE

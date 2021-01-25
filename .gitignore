@@ -1,2 +1,4 @@
 *.pyc
-*__init__.py 
+*__init__.py
+*__init__.pyc
+ETTAnalyzer/python/__init__.pyc

@@ -10,7 +10,7 @@ To run over events with even + odd filters and plot reconstructed ampltiudes, fi
 	cd CMSSW_11_3_0_pre1/src
 	cmsenv
 	git cms-init
-	git cms-merge-topic CMS-ECAL-Trigger-Group:ecal_trigger_double_weights_11_3_X 
+	git cms-merge-topic CMS-ECAL-Trigger-Group:ecal_double_weights_11_3_X 
 	git clone git@github.com:CMS-ECAL-Trigger-Group/ECALDoubleWeights.git -b CMSSW_11_0_2-OddWeightsDev
 	scram b -j 10
 	cd ECALDoubleWeights/ETTAnalyzer

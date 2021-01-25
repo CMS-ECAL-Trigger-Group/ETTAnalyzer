@@ -8,7 +8,7 @@ process = cms.Process("ECALDoubleWeightsETTAnalyzer",eras.Run2_2017)
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = '110X_dataRun2_v12'
+process.GlobalTag.globaltag = '113X_dataRun2_relval_v1'
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 
@@ -97,7 +97,7 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    InstanceEB = cms.string('ebDigis'),
    InstanceEE = cms.string('eeDigis'),
    Label = cms.string('ecalDigis'),
-   BarrelOnly = cms.bool(options.BarrelOnly),
+   BarrelOnly = cms.bool(options.TPinfoPrintout),
    Famos = cms.bool(False),
    TcpOutput = cms.bool(False),
    Debug = cms.bool(options.Debug), ##-- Lots of printout 
@@ -107,7 +107,7 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    TPmode = cms.uint32(options.TPmode) 
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
@@ -120,66 +120,44 @@ process.source = cms.Source("PoolSource",
                             )
                         )
 
-process.tuplizer = cms.EDAnalyzer('ETTAnalyzer',
-                                  ugtProducer = cms.InputTag("gtStage2Digis"),
-                                  TPEmulatorCollection =  cms.InputTag("ecalTriggerPrimitiveDigis",""),
-                                  useAlgoDecision = cms.untracked.string("initial"),
-                                  firstBXInTrainAlgo = cms.untracked.string("L1_FirstCollisionInTrain"),
-                                  lastBXInTrainAlgo = cms.untracked.string("L1_LastCollisionInTrain"),
-                                  isoBXAlgo = cms.untracked.string("L1_IsolatedBunch"),
-                                  TPCollection = cms.InputTag("ecalDigis","EcalTriggerPrimitives"),
-                                  ## for data 
-                                  stage2CaloLayer2EGammaProducer = cms.InputTag("gtStage2Digis","EGamma"),
-                                  ## for mc 
-                                  #stage2CaloLayer2EGammaProducer = cms.InputTag("hltGtStage2Digis","EGamma"),
+# process.tuplizer = cms.EDAnalyzer('ETTAnalyzer',
+#                                   ugtProducer = cms.InputTag("gtStage2Digis"),
+#                                   TPEmulatorCollection =  cms.InputTag("ecalTriggerPrimitiveDigis",""),
+#                                   useAlgoDecision = cms.untracked.string("initial"),
+#                                   firstBXInTrainAlgo = cms.untracked.string("L1_FirstCollisionInTrain"),
+#                                   lastBXInTrainAlgo = cms.untracked.string("L1_LastCollisionInTrain"),
+#                                   isoBXAlgo = cms.untracked.string("L1_IsolatedBunch"),
+#                                   TPCollection = cms.InputTag("ecalDigis","EcalTriggerPrimitives"),
+#                                   ## for data 
+#                                   stage2CaloLayer2EGammaProducer = cms.InputTag("gtStage2Digis","EGamma"),
+#                                   ## for mc 
+#                                   #stage2CaloLayer2EGammaProducer = cms.InputTag("hltGtStage2Digis","EGamma"),
                                   
-                                  ## For rechits 
-                                  EcalRecHitCollectionEB = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-                                  EcalRecHitCollectionEE = cms.InputTag("ecalRecHit","EcalRecHitsEE"),                                                                        
-
+#                                   ## for data on Raw
                                   
-                                  ## for data on Raw
+#                                   EBdigis      = cms.InputTag("ecalDigis","ebDigis"),
+#                                   EEdigis      = cms.InputTag("ecalDigis","eeDigis"),
                                   
-                                  EBdigis      = cms.InputTag("ecalDigis","ebDigis"),
-                                  EEdigis      = cms.InputTag("ecalDigis","eeDigis"),
+#                                   ## for data on DIGIS : make sure why is this diff, w.r.t. RAW
+#                                   #EBdigis      = cms.InputTag("selectDigi","selectedEcalEBDigiCollection"),
+#                                   #EEdigis      = cms.InputTag("selectDigi","selectedEcalEEDigiCollection"),
                                   
-                                  ## for data on DIGIS : make sure why is this diff, w.r.t. RAW
-                                  #EBdigis      = cms.InputTag("selectDigi","selectedEcalEBDigiCollection"),
-                                  #EEdigis      = cms.InputTag("selectDigi","selectedEcalEEDigiCollection"),
-                                  
-                                  ## for mc
-                                  #EBdigis      = cms.InputTag("simEcalDigis","ebDigis"),
-                                  #EEdigis      = cms.InputTag("simEcalDigis","eeDigis"),
-                                  genparticles = cms.InputTag("genParticles")
-                              )
-
-## For rechits 
-process.load("Configuration/StandardSequences/Reconstruction_cff")
-import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
-process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
-process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
-process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
-process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
-process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
+#                                   ## for mc
+#                                   #EBdigis      = cms.InputTag("simEcalDigis","ebDigis"),
+#                                   #EEdigis      = cms.InputTag("simEcalDigis","eeDigis"),
+#                                   genparticles = cms.InputTag("genParticles")
+#                               )
 
 
-
-
-process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('ecal_l1t_team_tuples.root')
-                                   #fileName = cms.string('Histo_L1Prefiring_0ns_FixLabel.root')
-                                  )
+# process.TFileService = cms.Service("TFileService",
+#                                    fileName = cms.string('ecal_l1t_team_tuples.root')
+#                                    #fileName = cms.string('Histo_L1Prefiring_0ns_FixLabel.root')
+#                                   )
 
 ##-- Define Path 
 process.p = cms.Path(process.L1Reco*
                      process.gtStage2Digis*
-                     process.ecalTriggerPrimitiveDigis*
-                     ## following is new, comment if code crashes
-                     process.ecalUncalibHit*
-                     process.ecalDetIdToBeRecovered*
-                     process.ecalRecHit*
-                     process.tuplizer
+                     process.ecalTriggerPrimitiveDigis
                  )
 
 process.schedule.append(process.p)

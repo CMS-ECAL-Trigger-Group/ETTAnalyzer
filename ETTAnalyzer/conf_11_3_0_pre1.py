@@ -29,18 +29,17 @@ options.register ('BarrelOnly',
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.bool,          
                 "BarrelOnly")                                
-# options.register ('oddWeightsTxtFile',
-#                 "ExtremeOddWeights.txt", # default value
-#                 VarParsing.VarParsing.multiplicity.singleton, 
-#                 VarParsing.VarParsing.varType.string,          
-#                 "oddWeightsTxtFile") 
 options.register ('TPmode',
-                "Run2", # default value
+                0, # default value -- 0 = Run 2 
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.int,          
-                "TPmode")                                              
+                "TPmode")     
+options.register ('OddWeightsSqliteFile',                                        
+                'none.db', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "OddWeightsSqliteFile")     
 options.parseArguments()
-
 
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string("EcalTPGLinearizationConstRcd"),
@@ -57,7 +56,9 @@ process.EcalOddWeights = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
                             record = cms.string('EcalTPGOddWeightIdMapRcd'),
                             tag = cms.string("EcalTPGOddWeightIdMap_test"),
-                            connect = cms.string('sqlite_file:EcalTPGOddWeightIdMap.db')
+                            #connect = cms.string('sqlite_file:EcalTPGOddWeightIdMap.db')
+                            #connect = cms.string('sqlite_file:EcalTPGOddWeightIdMap_Extreme.db')
+                            connect = cms.string('sqlite_file:%s'%(options.OddWeightsSqliteFile))
                         ),
                     cms.PSet(
                             record = cms.string('EcalTPGOddWeightGroupRcd'),
@@ -97,12 +98,12 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    InstanceEB = cms.string('ebDigis'),
    InstanceEE = cms.string('eeDigis'),
    Label = cms.string('ecalDigis'),
-   BarrelOnly = cms.bool(options.TPinfoPrintout),
+   #BarrelOnly = cms.bool(options.TPinfoPrintout),
+   BarrelOnly = cms.bool(options.BarrelOnly),
    Famos = cms.bool(False),
    TcpOutput = cms.bool(False),
    Debug = cms.bool(options.Debug), ##-- Lots of printout 
    binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
-  # oddWeightsTxtFile = cms.string(options.oddWeightsTxtFile),
    TPinfoPrintout = cms.bool(options.TPinfoPrintout),
    TPmode = cms.uint32(options.TPmode) 
 )
@@ -155,7 +156,8 @@ process.source = cms.Source("PoolSource",
 #                                   )
 
 ##-- Define Path 
-process.p = cms.Path(process.L1Reco*
+process.p = cms.Path(
+                     process.L1Reco*
                      process.gtStage2Digis*
                      process.ecalTriggerPrimitiveDigis
                  )

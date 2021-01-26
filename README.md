@@ -15,7 +15,7 @@ To run over events with even + odd filters and plot reconstructed ampltiudes, fi
 	scram b -j 10
 	cd ECALDoubleWeights/ETTAnalyzer
 
-This command will move your local repository to the ecal_trigger_double_weights_11_3_X branch for odd weights emulator development. 
+This command will move your local repository to the ecal_double_weights_11_3_X branch for odd weights emulator development. 
 
 The odd weights branches of the ETT analyzer and SimCalorimetry repositories are listed above. After obtaining and scramming the relevant repositories, you can run the configuration in the ETTAnalyzer directory and run the even + odd filters on an event. The even filter weights will be obtained from the DB by default, but the Odd filter weights can be set with the local sqlite files, generated thanks to CondTools/Ecal scripts. 
 

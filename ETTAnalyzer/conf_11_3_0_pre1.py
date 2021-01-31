@@ -6,7 +6,7 @@ from Configuration.StandardSequences.Eras import eras
 ##-- Define cms process 
 process = cms.Process("ECALDoubleWeightsETTAnalyzer",eras.Run2_2017)
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cff")
+process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cff") ##-- Configuration for module which produces an EcalTrigPrimDigiCollection
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = '113X_dataRun2_relval_v1'
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -35,7 +35,7 @@ options.register ('TPmode',
                 VarParsing.VarParsing.varType.int,          
                 "TPmode")     
 options.register ('OddWeightsSqliteFile',                                        
-                'none.db', 
+                'weights/EcalTPGOddWeightIdMap.db', 
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "OddWeightsSqliteFile")     
@@ -56,14 +56,12 @@ process.EcalOddWeights = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
                             record = cms.string('EcalTPGOddWeightIdMapRcd'),
                             tag = cms.string("EcalTPGOddWeightIdMap_test"),
-                            #connect = cms.string('sqlite_file:EcalTPGOddWeightIdMap.db')
-                            #connect = cms.string('sqlite_file:EcalTPGOddWeightIdMap_Extreme.db')
                             connect = cms.string('sqlite_file:%s'%(options.OddWeightsSqliteFile))
                         ),
                     cms.PSet(
                             record = cms.string('EcalTPGOddWeightGroupRcd'),
                             tag = cms.string("EcalTPGOddWeightGroup_test"),
-                            connect = cms.string('sqlite_file:EcalTPGOddWeightGroup.db')
+                            connect = cms.string('sqlite_file:weights/EcalTPGOddWeightGroup.db')
                         )
     ),
 )
@@ -98,7 +96,6 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    InstanceEB = cms.string('ebDigis'),
    InstanceEE = cms.string('eeDigis'),
    Label = cms.string('ecalDigis'),
-   #BarrelOnly = cms.bool(options.TPinfoPrintout),
    BarrelOnly = cms.bool(options.BarrelOnly),
    Famos = cms.bool(False),
    TcpOutput = cms.bool(False),

@@ -2,9 +2,51 @@ import pandas as pd
 import numpy as np 
 from matplotlib import pyplot as plt 
 
-ol = "/eos/user/a/atishelm/www/EcalL1Optimization/Emulator/"
+ol = "/eos/user/a/atishelm/www/EcalL1Optimization/Emulator/TCP/"
+vars = ["ET", "FG", "sFGVB", "TTF"]
 
+for f_i, file in enumerate(["FinalCheck_Run2_ETs.txt","FinalCheck_Config1_ETs_final.txt"]):
+    if f_i == 0: label = "Run2"
+    else: label = "Config1"
+    print"Plotting file",file 
+    df = pd.read_csv("outputs/%s"%(file),sep = ' ')
+    for var in vars: 
+        print"Plotting",var 
+        values = [int(val.replace("%s="%(var),'').replace(",","")) for val in df[var]]
+        bins = np.linspace(0,15,16)
+        fig, ax = plt.subplots() 
+        Nentries = np.size(values)
+        avg = np.mean(values)
+        plt.hist(values,histtype='step', bins = bins, label = '%s_%s'%(var,label))
+        plt.text(0.5, 0.8, 
+                label, 
+                fontsize = 15,
+                horizontalalignment='center', 
+                verticalalignment='center', 
+                transform = ax.transAxes)
+        plt.text(0.5, 0.7, 
+                'Entries = %s'%(Nentries), 
+                fontsize = 15,
+                horizontalalignment='center', 
+                verticalalignment='center', 
+                transform = ax.transAxes)
+        plt.text(0.5, 0.6,
+                'Average = %.5f'%(avg), 
+                fontsize = 15,
+                horizontalalignment='center', 
+                verticalalignment='center', 
+                transform = ax.transAxes)          
+        plt.legend()
+        plt.yscale('log')
+        ymin, ymax = 0.1, 10000. 
+        plt.ylim(ymin,ymax)        
+        plt.savefig("%s/%s_%s.png"%(ol,var,label))
+        plt.close()
 
+print"DONE" 
+        
+
+exit(1) 
 ##-- Separate 
 fig, ax = plt.subplots()
 # for f_i, file in enumerate(["log_Run2_ET.txt","test2_ETs.txt"]):

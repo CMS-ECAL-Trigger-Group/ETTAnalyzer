@@ -22,7 +22,7 @@ The odd weights branches of the ETT analyzer and SimCalorimetry repositories are
 The TP mode needs also to be read from a DB tag
     
 	cmsRun conf_11_3_0_pre1.py Debug=1    TPinfoPrintout=1 maxEvents=10 \
-	  TPModeSqliteFile=TPModes/EcalTPGTPMode_Run2_default.db TPModeTag=EcalTPG_TPMode_Run2_default \
+	  TPModeSqliteFile=TPModes/EcalTPGTPMode_Run2_default.db TPModeTag=weights/EcalTPG_TPMode_Run2_default \
 	  OddWeightsSqliteFile=EcalTPGOddWeightIdMap.db 
 	
 
@@ -32,7 +32,7 @@ The available TPmodes are described in these slides https://indico.cern.ch/event
 
 Just put the wanted options in a text file similar to EcalTPGTPMode_Run2_default.txt and then use the `updateTPGTPMode.py` script to generate a new condDB tag.  
 
-	cmsRun updateTPGTPMode.py inputFile=EcalTPGTPMode_Run3_zeroing.txt TPModeTag=test outputFile=my_fancy_tag.db
+	cmsRun updateTPGTPMode.py inputTxtFile=EcalTPGTPMode_Run3_zeroing.txt TPModeTag=test outputDBFile=my_fancy_tag.db
 
 ### Run 2 
 
@@ -42,10 +42,12 @@ To run with the Run 2 ECAL L1 configuration, the TPmode should be set to zero, s
 
 This command will print various debug statements in the ECAL L1 data stream steps, run on one event, obtain odd filter weights from the sqlite file in the weights directory, and run only on the EB. 
 
-### Configuration 1
+### Zeroing configuration
 
-To run with a candidate zeroing mechanism, configuration 1, the only thing that changes is the TPmode flag:
+To run with a candidate zeroing mechanism, configuration 1, the only thing that changes is the TPmode tag and sqlite file:
 
-	cmsRun conf_11_3_0_pre1.py Debug=1 TPmode=0b100110001000000 TPinfoPrintout=1 maxEvents=1 OddWeightsSqliteFile=weights/EcalTPGOddWeightIdMap.db BarrelOnly=1
+	cmsRun conf_11_3_0_pre1.py Debug=1 TPModeTag=EcalTPG_TPMode_Run3_zeroing  \
+     TPModeSqliteFile=TPModes/EcalTPGTPMode_Run3_zeroing.db\
+	 TPinfoPrintout=1 maxEvents=1 OddWeightsSqliteFile=weights/EcalTPGOddWeightIdMap.db BarrelOnly=1
 
 This zeroing mechanism zeroes at the strip level. If a strip's odd filter returns a greater value than the even filter, the even filter output will not be included in the TCP sum. As long as the total odd filter energy among the TT strips is greater than the even filter energy sum, this will be flagged in the form of the EB infobit1, where the FGVB is replaced. This is useful for monitoring zeroing, but at the cost of removing the FGVB.  

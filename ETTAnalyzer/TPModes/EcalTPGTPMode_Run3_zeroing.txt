@@ -3,7 +3,7 @@ EnableEEOddFilter 0
 EnableEBOddPeakFinder 0
 EnableEEOddPeakFinder 0
 DisableEBEvenPeakFinder 0
-DisableEEEvenPeakFinder 1
+DisableEEEvenPeakFinder 0
 FenixEBStripOutput 0
 FenixEEStripOutput 0
 FenixEBStripInfobit2 1

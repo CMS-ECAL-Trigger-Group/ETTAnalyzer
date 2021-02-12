@@ -29,11 +29,16 @@ options.register ('BarrelOnly',
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.bool,          
                 "BarrelOnly")                                
-options.register ('TPmode',
-                0, # default value -- 0 = Run 2 
+options.register ('TPModeSqliteFile',
+                'none.db', # default value -- 0 = Run 2 
                 VarParsing.VarParsing.multiplicity.singleton, 
-                VarParsing.VarParsing.varType.int,          
-                "TPmode")     
+                VarParsing.VarParsing.varType.string,          
+                "TPModeSqliteFile")    
+options.register ('TPModeTag',
+                'EcalTPG_TPMode_Run2_default', # default value -- 0 = Run 2 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "TPModeTag")  
 options.register ('OddWeightsSqliteFile',                                        
                 'none.db', 
                 VarParsing.VarParsing.multiplicity.singleton, 
@@ -51,23 +56,26 @@ process.GlobalTag.toGet = cms.VPSet(
 # Load the odd weights
 process.load("CondCore.CondDB.CondDB_cfi")
 # input database (in this case the local sqlite file)
-process.EcalOddWeights = cms.ESSource("PoolDBESSource",
+process.EcalOnTheFlyTPGconf = cms.ESSource("PoolDBESSource",
     DumpStat=cms.untracked.bool(True),
     toGet = cms.VPSet(cms.PSet(
                             record = cms.string('EcalTPGOddWeightIdMapRcd'),
                             tag = cms.string("EcalTPGOddWeightIdMap_test"),
-                            #connect = cms.string('sqlite_file:EcalTPGOddWeightIdMap.db')
-                            #connect = cms.string('sqlite_file:EcalTPGOddWeightIdMap_Extreme.db')
                             connect = cms.string('sqlite_file:%s'%(options.OddWeightsSqliteFile))
                         ),
                     cms.PSet(
                             record = cms.string('EcalTPGOddWeightGroupRcd'),
                             tag = cms.string("EcalTPGOddWeightGroup_test"),
                             connect = cms.string('sqlite_file:EcalTPGOddWeightGroup.db')
+                        ),
+                    cms.PSet(
+                            record = cms.string('EcalTPGTPModeRcd'),
+                            tag = cms.string(options.TPModeTag),
+                            connect = cms.string('sqlite_file:%s'%(options.TPModeSqliteFile))
                         )
     ),
 )
-process.es_prefer_ecalweights = cms.ESPrefer("PoolDBESSource","EcalOddWeights")
+# process.es_prefer_ecalweights = cms.ESPrefer("PoolDBESSource","EcalOddWeights")
 
 # ECAL Unpacker
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
@@ -105,7 +113,7 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    Debug = cms.bool(options.Debug), ##-- Lots of printout 
    binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
    TPinfoPrintout = cms.bool(options.TPinfoPrintout),
-   TPmode = cms.uint32(options.TPmode) 
+#    TPmode = cms.uint32(options.TPmode) 
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )

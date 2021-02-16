@@ -2,18 +2,20 @@ import pandas as pd
 import numpy as np 
 from matplotlib import pyplot as plt 
 
-ol = "/eos/user/a/atishelm/www/EcalL1Optimization/Emulator/TCP/"
+ol = "/eos/user/a/atishelm/www/EcalL1Optimization/Emulator/HighEnergy/"
 vars = ["ET", "FG", "sFGVB", "TTF"]
 
-for f_i, file in enumerate(["FinalCheck_Run2_ETs.txt","FinalCheck_Config1_ETs_final.txt"]):
+for f_i, file in enumerate(["../Sev4_Run2_ETs.txt","../Sev4_config1_ETs.txt",]):
+#for f_i, file in enumerate(["FinalCheck_Run2_ETs.txt","FinalCheck_Config1_ETs_final.txt"]):
     if f_i == 0: label = "Run2"
     else: label = "Config1"
     print"Plotting file",file 
-    df = pd.read_csv("outputs/%s"%(file),sep = ' ')
+    #df = pd.read_csv("outputs/%s"%(file),sep = ' ')
+    df = pd.read_csv("%s"%(file),sep = ' ')
     for var in vars: 
         print"Plotting",var 
         values = [int(val.replace("%s="%(var),'').replace(",","")) for val in df[var]]
-        bins = np.linspace(0,15,16)
+        bins = np.linspace(0,128,129)
         fig, ax = plt.subplots() 
         Nentries = np.size(values)
         avg = np.mean(values)

@@ -2,6 +2,7 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 from Configuration.StandardSequences.Eras import eras
+import os 
 
 ##-- Define cms process 
 process = cms.Process("ECALDoubleWeightsETTAnalyzer",eras.Run2_2017)
@@ -14,6 +15,17 @@ process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 
 ##-- Options that can be set on the command line 
 options = VarParsing.VarParsing('analysis')
+
+options.register ('userMaxEvents',
+                -1, # default value
+                VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                VarParsing.VarParsing.varType.int,           # string, int, or float
+                "userMaxEvents")
+options.register ('SevLevel',
+                'zero', # default value
+                VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                VarParsing.VarParsing.varType.string,           # string, int, or float
+                "SevLevel")
 options.register ('TPinfoPrintout',
                 False, # default value
                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
@@ -115,12 +127,17 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
 #    TPmode = cms.uint32(options.TPmode) 
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.userMaxEvents) )
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1 ) ##-- Printout run, lumi, event info  
+
+##-- Get list of files 
+Direc = "/eos/cms/store/user/khurana/ECAL/edmFiles/%s/"%(options.SevLevel)
+files = ["file:%s%s"%(Direc, f) for f in os.listdir(Direc) if os.path.isfile(os.path.join(Direc, f))]
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-                                
-                                'file:/eos/user/p/petyt/tpgdata/320065/DAB74636-0F8E-E811-AC7A-FA163E5DEA72.root'
+                                files
+                                #'file:/eos/user/p/petyt/tpgdata/320065/DAB74636-0F8E-E811-AC7A-FA163E5DEA72.root'
                                 #'file:/eos/cms/store/data/Commissioning2020/Cosmics/RAW/v1/000/337/973/00000/50446142-8362-594F-9429-C17A552EA888.root'
                                 #'file:/afs/cern.ch/work/k/khurana/L1Prefiring/EDAnalyzer/CMSSW_10_2_1/src/L1Prefiring/EventGeenration/step2_default.root'
                                 #'file:/afs/cern.ch/work/k/khurana/L1Prefiring/EDAnalyzer/CMSSW_10_2_1/src/L1Prefiring/EventGeneration/rootfiles/step2_p17_singleEle.root'

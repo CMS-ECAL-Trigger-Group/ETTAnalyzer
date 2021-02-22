@@ -22,8 +22,8 @@ The odd weights branches of the ETT analyzer and SimCalorimetry repositories are
 The TP mode needs also to be read from a DB tag
     
 	cmsRun conf_11_3_0_pre1.py Debug=1    TPinfoPrintout=1 maxEvents=10 \
-	  TPModeSqliteFile=TPModes/EcalTPGTPMode_Run2_default.db TPModeTag=weights/EcalTPG_TPMode_Run2_default \
-	  OddWeightsSqliteFile=EcalTPGOddWeightIdMap.db 
+	  TPModeSqliteFile=TPModes/EcalTPGTPMode_Run2_default.db TPModeTag=EcalTPG_TPMode_Run2_default \
+	  OddWeightsSqliteFile=weights/EcalTPGOddWeightIdMap.db 
 	
 
 The available TPmodes are described in these slides https://indico.cern.ch/event/995229/contributions/4189814/attachments/2173034/3669116/21_01_18%20-%20ECAL%20Trigger%20meeting%20-%20Emulator%20configuration.pdf

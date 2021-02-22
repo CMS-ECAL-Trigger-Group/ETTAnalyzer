@@ -5,6 +5,7 @@
 #
 # Example Commands:
 #
+# python PlotTPinfo.py --vars ET --tog --doNorm 
 # python PlotTPinfo.py --vars ET --tog --doNorm
 # python PlotTPinfo.py --tog --vars ET --sev Zero 
 # python PlotTPinfo.py  --vars ETdiff --sev Zero
@@ -26,7 +27,7 @@ parser.add_argument("--strip", action="store_true")
 
 args = parser.parse_args()
 
-ol = "/eos/user/a/atishelm/www/EcalL1Optimization/Emulator/HighEnergy/"
+ol = "/eos/user/a/atishelm/www/EcalL1Optimization/Emulator/HighEnergy_v2/"
 # vars = ["ET", "FG", "sFGVB", "TTF"]
 # vars = ["ET"]
 
@@ -330,11 +331,8 @@ if(args.vars=='ETdiff'):
 
 ##-- Plot Together
 if(args.tog):
-
     for var in vars: 
         print"Plotting",var,"Together"
-        fig, ax = plt.subplots() 
-
         for sev in ["Zero","Three","Four"]:
             sevLabelDict = {
                 "Zero" : 0,
@@ -344,11 +342,10 @@ if(args.tog):
             sevLabel = sevLabelDict[sev]
             Direc = "outputs/Sev%s"%(sev)
             files = ["%s/%s"%(Direc, f) for f in os.listdir(Direc) if os.path.isfile(os.path.join(Direc, f))]
-
+            fig, ax = plt.subplots()
             for f_i, file in enumerate(files):
                 label = file.split('/')[-1].split('.')[0] 
                 config = label.split('_')[-2]
-                # if("Run2" not in file): continue 
                 print"Plotting file",file 
                 df = pd.read_csv("%s"%(file),sep = ' ')
                 values = [int(val.replace("%s="%(var),'').replace(",","")) for val in df[var]]
@@ -361,18 +358,38 @@ if(args.tog):
                 print"min, max:",minval, maxval 
                 if(var=="ET"): 
                     values = np.true_divide(values, 2.)  
-                    bins = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,40,50,60,80,100,150,250,256]
-                plt.hist(values,histtype='step', bins = bins, weights=np.ones(len(values)) / len(values), density=False, label = 'Sev = %s, Config = %s'%(sevLabel, config))         
-            plt.legend()
+                    bins_MSB = [0,32,33,40,50,60,80,100,150,250,256]
+                    bins = [round((float(b)/2), 2) for b in bins_MSB]
+                n_, bins_ = np.histogram(values, bins = bins)
+                nBinVals = len(n_)
+                IntegralVals = [float(sum(n_[(i):])) for i in range(0,nBinVals)] # to right 
+                print"IntegralVals:",IntegralVals
+                IntegralVals_HighEnergy = np.copy(IntegralVals[1:])
+                SF = float(max(IntegralVals_HighEnergy))
+                weights = [float(val)/SF for val in IntegralVals_HighEnergy]
+                if(args.doNorm): plt.hist(bins_[1:-1], histtype='step', bins = bins_, weights = weights , density = False, label = 'Sev = %s, Config = %s'%(sevLabel, config)) 
+                else: plt.hist(bins_[1:-1], histtype='step', bins = bins_, weights = IntegralVals_HighEnergy , label = 'Sev = %s, Config = %s'%(sevLabel, config)) 
+                if(config == "Run2"): Run2_0bin = int(n_[0])
+                if(config == "Config1"): Config1_0bin = int(n_[0])
+                # else: lab_x, lab_y = 0.5, 0.8 
+            label = "%s More 0-16 GeV in Config1 Than Run2"%(int(float(Config1_0bin) - float(Run2_0bin)  )   )
+            plt.text(0.5, 0.8, 
+                    label, 
+                    fontsize = 12,
+                    horizontalalignment='center', 
+                    verticalalignment='center', 
+                    transform = ax.transAxes)  
+            plt.legend(loc = 'best')
+            ymax = max(IntegralVals) * 1.25
             if(args.doNorm):
-                ymin = 10**-7
-                ymax = 2*10.**0 
-            plt.yscale('log')
-            plt.ylim(ymin,ymax)        
-            plt.xlim(xmin,xmax)
-            if(var == "ET"): 
-                plt.vlines([16], ymin, ymax, linestyles='solid', colors='midnightblue')
-                plt.grid(True, axis='y')
+                ymin = 10**-3
+                ymax = 2*10.**0                 
+                plt.ylim(ymin,ymax)                  
+                plt.yscale('log')
+            plt.xlim(16,256/2)
+            # if(var == "ET"): 
+                # plt.vlines([16], ymin, ymax, linestyles='solid', colors='midnightblue')
+                # plt.grid(True, axis='y')
             # ax.tick_params(axis="x", direction="in")
             # ax.tick_params(axis="y", direction="in")    
             # ax.xaxis.set_ticks_position('both')    
@@ -383,7 +400,7 @@ if(args.tog):
                 plt.xlabel("ET [GeV]")
             else: 
                 plt.xlabel(var)        
-            plt.ylabel("Entries [A.U.]")
+            plt.ylabel("Fraction TPs Above ET")
             if(args.doNorm): 
                 plt.savefig("%s/%s_Sev-%s_Normed.png"%(ol,var,sevLabel))
                 plt.savefig("%s/%s_Sev-%s_Normed.pdf"%(ol,var,sevLabel))

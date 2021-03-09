@@ -609,25 +609,6 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 
    
    
-    // this should be moved to begin run 
-   // but where is begin run 
-   // begin job does not have the event setup infp 
-   // Get the trigger menu information
-   gtUtil_->retrieveL1Setup(c);
-   
-   // Get the algo bits needed for the timing histograms
-   if (!gtUtil_->getAlgBitFromName(algoNameFirstBxInTrain_, algoBitFirstBxInTrain_)) {
-     edm::LogWarning("L1TObjectsTiming") << "Algo \"" << algoNameFirstBxInTrain_ << "\" not found in the trigger menu " << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
-   }
-   
-   if (!gtUtil_->getAlgBitFromName(algoNameLastBxInTrain_, algoBitLastBxInTrain_)) {
-     edm::LogWarning("L1TObjectsTiming") << "Algo \"" << algoNameLastBxInTrain_ << "\" not found in the trigger menu " << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
-   }
-   
-   if (!gtUtil_->getAlgBitFromName(algoNameIsoBx_, algoBitIsoBx_)) {
-     edm::LogWarning("L1TObjectsTiming") << "Algo \"" << algoNameIsoBx_ << "\" not found in the trigger menu " << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
-   }
-   
    // ------------------------------*----------------*-------------**********--------------------------------------------------------------------------------------------
    // ------------------------------*--------------*-*------------------*------------------------------------------------------------------------------------------------
    // ------------------------------*----------------*------------------*------------------------------------------------------------------------------------------------
@@ -692,7 +673,7 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 	   break;
 	 }
 	 if (bit) {
-	   bxShiftLast = bx;
+	   ;//bxShiftLast = bx;
 	 }
        }
        // isolated bunch
@@ -710,7 +691,7 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 	   break;
 	 }
 	 if (bit) {
-	   bxShiftIso = bx;
+	   ;//bxShiftIso = bx;
 	 }
        }
      }
@@ -718,7 +699,7 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    
    
    
-   std::cout<<" bxShiftFirst = " << bxShiftFirst<< " "<<bxShiftIso<< " "<<bxShiftLast<<std::endl;
+   //std::cout<<" bxShiftFirst = " << bxShiftFirst<< " "<<bxShiftIso<< " "<<bxShiftLast<<std::endl;
    
    // the following shifting is needed for following reason: 
    // we want to use only those events which comes as a result of the begining of the bunch train, each bunch train can have crossings multiple times. 
@@ -726,7 +707,6 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    // The data is written only once, for all the five bunch crossings. if the egamma trigger was prefired then (-1 bx) then everything needs to be translated. 
    
    
-   std::cout<<" just before loop"<<std::endl;
    
    int nonisocounterm2    = 0 ;
    int nonisocounterm1    = 0 ;
@@ -1227,6 +1207,25 @@ ETTAnalyzer::beginJob()
 
 void ETTAnalyzer::beginRun(const edm::Run& r, const edm::EventSetup& c) {
   myevt = 0;
+  
+  // this should be moved to begin run 
+  // but where is begin run 
+  // begin job does not have the event setup infp 
+  // Get the trigger menu information
+  gtUtil_->retrieveL1Setup(c);
+  
+  // Get the algo bits needed for the timing histograms
+  if (!gtUtil_->getAlgBitFromName(algoNameFirstBxInTrain_, algoBitFirstBxInTrain_)) {
+    edm::LogWarning("L1TObjectsTiming") << "Algo \"" << algoNameFirstBxInTrain_ << "\" not found in the trigger menu " << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
+  }
+  
+  if (!gtUtil_->getAlgBitFromName(algoNameLastBxInTrain_, algoBitLastBxInTrain_)) {
+    edm::LogWarning("L1TObjectsTiming") << "Algo \"" << algoNameLastBxInTrain_ << "\" not found in the trigger menu " << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
+  }
+  
+  if (!gtUtil_->getAlgBitFromName(algoNameIsoBx_, algoBitIsoBx_)) {
+    edm::LogWarning("L1TObjectsTiming") << "Algo \"" << algoNameIsoBx_ << "\" not found in the trigger menu " << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
+  }
   
   
 }

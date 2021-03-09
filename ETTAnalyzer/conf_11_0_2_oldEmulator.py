@@ -39,6 +39,13 @@ options.register ('TPmode',
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "TPmode")                                              
+
+options.register('filename',
+                 "",# default value 
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "filename"
+             )
 options.parseArguments()
 
 process.GlobalTag.toGet = cms.VPSet(
@@ -72,6 +79,10 @@ from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import caloStage2Digis
 process.rawCaloStage2Digis = caloStage2Digis.clone()
 process.rawCaloStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 
+
+
+
+
 ##-- Create ECAL TP digis module 
 process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    InstanceEB = cms.string('ebDigis'),
@@ -87,12 +98,13 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    #TPmode = cms.string(options.TPmode) 
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
                                 
-                                'file:/eos/user/p/petyt/tpgdata/320065/DAB74636-0F8E-E811-AC7A-FA163E5DEA72.root'
+                                #'file:'+options.filename
+                                'file:/eos/user/p/petyt/tpgdata/320065/'+options.filename
                                 #'file:/eos/cms/store/data/Commissioning2020/Cosmics/RAW/v1/000/337/973/00000/50446142-8362-594F-9429-C17A552EA888.root'
                                 #'file:/afs/cern.ch/work/k/khurana/L1Prefiring/EDAnalyzer/CMSSW_10_2_1/src/L1Prefiring/EventGeenration/step2_default.root'
                                 #'file:/afs/cern.ch/work/k/khurana/L1Prefiring/EDAnalyzer/CMSSW_10_2_1/src/L1Prefiring/EventGeneration/rootfiles/step2_p17_singleEle.root'
@@ -147,12 +159,13 @@ process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHit
 
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('ecal_l1t_team_tuples.root')
+                                   fileName = cms.string('/eos/cms/store/user/khurana/ECAL/DoubleWeightsPicks_redo/'+options.filename)
                                    #fileName = cms.string('Histo_L1Prefiring_0ns_FixLabel.root')
                                   )
 
 ##-- Define Path 
-process.p = cms.Path(process.L1Reco*
+process.p = cms.Path(process.gtDigis*process.RawToDigi*
+                     process.L1Reco*
                      process.gtStage2Digis*
                      process.ecalTriggerPrimitiveDigis*
                      process.ecalUncalibHit*

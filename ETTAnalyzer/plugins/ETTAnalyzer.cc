@@ -101,7 +101,7 @@ public:
   int time_;
   towerEner()
     : eRec_(0),  crystNb_(0), tpgADC_(0),
-      iphi_(-999), ieta_(-999), nbXtal_(0), spike_(0), twrADC(0), sFGVB(-999), sevlv_(-1) , ttFlag_(0), TCCid_(0), TowerInTCC_(0), strip_(0), time_(-999)
+      iphi_(-999), ieta_(-999), nbXtal_(0), spike_(0), twrADC(0), sFGVB(-999), sevlv_(-999) , ttFlag_(0), TCCid_(0), TowerInTCC_(0), strip_(0), time_(-999)
   {
     for (int i=0 ; i<5 ; i ++) {
       tpgEmul_[i] = 0 ;
@@ -967,16 +967,16 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
      // testing 
      const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(df.id());
      uint32_t stripid = elId.rawId() & 0xfffffff8;  // from Pascal
-     std::cout<<" strip id : "<<stripid<<std::endl;
+     //std::cout<<" strip id : "<<stripid<<std::endl;
 
      
 
 
      
      for(int i=0; i<10;++i){
-     std::cout<<" tower (eta, phi): ("<<towid.ieta() << ", "<<towid.iphi()<<")"
-	      <<" xtal (ix, iy): ("<<id.ix() <<", "<<id.iy()<<")"
-	      <<" ADC for EEDataFrame: "<<j << "  sample number "<<i<<"  "<<df.sample(i).adc()<<std::endl;
+       //std::cout<<" tower (eta, phi): ("<<towid.ieta() << ", "<<towid.iphi()<<")"
+       //     <<" xtal (ix, iy): ("<<id.ix() <<", "<<id.iy()<<")"
+       //     <<" ADC for EEDataFrame: "<<j << "  sample number "<<i<<"  "<<df.sample(i).adc()<<std::endl;
      
      tower_eta[countNadc] = towid.ieta();
      tower_phi[countNadc] = towid.iphi();
@@ -1020,6 +1020,7 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
      tE.tpgADC_ = (d[0].raw()&0xfff) ;
      tE.twrADC = (d[0].raw()&0xff) ;
      tE.sFGVB = (d[0].sFGVB());
+     //if ((d[0].raw()&0xfff)>0 ) {std::cout<<" EcalTrigTowerDetId :: filling "<<TPtowid<<" twradc: "<<(d[0].raw()&0xff)<<std::endl;}
      mapTower[TPtowid] = tE ;
    }
 
@@ -1069,32 +1070,38 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 
 
 
+   // https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideEcalRecoLocalReco#Mapping_into_severity_levels
    
-   std::cout<<" inside the code "<<std::endl;
    edm::Handle<EcalRecHitCollection> rechitsEB; 
    e.getByToken(EcalRecHitCollectionEB1_,rechitsEB); 
-   std::cout << " rechitsEB size " << rechitsEB.product()->size() << std::endl;
    float maxRecHitEnergy = 0. ;
+   int irechit=0;
    if (rechitsEB.product()->size()!=0) {
      for ( EcalRecHitCollection::const_iterator rechitItr = rechitsEB->begin(); rechitItr != rechitsEB->end(); ++rechitItr ) {   
+              
        EBDetId id = rechitItr->id(); 
+       
        const EcalTrigTowerDetId towid = id.tower();
+       //std::cout<<" irechit: "<<irechit<<"  EBDetId: "<<id<<"   ";
+       //std::cout<<" EcalTrigTowerDetId :: Rechit "<<towid<<std::endl;
+       irechit++;
        
        itTT = mapTower.find(towid) ;
-
-       
        if (itTT != mapTower.end()) {
-	        
+	 //if((itTT->second).tpgADC_){	 std::cout<<" EcalTrigTowerDetId :: Rechit matched "<<towid<<" sevlev: "<<sevlv1->severityLevel(id, *rechitsEB)<<" ene:"<<(itTT->second).twrADC<<std::endl; }
 	 double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
 	 (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
-	 //if (maxRecHitEnergy < rechitItr->energy()*sin(theta) && rechitItr->energy()*sin(theta) > 1. ){
-	 (itTT->second).sevlv_ = sevlv1->severityLevel(id, *rechitsEB); 	
-	 (itTT->second).time_ = rechitItr->time();
-	   //}
+	 int sevlvl_tmp =  (sevlv1->severityLevel(id, *rechitsEB)) ;
+	 if ( rechitItr->energy() > maxRecHitEnergy && ((itTT->second).twrADC>32) ){
+	   maxRecHitEnergy = rechitItr->energy();
+	   (itTT->second).sevlv_ = sevlvl_tmp; 	
+	   (itTT->second).time_ = rechitItr->time();
+	 }
 	 (itTT->second).crystNb_++;
        }
      }
    }
+
 
 
 

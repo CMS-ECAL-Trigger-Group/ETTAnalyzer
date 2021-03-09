@@ -8,7 +8,7 @@ process = cms.Process("ECALDoubleWeightsETTAnalyzer",eras.Run2_2017)
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = '113X_dataRun2_relval_Queue'
+process.GlobalTag.globaltag = '113X_dataRun2_relval_v1'
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 
@@ -29,18 +29,22 @@ options.register ('BarrelOnly',
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.bool,          
                 "BarrelOnly")                                
-# options.register ('oddWeightsTxtFile',
-#                 "ExtremeOddWeights.txt", # default value
-#                 VarParsing.VarParsing.multiplicity.singleton, 
-#                 VarParsing.VarParsing.varType.string,          
-#                 "oddWeightsTxtFile") 
-options.register ('TPmode',
-                "Run2", # default value
+options.register ('TPModeSqliteFile',
+                'none.db', # default value -- 0 = Run 2 
                 VarParsing.VarParsing.multiplicity.singleton, 
-                VarParsing.VarParsing.varType.int,          
-                "TPmode")                                              
+                VarParsing.VarParsing.varType.string,          
+                "TPModeSqliteFile")    
+options.register ('TPModeTag',
+                'EcalTPG_TPMode_Run2_default', # default value -- 0 = Run 2 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "TPModeTag")  
+options.register ('OddWeightsSqliteFile',                                        
+                'none.db', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "OddWeightsSqliteFile")     
 options.parseArguments()
-
 
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string("EcalTPGLinearizationConstRcd"),
@@ -52,21 +56,26 @@ process.GlobalTag.toGet = cms.VPSet(
 # Load the odd weights
 process.load("CondCore.CondDB.CondDB_cfi")
 # input database (in this case the local sqlite file)
-process.EcalOddWeights = cms.ESSource("PoolDBESSource",
+process.EcalOnTheFlyTPGconf = cms.ESSource("PoolDBESSource",
     DumpStat=cms.untracked.bool(True),
     toGet = cms.VPSet(cms.PSet(
                             record = cms.string('EcalTPGOddWeightIdMapRcd'),
                             tag = cms.string("EcalTPGOddWeightIdMap_test"),
-                            connect = cms.string('sqlite_file:EcalTPGOddWeightIdMap.db')
+                            connect = cms.string('sqlite_file:%s'%(options.OddWeightsSqliteFile))
                         ),
                     cms.PSet(
                             record = cms.string('EcalTPGOddWeightGroupRcd'),
                             tag = cms.string("EcalTPGOddWeightGroup_test"),
                             connect = cms.string('sqlite_file:EcalTPGOddWeightGroup.db')
+                        ),
+                    cms.PSet(
+                            record = cms.string('EcalTPGTPModeRcd'),
+                            tag = cms.string(options.TPModeTag),
+                            connect = cms.string('sqlite_file:%s'%(options.TPModeSqliteFile))
                         )
     ),
 )
-process.es_prefer_ecalweights = cms.ESPrefer("PoolDBESSource","EcalOddWeights")
+# process.es_prefer_ecalweights = cms.ESPrefer("PoolDBESSource","EcalOddWeights")
 
 # ECAL Unpacker
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
@@ -97,14 +106,14 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    InstanceEB = cms.string('ebDigis'),
    InstanceEE = cms.string('eeDigis'),
    Label = cms.string('ecalDigis'),
-   BarrelOnly = cms.bool(options.TPinfoPrintout),
+   #BarrelOnly = cms.bool(options.TPinfoPrintout),
+   BarrelOnly = cms.bool(options.BarrelOnly),
    Famos = cms.bool(False),
    TcpOutput = cms.bool(False),
    Debug = cms.bool(options.Debug), ##-- Lots of printout 
    binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
-  # oddWeightsTxtFile = cms.string(options.oddWeightsTxtFile),
    TPinfoPrintout = cms.bool(options.TPinfoPrintout),
-   TPmode = cms.uint32(options.TPmode) 
+#    TPmode = cms.uint32(options.TPmode) 
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
@@ -120,42 +129,43 @@ process.source = cms.Source("PoolSource",
                             )
                         )
 
-process.tuplizer = cms.EDAnalyzer('ETTAnalyzer',
-                                  ugtProducer = cms.InputTag("gtStage2Digis"),
-                                  TPEmulatorCollection =  cms.InputTag("ecalTriggerPrimitiveDigis",""),
-                                  useAlgoDecision = cms.untracked.string("initial"),
-                                  firstBXInTrainAlgo = cms.untracked.string("L1_FirstCollisionInTrain"),
-                                  lastBXInTrainAlgo = cms.untracked.string("L1_LastCollisionInTrain"),
-                                  isoBXAlgo = cms.untracked.string("L1_IsolatedBunch"),
-                                  TPCollection = cms.InputTag("ecalDigis","EcalTriggerPrimitives"),
-                                  ## for data 
-                                  stage2CaloLayer2EGammaProducer = cms.InputTag("gtStage2Digis","EGamma"),
-                                  ## for mc 
-                                  #stage2CaloLayer2EGammaProducer = cms.InputTag("hltGtStage2Digis","EGamma"),
+# process.tuplizer = cms.EDAnalyzer('ETTAnalyzer',
+#                                   ugtProducer = cms.InputTag("gtStage2Digis"),
+#                                   TPEmulatorCollection =  cms.InputTag("ecalTriggerPrimitiveDigis",""),
+#                                   useAlgoDecision = cms.untracked.string("initial"),
+#                                   firstBXInTrainAlgo = cms.untracked.string("L1_FirstCollisionInTrain"),
+#                                   lastBXInTrainAlgo = cms.untracked.string("L1_LastCollisionInTrain"),
+#                                   isoBXAlgo = cms.untracked.string("L1_IsolatedBunch"),
+#                                   TPCollection = cms.InputTag("ecalDigis","EcalTriggerPrimitives"),
+#                                   ## for data 
+#                                   stage2CaloLayer2EGammaProducer = cms.InputTag("gtStage2Digis","EGamma"),
+#                                   ## for mc 
+#                                   #stage2CaloLayer2EGammaProducer = cms.InputTag("hltGtStage2Digis","EGamma"),
                                   
-                                  ## for data on Raw
+#                                   ## for data on Raw
                                   
-                                  EBdigis      = cms.InputTag("ecalDigis","ebDigis"),
-                                  EEdigis      = cms.InputTag("ecalDigis","eeDigis"),
+#                                   EBdigis      = cms.InputTag("ecalDigis","ebDigis"),
+#                                   EEdigis      = cms.InputTag("ecalDigis","eeDigis"),
                                   
-                                  ## for data on DIGIS : make sure why is this diff, w.r.t. RAW
-                                  #EBdigis      = cms.InputTag("selectDigi","selectedEcalEBDigiCollection"),
-                                  #EEdigis      = cms.InputTag("selectDigi","selectedEcalEEDigiCollection"),
+#                                   ## for data on DIGIS : make sure why is this diff, w.r.t. RAW
+#                                   #EBdigis      = cms.InputTag("selectDigi","selectedEcalEBDigiCollection"),
+#                                   #EEdigis      = cms.InputTag("selectDigi","selectedEcalEEDigiCollection"),
                                   
-                                  ## for mc
-                                  #EBdigis      = cms.InputTag("simEcalDigis","ebDigis"),
-                                  #EEdigis      = cms.InputTag("simEcalDigis","eeDigis"),
-                                  genparticles = cms.InputTag("genParticles")
-                              )
+#                                   ## for mc
+#                                   #EBdigis      = cms.InputTag("simEcalDigis","ebDigis"),
+#                                   #EEdigis      = cms.InputTag("simEcalDigis","eeDigis"),
+#                                   genparticles = cms.InputTag("genParticles")
+#                               )
 
 
-process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('ecal_l1t_team_tuples.root')
-                                   #fileName = cms.string('Histo_L1Prefiring_0ns_FixLabel.root')
-                                  )
+# process.TFileService = cms.Service("TFileService",
+#                                    fileName = cms.string('ecal_l1t_team_tuples.root')
+#                                    #fileName = cms.string('Histo_L1Prefiring_0ns_FixLabel.root')
+#                                   )
 
 ##-- Define Path 
-process.p = cms.Path(process.L1Reco*
+process.p = cms.Path(
+                     process.L1Reco*
                      process.gtStage2Digis*
                      process.ecalTriggerPrimitiveDigis
                  )

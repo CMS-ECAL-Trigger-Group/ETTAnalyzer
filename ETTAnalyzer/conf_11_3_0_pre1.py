@@ -55,7 +55,12 @@ options.register ('OddWeightsSqliteFile',
                 'weights/EcalTPGOddWeightIdMap.db', 
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
-                "OddWeightsSqliteFile")     
+                "OddWeightsSqliteFile") 
+options.register ('RunETTAnalyzer', ##-- If true, produce output ntuple with ETTAnalyzer 
+                False, # default value
+                VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                VarParsing.VarParsing.varType.bool,           # string, int, or float
+                "RunETTAnalyzer")                   
 options.parseArguments()
 
 process.GlobalTag.toGet = cms.VPSet(
@@ -145,45 +150,80 @@ process.source = cms.Source("PoolSource",
                             )
                         )
 
-# process.tuplizer = cms.EDAnalyzer('ETTAnalyzer',
-#                                   ugtProducer = cms.InputTag("gtStage2Digis"),
-#                                   TPEmulatorCollection =  cms.InputTag("ecalTriggerPrimitiveDigis",""),
-#                                   useAlgoDecision = cms.untracked.string("initial"),
-#                                   firstBXInTrainAlgo = cms.untracked.string("L1_FirstCollisionInTrain"),
-#                                   lastBXInTrainAlgo = cms.untracked.string("L1_LastCollisionInTrain"),
-#                                   isoBXAlgo = cms.untracked.string("L1_IsolatedBunch"),
-#                                   TPCollection = cms.InputTag("ecalDigis","EcalTriggerPrimitives"),
-#                                   ## for data 
-#                                   stage2CaloLayer2EGammaProducer = cms.InputTag("gtStage2Digis","EGamma"),
-#                                   ## for mc 
-#                                   #stage2CaloLayer2EGammaProducer = cms.InputTag("hltGtStage2Digis","EGamma"),
-                                  
-#                                   ## for data on Raw
-                                  
-#                                   EBdigis      = cms.InputTag("ecalDigis","ebDigis"),
-#                                   EEdigis      = cms.InputTag("ecalDigis","eeDigis"),
-                                  
-#                                   ## for data on DIGIS : make sure why is this diff, w.r.t. RAW
-#                                   #EBdigis      = cms.InputTag("selectDigi","selectedEcalEBDigiCollection"),
-#                                   #EEdigis      = cms.InputTag("selectDigi","selectedEcalEEDigiCollection"),
-                                  
-#                                   ## for mc
-#                                   #EBdigis      = cms.InputTag("simEcalDigis","ebDigis"),
-#                                   #EEdigis      = cms.InputTag("simEcalDigis","eeDigis"),
-#                                   genparticles = cms.InputTag("genParticles")
-#                               )
+##-- If running ETT Analyzer
+if(options.RunETTAnalyzer):
 
+    ##-- Create EDAnalyzer 
+    process.tuplizer = cms.EDAnalyzer('ETTAnalyzer',
+                                    ugtProducer = cms.InputTag("gtStage2Digis"),
+                                    TPEmulatorCollection =  cms.InputTag("ecalTriggerPrimitiveDigis",""),
+                                    useAlgoDecision = cms.untracked.string("initial"),
+                                    firstBXInTrainAlgo = cms.untracked.string("L1_FirstCollisionInTrain"),
+                                    lastBXInTrainAlgo = cms.untracked.string("L1_LastCollisionInTrain"),
+                                    isoBXAlgo = cms.untracked.string("L1_IsolatedBunch"),
+                                    TPCollection = cms.InputTag("ecalDigis","EcalTriggerPrimitives"),
+                                    ## for data 
+                                    stage2CaloLayer2EGammaProducer = cms.InputTag("gtStage2Digis","EGamma"),
+                                    ## for mc 
+                                    #stage2CaloLayer2EGammaProducer = cms.InputTag("hltGtStage2Digis","EGamma"),
+                                    
+                                    ## For rechits 
+                                    EcalRecHitCollectionEB = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+                                    EcalRecHitCollectionEE = cms.InputTag("ecalRecHit","EcalRecHitsEE"),                                                                        
 
-# process.TFileService = cms.Service("TFileService",
-#                                    fileName = cms.string('ecal_l1t_team_tuples.root')
-#                                    #fileName = cms.string('Histo_L1Prefiring_0ns_FixLabel.root')
-#                                   )
+                                    
+                                    ## for data on Raw
+                                    EBdigis      = cms.InputTag("ecalDigis","ebDigis"),
+                                    EEdigis      = cms.InputTag("ecalDigis","eeDigis"),
+                                    
+                                    ## for data on DIGIS : make sure why is this diff, w.r.t. RAW
+                                    #EBdigis      = cms.InputTag("selectDigi","selectedEcalEBDigiCollection"),
+                                    #EEdigis      = cms.InputTag("selectDigi","selectedEcalEEDigiCollection"),
+                                    
+                                    ## for mc
+                                    #EBdigis      = cms.InputTag("simEcalDigis","ebDigis"),
+                                    #EEdigis      = cms.InputTag("simEcalDigis","eeDigis"),
+                                    genparticles = cms.InputTag("genParticles")
+                                )
 
-##-- Define Path 
-process.p = cms.Path(
-                     process.L1Reco*
-                     process.gtStage2Digis*
-                     process.ecalTriggerPrimitiveDigis
-                 )
+    ## Load appropriate processes for Rec Hits 
+    process.load("Configuration/StandardSequences/Reconstruction_cff")
+    import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
+    process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
+    process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
+    process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+    process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
+    process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
+    process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
+    ol = "/eos/user/a/atishelm/SWAN_projects/EcalL1Optimization/ETTAnalyzer/"
+    outFileName = "%s/ETTAnalyzer_Sev%s.root"%(ol, options.SevLevel)
+
+    process.TFileService = cms.Service("TFileService",
+                                    fileName = cms.string(outFileName)
+                                    #fileName = cms.string('Histo_L1Prefiring_0ns_FixLabel.root')
+                                    )
+
+    ##-- Define Path Which includes necessary modules for ETTAnalyzer 
+    process.p = cms.Path(process.gtDigis*process.RawToDigi*
+                        process.L1Reco*
+                        process.gtStage2Digis*
+                        process.ecalTriggerPrimitiveDigis*
+                        process.ecalUncalibHit*
+                        process.ecalDetIdToBeRecovered*
+                        process.ecalRecHit*
+                        process.tuplizer
+                    )
+
+##-- If not running ETT Analyzer
+else: 
+
+    ##-- Define Path Without ETTAnalyzer modules 
+    process.p = cms.Path(
+                        process.L1Reco*
+                        process.gtStage2Digis*
+                        process.ecalTriggerPrimitiveDigis
+                    )
+
+##-- In either case, append process path to process schedule 
 process.schedule.append(process.p)

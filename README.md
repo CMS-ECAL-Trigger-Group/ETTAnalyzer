@@ -38,7 +38,7 @@ Just put the wanted options in a text file similar to EcalTPGTPMode_Run2_default
 
 To run with the Run 2 ECAL L1 configuration, the TPmode should be set to zero, shown in binary form in the following command's for visual purposes, as this sets all of the optional configuration flags to their defaults: 
 
-	cmsRun conf_11_3_0_pre1.py Debug=1 TPModeSqliteFile=TPModes/EcalTPGTPMode_Run2_default.db TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=1 maxEvents=1 OddWeightsSqliteFile=weights/EcalTPGOddWeightIdMap.db BarrelOnly=1 
+	cmsRun conf_11_3_0_pre1_withETTAnalyzer.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=0 userMaxEvents=10 OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1
 
 This command will print various debug statements in the ECAL L1 data stream steps, run on one event, obtain odd filter weights from the sqlite file in the weights directory, and run only on the EB. 
 

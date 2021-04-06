@@ -197,7 +197,7 @@ if(options.RunETTAnalyzer):
     process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
     ol = "/eos/user/a/atishelm/SWAN_projects/EcalL1Optimization/ETTAnalyzer/"
-    outFileName = "%s/ETTAnalyzer_Sev%s.root"%(ol, options.SevLevel)
+    outFileName = "%s/ETTAnalyzer_Outputs/ETTAnalyzer_CMSSW_11_3_0_pre1_Sev%s_%sConfig.root"%(ol, options.SevLevel, options.TPModeTag.split('_')[2])
 
     process.TFileService = cms.Service("TFileService",
                                     fileName = cms.string(outFileName)

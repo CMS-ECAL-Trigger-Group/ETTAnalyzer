@@ -70,28 +70,28 @@ process.GlobalTag.toGet = cms.VPSet(
          )
 )
 
-# Load the odd weights
-process.load("CondCore.CondDB.CondDB_cfi")
-# input database (in this case the local sqlite file)
-process.EcalOnTheFlyTPGconf = cms.ESSource("PoolDBESSource",
-    DumpStat=cms.untracked.bool(True),
-    toGet = cms.VPSet(cms.PSet(
-                            record = cms.string('EcalTPGOddWeightIdMapRcd'),
-                            tag = cms.string("EcalTPGOddWeightIdMap_test"),
-                            connect = cms.string('sqlite_file:%s'%(options.OddWeightsSqliteFile))
-                        ),
-                    cms.PSet(
-                            record = cms.string('EcalTPGOddWeightGroupRcd'),
-                            tag = cms.string("EcalTPGOddWeightGroup_test"),
-                            connect = cms.string('sqlite_file:weights/EcalTPGOddWeightGroup.db')
-                        ),
-                    cms.PSet(
-                            record = cms.string('EcalTPGTPModeRcd'),
-                            tag = cms.string(options.TPModeTag),
-                            connect = cms.string('sqlite_file:%s'%(options.TPModeSqliteFile))
-                        )
-    ),
-)
+# # Load the odd weights
+# process.load("CondCore.CondDB.CondDB_cfi")
+# # input database (in this case the local sqlite file)
+# process.EcalOnTheFlyTPGconf = cms.ESSource("PoolDBESSource",
+#     DumpStat=cms.untracked.bool(True),
+#     toGet = cms.VPSet(cms.PSet(
+#                             record = cms.string('EcalTPGOddWeightIdMapRcd'),
+#                             tag = cms.string("EcalTPGOddWeightIdMap_test"),
+#                             connect = cms.string('sqlite_file:%s'%(options.OddWeightsSqliteFile))
+#                         ),
+#                     cms.PSet(
+#                             record = cms.string('EcalTPGOddWeightGroupRcd'),
+#                             tag = cms.string("EcalTPGOddWeightGroup_test"),
+#                             connect = cms.string('sqlite_file:weights/EcalTPGOddWeightGroup.db')
+#                         ),
+#                     cms.PSet(
+#                             record = cms.string('EcalTPGTPModeRcd'),
+#                             tag = cms.string(options.TPModeTag),
+#                             connect = cms.string('sqlite_file:%s'%(options.TPModeSqliteFile))
+#                         )
+#     ),
+# )
 # process.es_prefer_ecalweights = cms.ESPrefer("PoolDBESSource","EcalOddWeights")
 
 # ECAL Unpacker

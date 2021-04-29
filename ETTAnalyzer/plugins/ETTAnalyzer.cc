@@ -43,7 +43,6 @@ https://cmssdt.cern.ch/lxr/source/SimCalorimetry/EcalTrigPrimAlgos/src/
 
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -224,10 +223,8 @@ private:
   int spike[4032] ;
   int twrADC[4032];
   int sFGVB[4032];
-  // Suggested by David 
   int twrEmulMaxADC[4032];
   int twrEmul3ADC[4032];
-  
   
   int ttFlag[4032];
   int TCCid[4032];
@@ -918,7 +915,7 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    //  TT information 
    // -------------------------------
    
-   edm::Handle<EcalTrigPrimDigiCollection> tp;
+   edm::Handle<EcalTrigPrimDigiCollection> tp; // Different from TP info in the trigger path? Is TP info from the trigger path saved at all? 
    e.getByToken(tpCollection_,tp);
    //std::cout<<"TP collection size="<<tp.product()->size()<<std::endl ;
    
@@ -1017,9 +1014,9 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
      itTT = mapTower.find(TPtowid) ;
      if (itTT != mapTower.end())
        for (int j=0 ; j<5 ; j++) {
-	 (itTT->second).tpgEmul_[j] = (d[j].raw()&0xfff) ;
-	 (itTT->second).tpgEmulFlag_[j] = d[j].ttFlag();
-	 (itTT->second).tpgEmulsFGVB_[j] = d[j].sFGVB();
+        (itTT->second).tpgEmul_[j] = (d[j].raw()&0xfff) ;
+        (itTT->second).tpgEmulFlag_[j] = d[j].ttFlag();
+        (itTT->second).tpgEmulsFGVB_[j] = d[j].sFGVB();
        }
    }
 
@@ -1057,46 +1054,48 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   //  int irechit=0;
    int sevlvl_tmp = -999; 
    double theta = -999; 
-   if (rechitsEB.product()->size()!=0) {
+   double recHitEnergy = -999; 
+  //  if (rechitsEB.product()->size()!=0) {
 
-     // For each EB Rec Hit
-     for ( EcalRecHitCollection::const_iterator rechitItr = rechitsEB->begin(); rechitItr != rechitsEB->end(); ++rechitItr ) {   
+  //    // For each EB Rec Hit
+  //    for ( EcalRecHitCollection::const_iterator rechitItr = rechitsEB->begin(); rechitItr != rechitsEB->end(); ++rechitItr ) {   
+  //      recHitEnergy = rechitItr->energy(); 
               
-       EBDetId id = rechitItr->id(); 
-      //  sevlvl_tmp =  (sevlv1->severityLevel(id, *rechitsEB));
-      //  (itTT->second).time_ = rechitItr->time();
-      //  (itTT->second).sevlv_ = sevlvl_tmp; 
+  //     //  EBDetId id = rechitItr->id(); 
+  //     //  sevlvl_tmp =  (sevlv1->severityLevel(id, *rechitsEB));
+  //     //  (itTT->second).time_ = rechitItr->time();
+  //     //  (itTT->second).sevlv_ = sevlvl_tmp; 
        
-       const EcalTrigTowerDetId towid = id.tower();
-      //  irechit++;
-       itTT = mapTower.find(towid) ;
-       //  (itTT->second).eRec_ = rechitItr->energy();
+  //     //  const EcalTrigTowerDetId towid = id.tower();
+  //     //  irechit++;
+  //     //  itTT = mapTower.find(towid) ;
+  //      //  (itTT->second).eRec_ = rechitItr->energy();
 
-       // Associate highest energy crystal rechit in tower to tower 
-      //  if (itTT != mapTower.end()) {
-          //if((itTT->second).tpgADC_){	 std::cout<<" EcalTrigTowerDetId :: Rechit matched "<<towid<<" sevlev: "<<sevlv1->severityLevel(id, *rechitsEB)<<" ene:"<<(itTT->second).twrADC<<std::endl; }
+  //      // Associate highest energy crystal rechit in tower to tower 
+  //     //  if (itTT != mapTower.end()) {
+  //         //if((itTT->second).tpgADC_){	 std::cout<<" EcalTrigTowerDetId :: Rechit matched "<<towid<<" sevlev: "<<sevlv1->severityLevel(id, *rechitsEB)<<" ene:"<<(itTT->second).twrADC<<std::endl; }
           
-          // theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
-          // (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
+  //         // theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
+  //         // (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
 
-          // int sevlvl_tmp =  (sevlv1->severityLevel(id, *rechitsEB)) ;
+  //         // int sevlvl_tmp =  (sevlv1->severityLevel(id, *rechitsEB)) ;
  
-          //  maxRecHitEnergy = rechitItr->energy();
-          // (itTT->second).sevlv_ = sevlvl_tmp; 	
-          //  (itTT->second).twrADC_ = (itTT->second).twrADC;
+  //         //  maxRecHitEnergy = rechitItr->energy();
+  //         // (itTT->second).sevlv_ = sevlvl_tmp; 	
+  //         //  (itTT->second).twrADC_ = (itTT->second).twrADC;
 
-          //  if ( rechitItr->energy() > maxRecHitEnergy && ((itTT->second).twrADC>32) ){
-          //   //  maxRecHitEnergy = rechitItr->energy();
-          //    (itTT->second).sevlv_ = sevlvl_tmp; 	
-          //    (itTT->second).time_ = rechitItr->time();
-          //   //  (itTT->second).eRec_ = rechitItr->energy();
-          //  }
+  //         //  if ( rechitItr->energy() > maxRecHitEnergy && ((itTT->second).twrADC>32) ){
+  //         //   //  maxRecHitEnergy = rechitItr->energy();
+  //         //    (itTT->second).sevlv_ = sevlvl_tmp; 	
+  //         //    (itTT->second).time_ = rechitItr->time();
+  //         //   //  (itTT->second).eRec_ = rechitItr->energy();
+  //         //  }
 
-	        // (itTT->second).crystNb_++; // Xtal loop? 
-      //  }
+	//         // (itTT->second).crystNb_++; // Xtal loop? 
+  //     //  }
 
-     }
-   }
+  //    }
+  //  }
 
 
    /*
@@ -1135,6 +1134,21 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
    // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
    // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+   // Save all rec hits (?)
+
+  //  double recHitEnergy_ = -999; 
+  //  int iRecHit = 0; 
+  //  if (rechitsEB.product()->size()!=0) {
+
+  //    // For each EB Rec Hit
+  //    for ( EcalRecHitCollection::const_iterator rechitItr = rechitsEB->begin(); rechitItr != rechitsEB->end(); ++rechitItr ) {   
+  //      recHitEnergy_ = rechitItr->energy(); 
+  //      recHitEnergy[iRecHit] = recHitEnergy_;
+  //      iRecHit ++; 
+  //    }
+  //  }
+
    int towerNb = 0 ;
    for (itTT = mapTower.begin() ; itTT != mapTower.end() ; ++itTT) {
 
@@ -1152,7 +1166,23 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
     //    if (false) std::cout<<std::endl ;
     //  }
 
-     
+    //  std::cout<<"ieta="<<(itTT->second).ieta_<<" iphi "<<(itTT->second).iphi_<<" tp="<<((itTT->second).tpgADC_&0xff)<<" tpEmul=" ;
+    //  std::cout<<"ieta="<<(itTT->second).ieta_<<" iphi "<<(itTT->second).iphi_<<" tp="<<((itTT->second).tpgADC_&0xff)<<" tpEmul=" ;
+    //  if((itTT->second).twrADC != 0){
+    //   std::cout << "towerNb:" << towerNb << std::endl;
+    //   std::cout << "(itTT->second).twrADC: " << (itTT->second).twrADC << std::endl;
+    //  }
+
+    //  if((itTT->second).tpgADC_ != 0){
+    //   std::cout << "towerNb:" << towerNb << std::endl;
+    //   std::cout << "(itTT->second).tpgADC_: " << (itTT->second).tpgADC_ << std::endl;
+    //  }     
+
+    //  if((itTT->second).tpgEmul_[0] != 0){
+    //    std::cout << "(itTT->second).tpgEmul_[0]: " << (itTT->second).tpgEmul_[0] << std::endl;
+    //  }
+
+
      ieta[towerNb] = (itTT->second).ieta_ ;
      iphi[towerNb] = (itTT->second).iphi_ ;
      nbOfXtals[towerNb] = (itTT->second).nbXtal_ ;
@@ -1163,7 +1193,7 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
      rawTPEmul4[towerNb] = (itTT->second).tpgEmul_[3] ;
      rawTPEmul5[towerNb] = (itTT->second).tpgEmul_[4] ;
      
-     // Et values for emulated TP with index 2
+     // Et values for emulated TP with index 2 (BX = 0?)
      twrEmul3ADC[towerNb] = ((itTT->second).tpgEmul_[2]&0xff) ;
      
      rawTPEmulttFlag1[towerNb] = (itTT->second).tpgEmulFlag_[0] ;

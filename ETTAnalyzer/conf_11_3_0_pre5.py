@@ -136,7 +136,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.user
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1 ) ##-- Printout run, lumi, event info  
 
 ##-- Get list of files 
-Direc = "/eos/cms/store/user/khurana/ECAL/edmFiles/%s/"%(options.SevLevel)
+Direc = "/eos/cms/store/user/khurana/ECAL/edmFiles/%s/"%(options.SevLevel) 
 files = ["file:%s%s"%(Direc, f) for f in os.listdir(Direc) if os.path.isfile(os.path.join(Direc, f))]
 
 process.source = cms.Source("PoolSource",
@@ -197,7 +197,7 @@ if(options.RunETTAnalyzer):
     process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
     ol = "/eos/user/a/atishelm/SWAN_projects/EcalL1Optimization/ETTAnalyzer/"
-    outFileName = "%s/ETTAnalyzer_Outputs/ETTAnalyzer_CMSSW_11_3_0_pre1_Sev%s_%sConfig.root"%(ol, options.SevLevel, options.TPModeTag.split('_')[2])
+    outFileName = "%s/ETTAnalyzer_Outputs/ETTAnalyzer_CMSSW_11_3_0_pre5_Sev%s_%sConfig.root"%(ol, options.SevLevel, options.TPModeTag.split('_')[2])
 
     process.TFileService = cms.Service("TFileService",
                                     fileName = cms.string(outFileName)

@@ -131,6 +131,7 @@ private:
   
   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
   edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtProducer_; // input tag for L1 uGT DAQ readout record
+  bool savePreFireInfo_;
   edm::EDGetTokenT<l1t::EGammaBxCollection> stage2CaloLayer2EGammaToken_;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpEmulatorCollection_ ;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpCollection_ ;
@@ -293,8 +294,8 @@ private:
   Float_t L1preNonisoPtp2[10];
 
   // Define histograms 
-  TH2F* ibx_vs_ieta_Iso;
-  TH2F* ibx_vs_ieta_NonIso;
+  // TH2F* ibx_vs_ieta_Iso;
+  // TH2F* ibx_vs_ieta_NonIso;
   TTree *ETTAnalyzerTree;
 
   
@@ -316,6 +317,7 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   :
 
   l1tStage2uGtProducer_(consumes<GlobalAlgBlkBxCollection>(ps.getParameter<edm::InputTag>("ugtProducer"))),
+  savePreFireInfo_(ps.getParameter<bool>("savePreFireInfo")),
   stage2CaloLayer2EGammaToken_(consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2EGammaProducer"))),
   tpEmulatorCollection_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("TPEmulatorCollection"))),
   tpCollection_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("TPCollection"))),
@@ -329,45 +331,26 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   algoNameFirstBxInTrain_(ps.getUntrackedParameter<std::string>("firstBXInTrainAlgo","")),
   algoNameLastBxInTrain_(ps.getUntrackedParameter<std::string>("lastBXInTrainAlgo","")),
   algoNameIsoBx_(ps.getUntrackedParameter<std::string>("isoBXAlgo",""))
-  
-  /*
-  l1tStage2uGtProducer_(consumes<GlobalAlgBlkBxCollection>(ps.getParameter<edm::InputTag>("ugtProducer"))),
-  stage2CaloLayer2EGammaToken_(consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2EGammaProducer"))),
-  tpEmulatorCollection_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("TPEmulatorCollection"))),
-  tpCollection_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("TPCollection"))),
-  EBdigistoken_(consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBdigis") )  ),
-  EEdigistoken_(consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigis") )  )
-  */
 
 {
   EcalRecHitCollectionEB1_ = consumes<EcalRecHitCollection>( ps.getParameter<edm::InputTag>("EcalRecHitCollectionEB") );
   EcalRecHitCollectionEE1_ = consumes<EcalRecHitCollection>( ps.getParameter<edm::InputTag>("EcalRecHitCollectionEE") );
-
-
-  
   
   useAlgoDecision_ = 0;
-  /*
-  if (ps.getUntrackedParameter<std::string>("useAlgoDecision").find("final") == 0) {
-    useAlgoDecision_ = 2;
-  } else if (ps.getUntrackedParameter<std::string>("useAlgoDecision").find("intermediate") == 0) {
-    useAlgoDecision_ = 1;
-  } else {
-    useAlgoDecision_ = 0;
-  }
-  */
   egammaPtCuts_.clear();
-  egammaPtCuts_.push_back(10.0);
+  // egammaPtCuts_.push_back(10.0);
   //egammaPtCuts_.push_back(20.0);
   //egammaPtCuts_.push_back(30.0);
 
   
   //ibx_vs_ieta_Iso = new TH2F("ibx_vs_ieta_Iso","ibx_vs_ieta_Iso", 5, -2.5, 2.5, 70, -70, 70);
   //ibx_vs_ieta_NonIso = new TH2F("ibx_vs_ieta_NonIso","ibx_vs_ieta_NonIso", 5, -2.5, 2.5, 70, -70, 70);
-  ETTAnalyzerTree = fs->make<TTree>("ETTAnalyzerTree","A ROOT tree to save information to understand prefiring");
+  ETTAnalyzerTree = fs->make<TTree>("ETTAnalyzerTree","ECAL trigger primitive and rec hit information");
 
-  ibx_vs_ieta_Iso = fs->make<TH2F>("ibx_vs_ieta_Iso","ibx_vs_ieta_Iso", 5, -2.5, 2.5, 70, -70, 70);
-  ibx_vs_ieta_NonIso = fs->make<TH2F>("ibx_vs_ieta_NonIso","ibx_vs_ieta_NonIso", 5, -2.5, 2.5, 70, -70, 70);
+  // bool savePreFireInfo = 0; 
+
+  // ibx_vs_ieta_Iso = fs->make<TH2F>("ibx_vs_ieta_Iso","ibx_vs_ieta_Iso", 5, -2.5, 2.5, 70, -70, 70);
+  // ibx_vs_ieta_NonIso = fs->make<TH2F>("ibx_vs_ieta_NonIso","ibx_vs_ieta_NonIso", 5, -2.5, 2.5, 70, -70, 70);
 
 
   ETTAnalyzerTree->Branch("runNb", &runNb ,"runNb/i");
@@ -431,71 +414,77 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   ETTAnalyzerTree->Branch("twrEmulMaxADC", twrEmulMaxADC ,"twrEmulMaxADC[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("twrEmul3ADC", twrEmul3ADC ,"twrEmul3ADC[nbOfTowers]/I");
   
-  //counters 
-  ETTAnalyzerTree->Branch("nonisocounterm2", &v_nonisocounterm2, "nonisocounterm2/I");
-  ETTAnalyzerTree->Branch("nonisocounterm1", &v_nonisocounterm1, "nonisocounterm1/I");
-  ETTAnalyzerTree->Branch("nonisocounterzero", &v_nonisocounterzero, "nonisocounterzero/I");
-  ETTAnalyzerTree->Branch("nonisocounterp1", &v_nonisocounterp1, "nonisocounterp1/I");
-  ETTAnalyzerTree->Branch("nonisocounterp2", &v_nonisocounterp2, "nonisocounterp2/I");
+  if(savePreFireInfo_){
 
-  ETTAnalyzerTree->Branch("isocounterm2", &v_isocounterm2, "isocounterm2/I");
-  ETTAnalyzerTree->Branch("isocounterm1", &v_isocounterm1, "isocounterm1/I");
-  ETTAnalyzerTree->Branch("isocounterzero", &v_isocounterzero, "isocounterzero/I");
-  ETTAnalyzerTree->Branch("isocounterp1", &v_isocounterp1, "isocounterp1/I");
-  ETTAnalyzerTree->Branch("isocounterp2", &v_isocounterp2, "isocounterp2/I");
-  
-  // isolated 
-  ETTAnalyzerTree->Branch("L1preIsoIetam2", L1preIsoIetam2 , "L1preIsoIetam2[isocounterm2]/I");
-  ETTAnalyzerTree->Branch("L1preIsoIetam1", L1preIsoIetam1 , "L1preIsoIetam1[isocounterm1]/I");
-  ETTAnalyzerTree->Branch("L1preIsoIetazero", L1preIsoIetazero , "L1preIsoIetazero[isocounterzero]/I");
-  ETTAnalyzerTree->Branch("L1preIsoIetap1", L1preIsoIetap1 , "L1preIsoIetap1[isocounterp1]/I");
-  ETTAnalyzerTree->Branch("L1preIsoIetap2", L1preIsoIetap2 , "L1preIsoIetap2[isocounterp2]/I");
+    //counters 
+    ETTAnalyzerTree->Branch("nonisocounterm2", &v_nonisocounterm2, "nonisocounterm2/I");
+    ETTAnalyzerTree->Branch("nonisocounterm1", &v_nonisocounterm1, "nonisocounterm1/I");
+    ETTAnalyzerTree->Branch("nonisocounterzero", &v_nonisocounterzero, "nonisocounterzero/I");
+    ETTAnalyzerTree->Branch("nonisocounterp1", &v_nonisocounterp1, "nonisocounterp1/I");
+    ETTAnalyzerTree->Branch("nonisocounterp2", &v_nonisocounterp2, "nonisocounterp2/I");
 
-
-  ETTAnalyzerTree->Branch("L1preIsoIphim2", L1preIsoIphim2 , "L1preIsoIphim2[isocounterm2]/I");
-  ETTAnalyzerTree->Branch("L1preIsoIphim1", L1preIsoIphim1 , "L1preIsoIphim1[isocounterm1]/I");
-  ETTAnalyzerTree->Branch("L1preIsoIphizero", L1preIsoIphizero , "L1preIsoIphizero[isocounterzero]/I");
-  ETTAnalyzerTree->Branch("L1preIsoIphip1", L1preIsoIphip1 , "L1preIsoIphip1[isocounterp1]/I");
-  ETTAnalyzerTree->Branch("L1preIsoIphip2", L1preIsoIphip2 , "L1preIsoIphip2[isocounterp2]/I");
-
-  ETTAnalyzerTree->Branch("L1preIsoEnergym2", L1preIsoEnergym2 , "L1preIsoEnergym2[isocounterm2]/I");
-  ETTAnalyzerTree->Branch("L1preIsoEnergym1", L1preIsoEnergym1 , "L1preIsoEnergym1[isocounterm1]/I");
-  ETTAnalyzerTree->Branch("L1preIsoEnergyzero", L1preIsoEnergyzero , "L1preIsoEnergyzero[isocounterzero]/I");
-  ETTAnalyzerTree->Branch("L1preIsoEnergyp1", L1preIsoEnergyp1 , "L1preIsoEnergyp1[isocounterp1]/I");
-  ETTAnalyzerTree->Branch("L1preIsoEnergyp2", L1preIsoEnergyp2 , "L1preIsoEnergyp2[isocounterp2]/I");
-
-  ETTAnalyzerTree->Branch("L1preIsoPtm2", L1preIsoPtm2 , "L1preIsoPtm2[isocounterm2]/F");
-  ETTAnalyzerTree->Branch("L1preIsoPtm1", L1preIsoPtm1 , "L1preIsoPtm1[isocounterm1]/F");
-  ETTAnalyzerTree->Branch("L1preIsoPtzero", L1preIsoPtzero , "L1preIsoPtzero[isocounterzero]/F");
-  ETTAnalyzerTree->Branch("L1preIsoPtp1", L1preIsoPtp1 , "L1preIsoPtp1[isocounterp1]/F");
-  ETTAnalyzerTree->Branch("L1preIsoPtp2", L1preIsoPtp2 , "L1preIsoPtp2[isocounterp2]/F");
+    ETTAnalyzerTree->Branch("isocounterm2", &v_isocounterm2, "isocounterm2/I");
+    ETTAnalyzerTree->Branch("isocounterm1", &v_isocounterm1, "isocounterm1/I");
+    ETTAnalyzerTree->Branch("isocounterzero", &v_isocounterzero, "isocounterzero/I");
+    ETTAnalyzerTree->Branch("isocounterp1", &v_isocounterp1, "isocounterp1/I");
+    ETTAnalyzerTree->Branch("isocounterp2", &v_isocounterp2, "isocounterp2/I");
+    
+    // isolated 
+    ETTAnalyzerTree->Branch("L1preIsoIetam2", L1preIsoIetam2 , "L1preIsoIetam2[isocounterm2]/I");
+    ETTAnalyzerTree->Branch("L1preIsoIetam1", L1preIsoIetam1 , "L1preIsoIetam1[isocounterm1]/I");
+    ETTAnalyzerTree->Branch("L1preIsoIetazero", L1preIsoIetazero , "L1preIsoIetazero[isocounterzero]/I");
+    ETTAnalyzerTree->Branch("L1preIsoIetap1", L1preIsoIetap1 , "L1preIsoIetap1[isocounterp1]/I");
+    ETTAnalyzerTree->Branch("L1preIsoIetap2", L1preIsoIetap2 , "L1preIsoIetap2[isocounterp2]/I");
 
 
-  // non isolated 
-  ETTAnalyzerTree->Branch("L1preNonisoIetam2", L1preNonisoIetam2 , "L1preNonisoIetam2[nonisocounterm2]/I");
-  ETTAnalyzerTree->Branch("L1preNonisoIetam1", L1preNonisoIetam1 , "L1preNonisoIetam1[nonisocounterm1]/I");
-  ETTAnalyzerTree->Branch("L1preNonisoIetazero", L1preNonisoIetazero , "L1preNonisoIetazero[nonisocounterzero]/I");
-  ETTAnalyzerTree->Branch("L1preNonisoIetap1", L1preNonisoIetap1 , "L1preNonisoIetap1[nonisocounterp1]/I");
-  ETTAnalyzerTree->Branch("L1preNonisoIetap2", L1preNonisoIetap2 , "L1preNonisoIetap2[nonisocounterp2]/I");
+    ETTAnalyzerTree->Branch("L1preIsoIphim2", L1preIsoIphim2 , "L1preIsoIphim2[isocounterm2]/I");
+    ETTAnalyzerTree->Branch("L1preIsoIphim1", L1preIsoIphim1 , "L1preIsoIphim1[isocounterm1]/I");
+    ETTAnalyzerTree->Branch("L1preIsoIphizero", L1preIsoIphizero , "L1preIsoIphizero[isocounterzero]/I");
+    ETTAnalyzerTree->Branch("L1preIsoIphip1", L1preIsoIphip1 , "L1preIsoIphip1[isocounterp1]/I");
+    ETTAnalyzerTree->Branch("L1preIsoIphip2", L1preIsoIphip2 , "L1preIsoIphip2[isocounterp2]/I");
 
-  ETTAnalyzerTree->Branch("L1preNonisoIphim2", L1preNonisoIphim2 , "L1preNonisoIphim2[nonisocounterm2]/I");
-  ETTAnalyzerTree->Branch("L1preNonisoIphim1", L1preNonisoIphim1 , "L1preNonisoIphim1[nonisocounterm1]/I");
-  ETTAnalyzerTree->Branch("L1preNonisoIphizero", L1preNonisoIphizero , "L1preNonisoIphizero[nonisocounterzero]/I");
-  ETTAnalyzerTree->Branch("L1preNonisoIphip1", L1preNonisoIphip1 , "L1preNonisoIphip1[nonisocounterp1]/I");
-  ETTAnalyzerTree->Branch("L1preNonisoIphip2", L1preNonisoIphip2 , "L1preNonisoIphip2[nonisocounterp2]/I");
+    ETTAnalyzerTree->Branch("L1preIsoEnergym2", L1preIsoEnergym2 , "L1preIsoEnergym2[isocounterm2]/I");
+    ETTAnalyzerTree->Branch("L1preIsoEnergym1", L1preIsoEnergym1 , "L1preIsoEnergym1[isocounterm1]/I");
+    ETTAnalyzerTree->Branch("L1preIsoEnergyzero", L1preIsoEnergyzero , "L1preIsoEnergyzero[isocounterzero]/I");
+    ETTAnalyzerTree->Branch("L1preIsoEnergyp1", L1preIsoEnergyp1 , "L1preIsoEnergyp1[isocounterp1]/I");
+    ETTAnalyzerTree->Branch("L1preIsoEnergyp2", L1preIsoEnergyp2 , "L1preIsoEnergyp2[isocounterp2]/I");
+
+    ETTAnalyzerTree->Branch("L1preIsoPtm2", L1preIsoPtm2 , "L1preIsoPtm2[isocounterm2]/F");
+    ETTAnalyzerTree->Branch("L1preIsoPtm1", L1preIsoPtm1 , "L1preIsoPtm1[isocounterm1]/F");
+    ETTAnalyzerTree->Branch("L1preIsoPtzero", L1preIsoPtzero , "L1preIsoPtzero[isocounterzero]/F");
+    ETTAnalyzerTree->Branch("L1preIsoPtp1", L1preIsoPtp1 , "L1preIsoPtp1[isocounterp1]/F");
+    ETTAnalyzerTree->Branch("L1preIsoPtp2", L1preIsoPtp2 , "L1preIsoPtp2[isocounterp2]/F");
 
 
-  ETTAnalyzerTree->Branch("L1preNonisoEnergym2", L1preNonisoEnergym2 , "L1preNonisoEnergym2[nonisocounterm2]/I");
-  ETTAnalyzerTree->Branch("L1preNonisoEnergym1", L1preNonisoEnergym1 , "L1preNonisoEnergym1[nonisocounterm2]/I");
-  ETTAnalyzerTree->Branch("L1preNonisoEnergyzero", L1preNonisoEnergyzero , "L1preNonisoEnergyzero[nonisocounterzero]/I");
-  ETTAnalyzerTree->Branch("L1preNonisoEnergyp1", L1preNonisoEnergyp1 , "L1preNonisoEnergyp1[nonisocounterp1]/I");
-  ETTAnalyzerTree->Branch("L1preNonisoEnergyp2", L1preNonisoEnergyp2 , "L1preNonisoEnergyp2[nonisocounterp2]/I");
+    // non isolated 
+    ETTAnalyzerTree->Branch("L1preNonisoIetam2", L1preNonisoIetam2 , "L1preNonisoIetam2[nonisocounterm2]/I");
+    ETTAnalyzerTree->Branch("L1preNonisoIetam1", L1preNonisoIetam1 , "L1preNonisoIetam1[nonisocounterm1]/I");
+    ETTAnalyzerTree->Branch("L1preNonisoIetazero", L1preNonisoIetazero , "L1preNonisoIetazero[nonisocounterzero]/I");
+    ETTAnalyzerTree->Branch("L1preNonisoIetap1", L1preNonisoIetap1 , "L1preNonisoIetap1[nonisocounterp1]/I");
+    ETTAnalyzerTree->Branch("L1preNonisoIetap2", L1preNonisoIetap2 , "L1preNonisoIetap2[nonisocounterp2]/I");
 
-  ETTAnalyzerTree->Branch("L1preNonisoPtm2", L1preNonisoPtm2 , "L1preNonisoPtm2[nonisocounterm2]/F");
-  ETTAnalyzerTree->Branch("L1preNonisoPtm1", L1preNonisoPtm1 , "L1preNonisoPtm1[nonisocounterm2]/F");
-  ETTAnalyzerTree->Branch("L1preNonisoPtzero", L1preNonisoPtzero , "L1preNonisoPtzero[nonisocounterzero]/F");
-  ETTAnalyzerTree->Branch("L1preNonisoPtp1", L1preNonisoPtp1 , "L1preNonisoPtp1[nonisocounterp1]/F");
-  ETTAnalyzerTree->Branch("L1preNonisoPtp2", L1preNonisoPtp2 , "L1preNonisoPtp2[nonisocounterp2]/F");
+    ETTAnalyzerTree->Branch("L1preNonisoIphim2", L1preNonisoIphim2 , "L1preNonisoIphim2[nonisocounterm2]/I");
+    ETTAnalyzerTree->Branch("L1preNonisoIphim1", L1preNonisoIphim1 , "L1preNonisoIphim1[nonisocounterm1]/I");
+    ETTAnalyzerTree->Branch("L1preNonisoIphizero", L1preNonisoIphizero , "L1preNonisoIphizero[nonisocounterzero]/I");
+    ETTAnalyzerTree->Branch("L1preNonisoIphip1", L1preNonisoIphip1 , "L1preNonisoIphip1[nonisocounterp1]/I");
+    ETTAnalyzerTree->Branch("L1preNonisoIphip2", L1preNonisoIphip2 , "L1preNonisoIphip2[nonisocounterp2]/I");
+
+
+    ETTAnalyzerTree->Branch("L1preNonisoEnergym2", L1preNonisoEnergym2 , "L1preNonisoEnergym2[nonisocounterm2]/I");
+    ETTAnalyzerTree->Branch("L1preNonisoEnergym1", L1preNonisoEnergym1 , "L1preNonisoEnergym1[nonisocounterm2]/I");
+    ETTAnalyzerTree->Branch("L1preNonisoEnergyzero", L1preNonisoEnergyzero , "L1preNonisoEnergyzero[nonisocounterzero]/I");
+    ETTAnalyzerTree->Branch("L1preNonisoEnergyp1", L1preNonisoEnergyp1 , "L1preNonisoEnergyp1[nonisocounterp1]/I");
+    ETTAnalyzerTree->Branch("L1preNonisoEnergyp2", L1preNonisoEnergyp2 , "L1preNonisoEnergyp2[nonisocounterp2]/I");
+
+    ETTAnalyzerTree->Branch("L1preNonisoPtm2", L1preNonisoPtm2 , "L1preNonisoPtm2[nonisocounterm2]/F");
+    ETTAnalyzerTree->Branch("L1preNonisoPtm1", L1preNonisoPtm1 , "L1preNonisoPtm1[nonisocounterm2]/F");
+    ETTAnalyzerTree->Branch("L1preNonisoPtzero", L1preNonisoPtzero , "L1preNonisoPtzero[nonisocounterzero]/F");
+    ETTAnalyzerTree->Branch("L1preNonisoPtp1", L1preNonisoPtp1 , "L1preNonisoPtp1[nonisocounterp1]/F");
+    ETTAnalyzerTree->Branch("L1preNonisoPtp2", L1preNonisoPtp2 , "L1preNonisoPtp2[nonisocounterp2]/F");
+
+  }
+
+
   
   
 
@@ -518,6 +507,7 @@ ETTAnalyzer::~ETTAnalyzer()
 
 // ------------ method called for each event  ------------
 void
+// ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c, bool savePreFireInfo_)
 ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 {
    using namespace edm;
@@ -539,6 +529,9 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
      xtal_ix[i] = -999;
      xtal_iy[i] = -999;
    }
+ 
+   if(savePreFireInfo_){
+
    for (int i=0; i<10; i++){
      L1preIsoIetam2[i] = -999;
      L1preIsoIetam1[i] = -999;
@@ -590,6 +583,9 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
      L1preNonisoPtp2[i] = -999;
 
    }
+
+   }
+
    v_nonisocounterm2     = 0 ;
    v_nonisocounterm1     = 0 ;
    v_nonisocounterzero   = 0 ;
@@ -744,7 +740,9 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 	   
 	   if ((bool)egamma->hwIso()) {
 	     std::cout<<" isolated bx, eta, counter "<<itBX - bxShiftFirst<<"  "<< egamma->hwEta()<<"  "<<isocounterp2<<std::endl;
-	     ibx_vs_ieta_Iso->Fill(itBX - bxShiftFirst, egamma->hwEta() );
+	     
+      //  if(savePreFireInfo_)
+        // ibx_vs_ieta_Iso->Fill(itBX - bxShiftFirst, egamma->hwEta() );
 
 	     // see the description of variables at the twiki 
 	     //https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TCaloFormats 
@@ -789,7 +787,7 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 	   // ----------------------------------------------------------
 	   // -------- non-isolated branches starts from here. ---------
 	   // ----------------------------------------------------------
-	   ibx_vs_ieta_NonIso->Fill(itBX - bxShiftFirst, egamma->hwEta());
+	  //  ibx_vs_ieta_NonIso->Fill(itBX - bxShiftFirst, egamma->hwEta());
 
 	   std::cout<<" eta and hweta "<<egamma->hwEta() <<" "<<egamma->eta() <<std::endl;
 	   
@@ -880,8 +878,6 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    }
 
    */
-
-
    
    // ------------------------------------------**********----------***-------------------------------------------------------------------------
    // -----------------------------------------------*--------------*--***----------------------------------------------------------------------
@@ -1050,52 +1046,53 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    
    edm::Handle<EcalRecHitCollection> rechitsEB; 
    e.getByToken(EcalRecHitCollectionEB1_,rechitsEB); 
-  //  float maxRecHitEnergy = 0. ;
-  //  int irechit=0;
+   float maxRecHitEnergy = 0. ;
+   int irechit=0;
    int sevlvl_tmp = -999; 
    double theta = -999; 
-   double recHitEnergy = -999; 
-  //  if (rechitsEB.product()->size()!=0) {
+  //  double recHitEnergy = -999; 
 
-  //    // For each EB Rec Hit
-  //    for ( EcalRecHitCollection::const_iterator rechitItr = rechitsEB->begin(); rechitItr != rechitsEB->end(); ++rechitItr ) {   
-  //      recHitEnergy = rechitItr->energy(); 
+   if (rechitsEB.product()->size()!=0) {
+
+     // For each EB Rec Hit
+     for ( EcalRecHitCollection::const_iterator rechitItr = rechitsEB->begin(); rechitItr != rechitsEB->end(); ++rechitItr ) {   
+      //  recHitEnergy = rechitItr->energy(); 
               
-  //     //  EBDetId id = rechitItr->id(); 
-  //     //  sevlvl_tmp =  (sevlv1->severityLevel(id, *rechitsEB));
-  //     //  (itTT->second).time_ = rechitItr->time();
-  //     //  (itTT->second).sevlv_ = sevlvl_tmp; 
+       EBDetId id = rechitItr->id(); 
+       sevlvl_tmp =  (sevlv1->severityLevel(id, *rechitsEB));
+       (itTT->second).time_ = rechitItr->time();
+       (itTT->second).sevlv_ = sevlvl_tmp; 
        
-  //     //  const EcalTrigTowerDetId towid = id.tower();
-  //     //  irechit++;
-  //     //  itTT = mapTower.find(towid) ;
-  //      //  (itTT->second).eRec_ = rechitItr->energy();
+       const EcalTrigTowerDetId towid = id.tower();
+       irechit++;
+       itTT = mapTower.find(towid) ;
+        (itTT->second).eRec_ = rechitItr->energy();
 
-  //      // Associate highest energy crystal rechit in tower to tower 
-  //     //  if (itTT != mapTower.end()) {
-  //         //if((itTT->second).tpgADC_){	 std::cout<<" EcalTrigTowerDetId :: Rechit matched "<<towid<<" sevlev: "<<sevlv1->severityLevel(id, *rechitsEB)<<" ene:"<<(itTT->second).twrADC<<std::endl; }
+       // Associate information associated with highest energy crystal rechit in tower to tower. 
+       if (itTT != mapTower.end()) {
+          // if((itTT->second).tpgADC_){	 std::cout<<" EcalTrigTowerDetId :: Rechit matched "<<towid<<" sevlev: "<<sevlv1->severityLevel(id, *rechitsEB)<<" ene:"<<(itTT->second).twrADC<<std::endl; }
           
-  //         // theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
-  //         // (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
+          theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
+          (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
 
-  //         // int sevlvl_tmp =  (sevlv1->severityLevel(id, *rechitsEB)) ;
+          sevlvl_tmp =  (sevlv1->severityLevel(id, *rechitsEB)) ;
  
-  //         //  maxRecHitEnergy = rechitItr->energy();
-  //         // (itTT->second).sevlv_ = sevlvl_tmp; 	
-  //         //  (itTT->second).twrADC_ = (itTT->second).twrADC;
+          // (itTT->second).sevlv_ = sevlvl_tmp; 	
+          // (itTT->second).twrADC_ = (itTT->second).twrADC;
 
-  //         //  if ( rechitItr->energy() > maxRecHitEnergy && ((itTT->second).twrADC>32) ){
-  //         //   //  maxRecHitEnergy = rechitItr->energy();
-  //         //    (itTT->second).sevlv_ = sevlvl_tmp; 	
-  //         //    (itTT->second).time_ = rechitItr->time();
-  //         //   //  (itTT->second).eRec_ = rechitItr->energy();
-  //         //  }
+          //  if ( rechitItr->energy() > maxRecHitEnergy && ((itTT->second).twrADC>32) ){
+           if ( rechitItr->energy() > maxRecHitEnergy ){ // No energy minimum 
+             maxRecHitEnergy = rechitItr->energy();
+             (itTT->second).sevlv_ = sevlvl_tmp; 	
+             (itTT->second).time_ = rechitItr->time();
+            //  (itTT->second).eRec_ = rechitItr->energy();
+           }
 
-	//         // (itTT->second).crystNb_++; // Xtal loop? 
-  //     //  }
+	        (itTT->second).crystNb_++; // Xtal loop? 
+       }
 
-  //    }
-  //  }
+     }
+   }
 
 
    /*
@@ -1286,8 +1283,9 @@ void
 ETTAnalyzer::endJob()
 {
 
-  ibx_vs_ieta_Iso->Write();
-  ibx_vs_ieta_NonIso->Write();
+  // if(savePreFireInfo) 
+  // ibx_vs_ieta_Iso->Write();
+  // ibx_vs_ieta_NonIso->Write();
   
   ETTAnalyzerTree->Write();
   

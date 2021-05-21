@@ -22,7 +22,11 @@
 ##
 ##-- cmsRun commands:
 ## Run ETT analyzer locally:
+## ##-- run 2 config 
 ## cmsRun conf_11_3_0.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=0 userMaxEvents=1 OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1  RunETTAnalyzer=1
+## 
+## Candidate double weights config 
+## cmsRun conf_11_3_0.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run3_zeroing.db TPModeTag=EcalTPG_TPMode_Run3_zeroing TPinfoPrintout=0 userMaxEvents=10000 OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1 RunETTAnalyzer=1 
 ##
 ##-- Misc notes: 
 ## crab status -d crab_projects/crab_ETT_Test --verboseErrors

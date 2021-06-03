@@ -81,14 +81,16 @@ options.register ('BarrelOnly',
                 VarParsing.VarParsing.varType.bool,          
                 "BarrelOnly")                                
 options.register ('TPModeSqliteFile',
-                'EcalTPG_TPMode_Run2_default.db',
+                # 'EcalTPG_TPMode_Run2_default.db',
+                'EcalTPG_TPMode_Run3_zeroing.db',
                 # 'TPModes/EcalTPG_TPMode_Run2_default.db',
                 # 'none.db', # default value -- 0 = Run 2 
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "TPModeSqliteFile")    
 options.register ('TPModeTag',
-                'EcalTPG_TPMode_Run2_default', # default value -- 0 = Run 2 
+                # 'EcalTPG_TPMode_Run2_default', # default value -- 0 = Run 2 
+                'EcalTPG_TPMode_Run3_zeroing', # default value -- 0 = Run 2 
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "TPModeTag")  
@@ -168,7 +170,8 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    InstanceEB = cms.string('ebDigis'),
    InstanceEE = cms.string('eeDigis'),
    Label = cms.string('ecalDigis'),
-   BarrelOnly = cms.bool(options.BarrelOnly),
+#    BarrelOnly = cms.bool(options.BarrelOnly),
+   BarrelOnly = cms.bool(True),
    Famos = cms.bool(False),
    TcpOutput = cms.bool(False),
    Debug = cms.bool(options.Debug), ##-- Lots of printout 
@@ -249,8 +252,7 @@ if(options.RunETTAnalyzer):
     # ##-- Used for local running output files 
     process.TFileService = cms.Service("TFileService",
     #                                 # fileName = cms.string(outFileName)
-                                    fileName = cms.string("ETT_test.root")
-    #                                 #fileName = cms.string('Histo_L1Prefiring_0ns_FixLabel.root')
+                                    fileName = cms.string("ETTAnalyzer_output.root")
                                     )
 
     # process.out = cms.OutputModule("PoolOutputModule", fileName = cms.untracked.string('ETT_test.root')

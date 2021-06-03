@@ -608,7 +608,7 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    // ------------------------------*----------------*------------------*------------------------------------------------------------------------------------------------
    // ------------------------------*----------------*------------------*------------------------------------------------------------------------------------------------
    // ------------------------------**********------***-----------------*------------------------------------------------------------------------------------------------
-
+  
    
    
    // Open uGT readout record
@@ -1043,7 +1043,38 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 
 
    // https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideEcalRecoLocalReco#Mapping_into_severity_levels
-   
+
+  //  edm::Handle<EcalRecHitCollection> rechitsEB; 
+  //  e.getByToken(EcalRecHitCollectionEB1_,rechitsEB); 
+  //  float maxRecHitEnergy = 0. ;
+  //  int irechit=0;
+  //  if (rechitsEB.product()->size()!=0) {
+  //    for ( EcalRecHitCollection::const_iterator rechitItr = rechitsEB->begin(); rechitItr != rechitsEB->end(); ++rechitItr ) {   
+              
+  //      EBDetId id = rechitItr->id(); 
+       
+  //      const EcalTrigTowerDetId towid = id.tower();
+  //      //std::cout<<" irechit: "<<irechit<<"  EBDetId: "<<id<<"   ";
+  //      //std::cout<<" EcalTrigTowerDetId :: Rechit "<<towid<<std::endl;
+  //      irechit++;
+       
+  //      itTT = mapTower.find(towid) ;
+  //      if (itTT != mapTower.end()) {
+  //     //if((itTT->second).tpgADC_){	 std::cout<<" EcalTrigTowerDetId :: Rechit matched "<<towid<<" sevlev: "<<sevlv1->severityLevel(id, *rechitsEB)<<" ene:"<<(itTT->second).twrADC<<std::endl; }
+  //     double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
+  //     // (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
+  //     int sevlvl_tmp =  (sevlv1->severityLevel(id, *rechitsEB)) ;
+  //     //  if ( rechitItr->energy() > maxRecHitEnergy && ((itTT->second).twrADC>32) ){
+  //     if ( rechitItr->energy() > maxRecHitEnergy ){
+  //       maxRecHitEnergy = rechitItr->energy();
+  //       (itTT->second).sevlv_ = sevlvl_tmp; 	
+  //       (itTT->second).time_ = rechitItr->time();
+  //     }
+  //     (itTT->second).crystNb_++;
+  //      }
+  //    }
+  //  }
+
    edm::Handle<EcalRecHitCollection> rechitsEB; 
    e.getByToken(EcalRecHitCollectionEB1_,rechitsEB); 
    float maxRecHitEnergy = 0. ;
@@ -1060,9 +1091,7 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
               
        EBDetId id = rechitItr->id(); 
        sevlvl_tmp =  (sevlv1->severityLevel(id, *rechitsEB));
-       (itTT->second).time_ = rechitItr->time();
-       (itTT->second).sevlv_ = sevlvl_tmp; 
-       
+
        const EcalTrigTowerDetId towid = id.tower();
        irechit++;
        itTT = mapTower.find(towid) ;
@@ -1073,8 +1102,7 @@ ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
           // if((itTT->second).tpgADC_){	 std::cout<<" EcalTrigTowerDetId :: Rechit matched "<<towid<<" sevlev: "<<sevlv1->severityLevel(id, *rechitsEB)<<" ene:"<<(itTT->second).twrADC<<std::endl; }
           
           theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
-          (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
-
+          // (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
           sevlvl_tmp =  (sevlv1->severityLevel(id, *rechitsEB)) ;
  
           // (itTT->second).sevlv_ = sevlvl_tmp; 	

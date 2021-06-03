@@ -1,34 +1,37 @@
 
-# # runs = [320038, 320039, 320040, 320061, 320062, 320063, 320064, 320065]
+# runs = [320038, 320039, 320040, 320061, 320062, 320063, 320064, 320065]
 # runs = [320038]
+runs = [320065]
 
-# ecal_files = []
+##-- https://twiki.cern.ch/twiki/bin/view/CMS/AbrahamTishelmanCharnyHomepage#Checking_Dataset_Luminosity
+# export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7/bin:$PATH
+# pip install --install-option="--prefix=$HOME/.local" brilws
+##-- brilcalc lumi -r 320038
 
-# for run in runs:
-#     text_file_path = "Files_Run_%s.txt"%(run)
-#     with open(text_file_path) as f: ##--- https://stackoverflow.com/questions/3277503/how-to-read-a-file-line-by-line-into-a-list
-#         content = f.readlines()
-#         content = [x.strip() for x in content] 
-#         for file in content:
-#             ecal_files.append(file)
+CMS_files = []
 
-ecal_files = ['/store/data/Run2018C/ZeroBias/RAW/v1/000/320/038/00000/62255D68-AE8D-E811-846B-FA163EC798A1.root']
+print "Adding CMS files..."
+for run in runs:
+    print "Run",run
+    text_file_path = "Files_Run_%s.txt"%(run)
+    with open(text_file_path) as f: ##--- https://stackoverflow.com/questions/3277503/how-to-read-a-file-line-by-line-into-a-list
+        content = f.readlines()
+        content = [x.strip() for x in content] 
+        for file in content:
+            CMS_files.append(file)
 
-print("ecal_files:",ecal_files)
-
-# print("----------------------------------Manual exit----------------------------------")
-# exit(1)
+print "Number of input files:",len(CMS_files)
 
 from CRABClient.UserUtilities import config
 config = config()
  
-config.General.requestName = 'ETT_Run'
+# config.General.requestName = 'ETTAnalyzer_320038_to_320065_StripZeroing'
+config.General.requestName = 'ETTAnalyzer_320065_StripZeroing_With_3JuneETTAnalyzer'
 config.General.workArea = 'crab_projects'
-config.General.transferOutputs = True
+config.General.transferOutputs = True ##-- Need this True to transfer output files!! at least with eos output.
 config.General.transferLogs = False 
  
 config.JobType.pluginName = 'Analysis'
-# config.JobType.psetName = '/afs/cern.ch/work/a/atishelm/private/HHWWgg_Tools/Production/CMSSW_9_4_9/src/cmssw_configs/HHWWgg_SM2016_GluGluToHHTo_WWgg_qqlnu_nodeSM_100000events_wPU_MINIAOD.py'
 config.JobType.psetName = '/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_11_3_0/src/ECALDoubleWeights/ETTAnalyzer/conf_11_3_0.py'
 # config.JobType.outputFiles = ['root://cmsxrootd.fnal.gov//store/user/atishelm/ECAL_Trigger_Team/test.root']
 # config.JobType.numCores = 8
@@ -37,14 +40,16 @@ config.JobType.psetName = '/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
 config.Data.outputPrimaryDataset = 'ZeroBias'
-config.Data.outLFNDirBase = '/store/user/atishelm/ntuples/CRAB_TEST/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
+# config.Data.outLFNDirBase = '/store/user/atishelm/ntuples/CRAB_TEST/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
+# config.Data.outLFNDirBase = '/store/user/atishelm/ntuples/ETTAnalyzer_320038_to_320065_StripZeroing/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
+config.Data.outLFNDirBase = '/store/user/atishelm/ntuples/EcalL1Optimization/ETTAnalyzer_320065_StripZeroing_With_3JuneETTAnalyzer/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
 ## 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
 config.Data.outputDatasetTag = 'ETTAnalyzer_CMSSW_11_3_0'
 config.Data.publication = False 
 # config.Data.inputDBS = 'phys03'
 
 
-config.Data.userInputFiles = ecal_files 
+config.Data.userInputFiles = CMS_files 
 
 # config.Data.inputDataset = '/ZeroBias/Run2018C-v1/RAW#162eb239-00fd-4f18-a0ba-58e02f83a1c0'
 # config.Data.inputDataset = '/ZeroBias/Run2018C-v1/RAW#162eb239-00fd-4f18-a0ba-58e02f83a1c0'
@@ -60,7 +65,16 @@ config.Site.storageSite = 'T3_CH_CERNBOX' ##-- CERNBOX, takes outLFNDirBase and 
 # config.JobType.inputFiles = ['/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_11_3_0/src/ECALDoubleWeights/ETTAnalyzer/EcalTPGOddWeightGroup.db']
 # config.JobType.inputFiles = ['/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_11_3_0/src/ECALDoubleWeights/ETTAnalyzer/EcalTPGOddWeightIdMap.db', 
 
+##-- Run 2 mode 
+# config.JobType.inputFiles = ['/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_11_3_0/src/ECALDoubleWeights/ETTAnalyzer/EcalTPGOddWeightGroup.db',
+                            #  '/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_11_3_0/src/ECALDoubleWeights/ETTAnalyzer/ZeroCandidateSet.db',
+                            #  '/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_11_3_0/src/ECALDoubleWeights/ETTAnalyzer/EcalTPG_TPMode_Run2_default.db']
+
+##-- Zeroing
 config.JobType.inputFiles = ['/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_11_3_0/src/ECALDoubleWeights/ETTAnalyzer/EcalTPGOddWeightGroup.db',
                              '/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_11_3_0/src/ECALDoubleWeights/ETTAnalyzer/ZeroCandidateSet.db',
-                             '/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_11_3_0/src/ECALDoubleWeights/ETTAnalyzer/EcalTPG_TPMode_Run2_default.db']
+                             '/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_11_3_0/src/ECALDoubleWeights/ETTAnalyzer/EcalTPG_TPMode_Run3_zeroing.db']                             
+
+
+
 # config.JobType.inputFiles = ['EcalTPGOddWeightGroup.db', 'EcalTPG_TPMode_Run2_default.db']

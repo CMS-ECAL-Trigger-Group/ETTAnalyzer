@@ -1,8 +1,18 @@
 #ifndef ETTANALYZER_H_
 #define ETTANALYZER_H_
 
+//------------------------------------------------------------------------//
+// 21 June 2021                                                           //
+//                                                                        //
+// Raman Khurana                                                          //
+// Abraham Tishelman-Charny                                               //
+//                                                                        //
+// The purpose of this plugin is to save trigger primitive and Level 1    //
+// information from CMS data and MC AODs. This header file defines the    //
+// ETTAnalyzer class.                                                     //
+//------------------------------------------------------------------------//
+
 // system include files
-#include <memory>
 #include <memory>
 #include <vector>
 #include <array>
@@ -41,17 +51,15 @@
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
- #include "FWCore/Utilities/interface/InputTag.h"
- #include "DataFormats/TrackReco/interface/Track.h"
- #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -123,8 +131,6 @@ private:
   std::shared_ptr<l1t::L1TGlobalUtil> gtUtil_;
   std::vector<double> egammaPtCuts_;
 
-
-  
   // not all of the following are needed, clean later on 
   // For the timing histograms
   int algoBitFirstBxInTrain_;
@@ -167,9 +173,9 @@ private:
   int xtal_ix[8064];
   int xtal_iy[8064];
   
-  
-  
-  uint nbOfTowers ; //max 4032 EB+EE                                                                                                                                                                      
+  uint nbOfTowers ; //max 4032 EB+EE            
+
+  // Save per TT                                                                                                                                                           
   int ieta[4032] ;
   int iphi[4032] ;
   int nbOfXtals[4032] ;
@@ -204,6 +210,41 @@ private:
   int TowerInTCC[4032] ;
   int strip[4032];
 
+  // Save entries as leaves 
+//   int ieta ;
+//   int iphi ;
+//   int nbOfXtals ;
+//   int rawTPData ;
+//   int rawTPEmul1 ;
+//   int rawTPEmul2 ;
+//   int rawTPEmul3 ;
+//   int rawTPEmul4 ;
+//   int rawTPEmul5 ;
+//   int rawTPEmulttFlag1 ;
+//   int rawTPEmulttFlag2 ;
+//   int rawTPEmulttFlag3 ;
+//   int rawTPEmulttFlag4 ;
+//   int rawTPEmulttFlag5 ;
+//   int rawTPEmulsFGVB1 ;
+//   int rawTPEmulsFGVB2 ;
+//   int rawTPEmulsFGVB3 ;
+//   int rawTPEmulsFGVB4 ;
+//   int rawTPEmulsFGVB5 ;
+//   float eRec ;
+//   int crystNb;
+//   int sevlv;
+//   int time;
+//   int spike ;
+//   int twrADC;
+//   int sFGVB;
+//   int twrEmulMaxADC;
+//   int twrEmul3ADC;
+  
+//   int ttFlag;
+//   int TCCid;
+//   int TowerInTCC ;
+//   int strip;  
+
   Int_t v_nonisocounterm2     ;
   Int_t v_nonisocounterm1     ;
   Int_t v_nonisocounterzero   ;
@@ -215,7 +256,6 @@ private:
   Int_t v_isocounterzero   ;
   Int_t v_isocounterp1     ;
   Int_t v_isocounterp2     ;
-
 
   Int_t L1preIsoIetam2[10];
   Int_t L1preIsoIetam1[10];
@@ -269,7 +309,6 @@ private:
   // TH2F* ibx_vs_ieta_Iso;
   // TH2F* ibx_vs_ieta_NonIso;
   TTree *ETTAnalyzerTree;
-
   
 };
 
@@ -299,7 +338,7 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   
   useAlgoDecision_ = 0;
   egammaPtCuts_.clear();
-  // egammaPtCuts_.push_back(10.0);
+  //egammaPtCuts_.push_back(10.0);
   //egammaPtCuts_.push_back(20.0);
   //egammaPtCuts_.push_back(30.0);
 
@@ -312,7 +351,6 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
 
   // ibx_vs_ieta_Iso = fs->make<TH2F>("ibx_vs_ieta_Iso","ibx_vs_ieta_Iso", 5, -2.5, 2.5, 70, -70, 70);
   // ibx_vs_ieta_NonIso = fs->make<TH2F>("ibx_vs_ieta_NonIso","ibx_vs_ieta_NonIso", 5, -2.5, 2.5, 70, -70, 70);
-
 
   ETTAnalyzerTree->Branch("runNb", &runNb ,"runNb/i");
   ETTAnalyzerTree->Branch("evtNb", &evtNb ,"evtNb/L");
@@ -336,6 +374,12 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   ETTAnalyzerTree->Branch("xtal_iy", xtal_iy,"xtal_iy[nADC]/I");
   
   ETTAnalyzerTree->Branch("nbOfTowers",&nbOfTowers, "nbOfTowers/i");
+
+
+
+
+
+  //-- Save information in groups of number of towers 
   ETTAnalyzerTree->Branch("ieta", ieta ,"ieta[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("iphi", iphi ,"iphi[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("nbOfXtals", nbOfXtals ,"nbOfXtals[nbOfTowers]/I");
@@ -356,10 +400,6 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   ETTAnalyzerTree->Branch("rawTPEmulsFGVB4", rawTPEmulsFGVB4 ,"rawTPEmulsFGVB4[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("rawTPEmulsFGVB5", rawTPEmulsFGVB5 ,"rawTPEmulsFGVB5[nbOfTowers]/I");
 
-  // Want to save all Rec Hits (all XTALS)
-  
-
-
   // ETTAnalyzerTree->Branch("eRec", eRec ,"eRec[nbOfTowers][25]/I"); // Max of 25 xtals per TT 
   ETTAnalyzerTree->Branch("crystNb", crystNb ,"crystNb[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("sevlv", sevlv ,"sevlv[nbOfTowers]/I");
@@ -374,6 +414,47 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   
   ETTAnalyzerTree->Branch("twrEmulMaxADC", twrEmulMaxADC ,"twrEmulMaxADC[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("twrEmul3ADC", twrEmul3ADC ,"twrEmul3ADC[nbOfTowers]/I");
+
+  //-- Save information by entry, avoiding the need to flatten trees when plotting mass number of entries 
+//   ETTAnalyzerTree->Branch("ieta", &ieta ,"ieta/I");
+//   ETTAnalyzerTree->Branch("iphi", &iphi ,"iphi/I");
+//   ETTAnalyzerTree->Branch("nbOfXtals", &nbOfXtals ,"nbOfXtals/I");
+//   ETTAnalyzerTree->Branch("rawTPData", &rawTPData ,"rawTPData/I");
+//   ETTAnalyzerTree->Branch("rawTPEmul1", &rawTPEmul1  ,"rawTPEmul1/I");
+//   ETTAnalyzerTree->Branch("rawTPEmul2", &rawTPEmul2 ,"rawTPEmul2/I");
+//   ETTAnalyzerTree->Branch("rawTPEmul3", &rawTPEmul3 ,"rawTPEmul3/I");
+//   ETTAnalyzerTree->Branch("rawTPEmul4", &rawTPEmul4 ,"rawTPEmul4/I");
+//   ETTAnalyzerTree->Branch("rawTPEmul5", &rawTPEmul5 ,"rawTPEmul5/I");
+//   ETTAnalyzerTree->Branch("rawTPEmulttFlag1", &rawTPEmulttFlag1 ,"rawTPEmulttFlag1/I");
+//   ETTAnalyzerTree->Branch("rawTPEmulttFlag2", &rawTPEmulttFlag2 ,"rawTPEmulttFlag2/I");
+//   ETTAnalyzerTree->Branch("rawTPEmulttFlag3", &rawTPEmulttFlag3 ,"rawTPEmulttFlag3/I");
+//   ETTAnalyzerTree->Branch("rawTPEmulttFlag4", &rawTPEmulttFlag4 ,"rawTPEmulttFlag4/I");
+//   ETTAnalyzerTree->Branch("rawTPEmulttFlag5", &rawTPEmulttFlag5 ,"rawTPEmulttFlag5/I");
+//   ETTAnalyzerTree->Branch("rawTPEmulsFGVB1", &rawTPEmulsFGVB1 ,"rawTPEmulsFGVB1/I");
+//   ETTAnalyzerTree->Branch("rawTPEmulsFGVB2", &rawTPEmulsFGVB2 ,"rawTPEmulsFGVB2/I");
+//   ETTAnalyzerTree->Branch("rawTPEmulsFGVB3", &rawTPEmulsFGVB3 ,"rawTPEmulsFGVB3/I");
+//   ETTAnalyzerTree->Branch("rawTPEmulsFGVB4", &rawTPEmulsFGVB4 ,"rawTPEmulsFGVB4/I");
+//   ETTAnalyzerTree->Branch("rawTPEmulsFGVB5", &rawTPEmulsFGVB5 ,"rawTPEmulsFGVB5/I");
+
+//   // ETTAnalyzerTree->Branch("eRec", eRec ,"eRec[25]/I"); // Max of 25 xtals per TT 
+//   ETTAnalyzerTree->Branch("crystNb", &crystNb ,"crystNb/I");
+//   ETTAnalyzerTree->Branch("sevlv", &sevlv ,"sevlv/I");
+//   ETTAnalyzerTree->Branch("time", &time ,"time/I");
+//   ETTAnalyzerTree->Branch("spike", &spike ,"spike/I");
+//   ETTAnalyzerTree->Branch("twrADC", &twrADC ,"twrADC/I");
+//   ETTAnalyzerTree->Branch("sFGVB", &sFGVB ,"sFGVB/I");
+//   ETTAnalyzerTree->Branch("ttFlag", &ttFlag ,"ttFlag/I");
+//   ETTAnalyzerTree->Branch("TCCid", &TCCid ,"TCCid/I");
+//   ETTAnalyzerTree->Branch("TowerInTCC", &TowerInTCC ,"TowerInTCC/I");
+//   ETTAnalyzerTree->Branch("strip", &strip ,"strip/I");
+  
+//   ETTAnalyzerTree->Branch("twrEmulMaxADC", &twrEmulMaxADC ,"twrEmulMaxADC/I");
+//   ETTAnalyzerTree->Branch("twrEmul3ADC", &twrEmul3ADC ,"twrEmul3ADC/I");
+
+
+
+
+
   
   if(savePreFireInfo_){
 
@@ -445,7 +526,7 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
 
   }
 
-  //ETTAnalyzerTree->Branch("b_",  ,"b_[nbOfTowers]/I");
+  //ETTAnalyzerTree->Branch("b_",  ,"b_/I");
 }
 
 

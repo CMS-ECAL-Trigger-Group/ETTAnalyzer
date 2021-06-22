@@ -1,32 +1,13 @@
-/* To do: 
-
-
-For the extra variables, I think the rechit severity level is an important one.  Here you need to add some extra commands to the python to run the rechit producer, and add an extra part to the analyser to find  the rechits corresponding to each tower and check the rechit severity level
-https://gitlab.cern.ch/ECALPFG/EcalTPGAnalysis/-/blob/tpganalysis2018/TriggerAnalysis/plugins/EcalTPGAnalyzer.cc#L935
-
-The other thing we will probably need is a way of extracting the digis for specific towers. In TPGAnalysis, this takes the form of a separate tree with one entry per channel. Maybe we can come up with a better and more compact structure, i.e. for each tower we have an array with a set of 25x10 numbers  (25 crystals and 10 samples per crystal). The issue here might be that the ntuple will become large. Perhaps it could be a configurable option, or something that just dumps a text file of the digis, since we might only want to do it for a few selected events
-
-Add verbosity and debug statement in this piece of code to understand the steps and whats going on.. 
-https://cmssdt.cern.ch/lxr/source/SimCalorimetry/EcalTrigPrimAlgos/src/
-*/
-
-// -*- C++ -*-v_
-//
-// Package:    ECALDoubleWeights/ETTAnalyzer
-// Class:      ETTAnalyzer
-//
-/**\class ETTAnalyzer ETTAnalyzer.cc ECALDoubleWeights/ETTAnalyzer/plugins/ETTAnalyzer.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Raman Khurana
-//         Created:  Wed, 1 November 2020 08:53:01 GMT
-//
-//
+//------------------------------------------------------------------------//
+// 21 June 2021                                                           //
+//                                                                        //
+// Raman Khurana                                                          //
+// Abraham Tishelman-Charny                                               //
+//                                                                        //
+// The purpose of this plugin is to save trigger primitive and Level 1    //
+// information from CMS data and MC AODs. This source code file defines   //
+// the member functions used by the ETTAnalyzer class.                    //
+//------------------------------------------------------------------------//
 
 #include "ECALDoubleWeights/ETTAnalyzer/interface/ETTAnalyzer.h"
 
@@ -151,8 +132,8 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    // In case of pre firing it will be in BX 1 or BX 2 and this will determine the BX shift that
    // will be applied to the timing histogram later.
    int bxShiftFirst = -999;
-   int bxShiftIso = -999;
-   int bxShiftLast = -999;
+  //  int bxShiftIso = -999;
+  //  int bxShiftLast = -999;
    for (int bx = uGtAlgs->getFirstBX(); bx <= uGtAlgs->getLastBX(); ++bx) {
      for (GlobalAlgBlkBxCollection::const_iterator itr = uGtAlgs->begin(bx); itr != uGtAlgs->end(bx); ++itr) {
        // first bunch in train
@@ -212,16 +193,12 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
      }
    }
    
-   
-   
    //std::cout<<" bxShiftFirst = " << bxShiftFirst<< " "<<bxShiftIso<< " "<<bxShiftLast<<std::endl;
    
    // the following shifting is needed for following reason: 
    // we want to use only those events which comes as a result of the begining of the bunch train, each bunch train can have crossings multiple times. 
    // if the egamma triggering happended one bx before the begining of bunch train i.e. egamma trigger pre-fired then we need to correct for this effect. 
    // The data is written only once, for all the five bunch crossings. if the egamma trigger was prefired then (-1 bx) then everything needs to be translated. 
-   
-   
    
    int nonisocounterm2    = 0 ;
    int nonisocounterm1    = 0 ;
@@ -234,10 +211,6 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    int isocounterzero  = 0 ;
    int isocounterp1    = 0 ;
    int isocounterp2    = 0 ;
-   
-   
-   
-
    
    for (int itBX = std::max(EGammaBxCollection->getFirstBX(), EGammaBxCollection->getFirstBX() + bxShiftFirst); itBX <= std::min(EGammaBxCollection->getLastBX(), EGammaBxCollection->getLastBX() + bxShiftFirst); ++itBX) {
     //  std::cout<<"inside itBx" <<std::endl;
@@ -435,7 +408,9 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    // -------------------------------
    
    edm::Handle<EcalTrigPrimDigiCollection> tp; // Different from TP info in the trigger path? Is TP info from the trigger path saved at all? 
+  //  std::cout << "Getting tpCollection..." << std::endl;
    e.getByToken(tpCollection_,tp);
+  //  std::cout << "Got tpCollection" << std::endl;
    //std::cout<<"TP collection size="<<tp.product()->size()<<std::endl ;
    
    map<EcalTrigTowerDetId, towerEner>::iterator itTT ;
@@ -443,7 +418,9 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 
    
    edm::Handle<EEDigiCollection>  EEdigis;
+  //  std::cout << "Getting EEdigis..." << std::endl;
    e.getByToken(EEdigistoken_,EEdigis);
+  //  std::cout << "Got EEdigis" << std::endl;
    if(not e.getByToken(EEdigistoken_,EEdigis)){
      std::cout<<"FATAL EXCEPTION: "<<"Following Not Found: EEdigistoken_ "<<std::endl;
      exit(0);
@@ -460,13 +437,9 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
      const EcalTrigTowerDetId towid = (*eTTmap_).towerOf(id);
      
      // testing 
-     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(df.id());
-     uint32_t stripid = elId.rawId() & 0xfffffff8;  // from Pascal
+    //  const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(df.id());
+    //  uint32_t stripid = elId.rawId() & 0xfffffff8;  // from Pascal
      //std::cout<<" strip id : "<<stripid<<std::endl;
-
-     
-
-
      
      for(int i=0; i<10;++i){
        //std::cout<<" tower (eta, phi): ("<<towid.ieta() << ", "<<towid.iphi()<<")"
@@ -523,8 +496,10 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    // -------------------------------
    //  emulator information 
    // -------------------------------
+  //  std::cout << "Getting tpEmul..." << std::endl;
    edm::Handle<EcalTrigPrimDigiCollection> tpEmul ;
    e.getByToken(tpEmulatorCollection_, tpEmul);
+  //  std::cout << "Got tpEmul" << std::endl;
    
    
    for (unsigned int i=0;i<tpEmul.product()->size();i++) {
@@ -539,9 +514,6 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
        }
    }
 
-   
-
-
    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -549,6 +521,7 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
    ESHandle<CaloGeometry> theGeometry;
    ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
     
@@ -565,8 +538,11 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 
    // https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideEcalRecoLocalReco#Mapping_into_severity_levels
 
+  //  std::cout << "Getting rechitsEB..." << std::endl;
+
    edm::Handle<EcalRecHitCollection> rechitsEB; 
    e.getByToken(EcalRecHitCollectionEB1_,rechitsEB); 
+  //  std::cout << "Got rechitsEB" << std::endl;
    float maxRecHitEnergy = 0. ;
    int irechit=0;
    if (rechitsEB.product()->size()!=0) {
@@ -598,8 +574,6 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
    // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
-   // Save all rec hits (?)
-
   //  double recHitEnergy_ = -999; 
   //  int iRecHit = 0; 
   //  if (rechitsEB.product()->size()!=0) {
@@ -612,9 +586,12 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   //    }
   //  }
 
+  //  std::cout << "About to start writing tree" << std::endl; 
+
    int towerNb = 0 ;
    for (itTT = mapTower.begin() ; itTT != mapTower.end() ; ++itTT) {
 
+     //-- Save entries per tower 
      ieta[towerNb] = (itTT->second).ieta_ ;
      iphi[towerNb] = (itTT->second).iphi_ ;
      nbOfXtals[towerNb] = (itTT->second).nbXtal_ ;
@@ -654,17 +631,80 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
     
      TCCid[towerNb] = (itTT->second).TCCid_;
      TowerInTCC[towerNb] = (itTT->second).TowerInTCC_;
-     unsigned int maxEmul = 0 ;
-     for (int i=0 ; i<5 ; i++) if (((itTT->second).tpgEmul_[i]&0xff) > maxEmul) maxEmul = ((itTT->second).tpgEmul_[i]&0xff) ;
-     //for the emulated TP with max ADC of the 5
-     twrEmulMaxADC[towerNb] = maxEmul;
+
+    // //  unsigned int maxEmul = 0 ;
+    // //  for (int i=0 ; i<5 ; i++) if (((itTT->second).tpgEmul_[i]&0xff) > maxEmul) maxEmul = ((itTT->second).tpgEmul_[i]&0xff) ;
+    // //  //for the emulated TP with max ADC of the 5
+    // //  twrEmulMaxADC[towerNb] = maxEmul;
+
+
+
+
+
+
+
+    //  //-- Save each entry as a leaf, rather than in a vector with the length of the number of towers 
+    //  ieta = (itTT->second).ieta_ ;
+    //  iphi = (itTT->second).iphi_ ;
+    //  nbOfXtals = (itTT->second).nbXtal_ ;
+    //  rawTPData = (itTT->second).tpgADC_ ;
+    //  rawTPEmul1 = (itTT->second).tpgEmul_[0] ;
+    //  rawTPEmul2 = (itTT->second).tpgEmul_[1] ;
+    //  rawTPEmul3 = (itTT->second).tpgEmul_[2] ;
+    //  rawTPEmul4 = (itTT->second).tpgEmul_[3] ;
+    //  rawTPEmul5 = (itTT->second).tpgEmul_[4] ;
+     
+    //  // Et values for emulated TP with index 2 (BX = 0?)
+    //  twrEmul3ADC = ((itTT->second).tpgEmul_[2]&0xff) ;
+     
+    //  rawTPEmulttFlag1 = (itTT->second).tpgEmulFlag_[0] ;
+    //  rawTPEmulttFlag2 = (itTT->second).tpgEmulFlag_[1] ;
+    //  rawTPEmulttFlag3 = (itTT->second).tpgEmulFlag_[2] ;
+    //  rawTPEmulttFlag4 = (itTT->second).tpgEmulFlag_[3] ;
+    //  rawTPEmulttFlag5 = (itTT->second).tpgEmulFlag_[4] ;
+    //  rawTPEmulsFGVB1 = (itTT->second).tpgEmulsFGVB_[0] ;
+    //  rawTPEmulsFGVB2 = (itTT->second).tpgEmulsFGVB_[1] ;
+    //  rawTPEmulsFGVB3 = (itTT->second).tpgEmulsFGVB_[2] ;
+    //  rawTPEmulsFGVB4 = (itTT->second).tpgEmulsFGVB_[3] ;
+    //  rawTPEmulsFGVB5 = (itTT->second).tpgEmulsFGVB_[4] ;
+    //  crystNb = (itTT->second).crystNb_ ;
+
+    // //  for(int ixtal = 0; ixtal < 25; ixtal++){
+    // //    eRec[ixtal] = (itTT->second).eRec_ ;
+    // //  }
+
+    // //  eRec = (itTT->second).eRec_ ;
+    //  sevlv = (itTT->second).sevlv_ ; 
+    //  time = (itTT->second).time_ ; 
+    //  ttFlag = (itTT->second).ttFlag_ ;
+    //  spike = (itTT->second).spike_ ;
+    //  twrADC =  (itTT->second).twrADC;
+    //  sFGVB =  (itTT->second).sFGVB;
+    
+    //  TCCid = (itTT->second).TCCid_;
+    //  TowerInTCC = (itTT->second).TowerInTCC_;
+     
+    // //  unsigned int maxEmul = 0 ;
+    // //  for (int i=0 ; i<5 ; i++) if (((itTT->second).tpgEmul_[i]&0xff) > maxEmul) maxEmul = ((itTT->second).tpgEmul_[i]&0xff) ;
+    // //  //for the emulated TP with max ADC of the 5
+    // //  twrEmulMaxADC = maxEmul;
+
      towerNb++ ;
      
+   //-- Fill for each entry in order to avoid having to flatten trees later 
+  //  ETTAnalyzerTree->Fill();
+
    }
+
+   //-- If didn't fill tree once, do it here 
+  //  if(towerNb == 0) ETTAnalyzerTree->Fill();
 
    nbOfTowers = towerNb ;
    
+  //-- Fill once, assuming many entries saved for towerNb 
    ETTAnalyzerTree->Fill();
+
+  // std::cout << "At the end of analyze" << std::endl;
    
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;

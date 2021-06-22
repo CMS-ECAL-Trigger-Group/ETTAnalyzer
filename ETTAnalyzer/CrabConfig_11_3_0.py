@@ -40,7 +40,7 @@ from CRABClient.UserUtilities import config
 config = config()
  
 # config.General.requestName = 'ETTAnalyzer_320038_to_320065_StripZeroing'
-config.General.requestName = 'ETTAnalyzer_320065'
+config.General.requestName = 'ETTAnalyzer_crab'
 config.General.workArea = 'crab_projects'
 config.General.transferOutputs = True ##-- Need this True to transfer output files!! at least with eos output.
 config.General.transferLogs = False 
@@ -56,7 +56,8 @@ config.Data.unitsPerJob = 1
 config.Data.outputPrimaryDataset = 'ZeroBias'
 # config.Data.outLFNDirBase = '/store/user/atishelm/ntuples/ETTAnalyzer_320038_to_320065_StripZeroing/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
 # config.Data.outLFNDirBase = '/store/user/atishelm/ntuples/EcalL1Optimization/ETTAnalyzer_320065_StripZeroing_With_3JuneETTAnalyzer/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
-config.Data.outLFNDirBase = '/store/user/atishelm/ntuples/EcalL1Optimization/ETTAnalyzer_320065/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
+# config.Data.outLFNDirBase = '/store/user/atishelm/ntuples/EcalL1Optimization/ETTAnalyzer_320065/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
+config.Data.outLFNDirBase = '/store/user/atishelm/ntuples/EcalL1Optimization/ETTAnalyzer/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
 ## 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
 config.Data.outputDatasetTag = 'ETTAnalyzer_CMSSW_11_3_0'
 config.Data.publication = False 

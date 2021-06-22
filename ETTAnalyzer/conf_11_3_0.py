@@ -182,13 +182,16 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.userMaxEvents) )
 # process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1 ) ##-- Printout run, lumi, event info
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 999999999 ) ##-- Printout run, lumi, event info
+# process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 999999999 ) ##-- Printout run, lumi, event info
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1 ) ##-- Printout run, lumi, event info
 
 ##-- Get list of files 
 # Direc = "/eos/cms/store/user/khurana/ECAL/edmFiles/%s/"%(options.SevLevel) 
 # files = ["file:%s%s"%(Direc, f) for f in os.listdir(Direc) if os.path.isfile(os.path.join(Direc, f))]
 
-files = ["/store/data/Run2018C/ZeroBias/RAW/v1/000/320/038/00000/A4F2A998-AE8D-E811-8860-FA163EEFDE44.root"]
+# files = ["/store/data/Run2018C/ZeroBias/RAW/v1/000/320/038/00000/A4F2A998-AE8D-E811-8860-FA163EEFDE44.root"] ##-- Random file as an example 
+
+files = ["/store/data/Run2018C/ZeroBias/RAW/v1/000/320/065/00000/26A77465-FE8D-E811-B971-FA163E4200C7.root"] ##-- file from Run 320065 
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(

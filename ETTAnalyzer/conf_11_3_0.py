@@ -181,13 +181,14 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.userMaxEvents) )
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1 ) ##-- Printout run, lumi, event info  
+# process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1 ) ##-- Printout run, lumi, event info
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 999999999 ) ##-- Printout run, lumi, event info
 
 ##-- Get list of files 
 # Direc = "/eos/cms/store/user/khurana/ECAL/edmFiles/%s/"%(options.SevLevel) 
 # files = ["file:%s%s"%(Direc, f) for f in os.listdir(Direc) if os.path.isfile(os.path.join(Direc, f))]
 
-files = ["/store/data/Run2018C/ZeroBias/RAW/v1/000/320/038/00000/967C6B51-AE8D-E811-A694-FA163E92389A.root"]
+files = ["/store/data/Run2018C/ZeroBias/RAW/v1/000/320/038/00000/A4F2A998-AE8D-E811-8860-FA163EEFDE44.root"]
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
@@ -198,7 +199,7 @@ process.source = cms.Source("PoolSource",
 ##-- If running ETT Analyzer
 if(options.RunETTAnalyzer):
 
-    print("Running ETT Analyzer")
+    print("[conf_11_3_0.py] - Running ETT Analyzer")
 
     ##-- Create EDAnalyzer 
     process.tuplizer = cms.EDAnalyzer('ETTAnalyzer',

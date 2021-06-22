@@ -51,3 +51,19 @@ To run with a candidate zeroing mechanism, configuration 1, the only thing that 
 	 TPinfoPrintout=1 maxEvents=1 OddWeightsSqliteFile=weights/EcalTPGOddWeightIdMap.db BarrelOnly=1
 
 This zeroing mechanism zeroes at the strip level. If a strip's odd filter returns a greater value than the even filter, the even filter output will not be included in the TCP sum. As long as the total odd filter energy among the TT strips is greater than the even filter energy sum, this will be flagged in the form of the EB infobit1, where the FGVB is replaced. This is useful for monitoring zeroing, but at the cost of removing the FGVB.  
+
+
+# Notes and To Do 
+
+For the extra variables, I think the rechit severity level is an important one. 
+Here you need to add some extra commands to the python to run the rechit producer, and add an extra part to the analyser to find 
+the rechits corresponding to each tower and check the rechit severity level
+https://gitlab.cern.ch/ECALPFG/EcalTPGAnalysis/-/blob/tpganalysis2018/TriggerAnalysis/plugins/EcalTPGAnalyzer.cc#L935
+
+The other thing we will probably need is a way of extracting the digis for specific towers. In TPGAnalysis, this takes the form of a separate tree with one entry per channel. 
+Maybe we can come up with a better and more compact structure, i.e. for each tower we have an array with a set of 25x10 numbers  (25 crystals and 10 samples per crystal). 
+The issue here might be that the ntuple will become large. Perhaps it could be a configurable option, or something that just dumps a text file of the digis, 
+since we might only want to do it for a few selected events
+
+Add verbosity and debug statement in this piece of code to understand the steps and whats going on.. 
+https://cmssdt.cern.ch/lxr/source/SimCalorimetry/EcalTrigPrimAlgos/src/

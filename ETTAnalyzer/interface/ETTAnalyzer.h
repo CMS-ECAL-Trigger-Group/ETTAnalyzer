@@ -20,6 +20,8 @@
 #include <string>
 #include <TH2F.h> 
 #include <TTree.h>
+#include <TDirectory.h>
+#include <TROOT.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
@@ -124,7 +126,6 @@ private:
   const CaloSubdetectorGeometry * theEndcapGeometry_ ;
   const CaloSubdetectorGeometry * theBarrelGeometry_ ;
 
-
   std::string monitorDir_;
   
   // To get the algo bits corresponding to algo names
@@ -143,7 +144,7 @@ private:
 
   unsigned int useAlgoDecision_;
   edm::Service<TFileService> fs;
-  int myevt;
+  // int myevt;
   const EcalElectronicsMapping* theMapping_;
   // variables for branches 
   uint runNb ;
@@ -162,8 +163,8 @@ private:
   int activeTechTriggers[64] ;
   
   // variables for pulse shape
-  uint ndataframe;
-  uint nADC;
+  // uint ndataframe;
+  // uint nADC;
   int index_df[8064];
   int index_ts[8064];
   int count_ADC[8064];
@@ -209,41 +210,6 @@ private:
   int TCCid[4032];
   int TowerInTCC[4032] ;
   int strip[4032];
-
-  // Save entries as leaves 
-//   int ieta ;
-//   int iphi ;
-//   int nbOfXtals ;
-//   int rawTPData ;
-//   int rawTPEmul1 ;
-//   int rawTPEmul2 ;
-//   int rawTPEmul3 ;
-//   int rawTPEmul4 ;
-//   int rawTPEmul5 ;
-//   int rawTPEmulttFlag1 ;
-//   int rawTPEmulttFlag2 ;
-//   int rawTPEmulttFlag3 ;
-//   int rawTPEmulttFlag4 ;
-//   int rawTPEmulttFlag5 ;
-//   int rawTPEmulsFGVB1 ;
-//   int rawTPEmulsFGVB2 ;
-//   int rawTPEmulsFGVB3 ;
-//   int rawTPEmulsFGVB4 ;
-//   int rawTPEmulsFGVB5 ;
-//   float eRec ;
-//   int crystNb;
-//   int sevlv;
-//   int time;
-//   int spike ;
-//   int twrADC;
-//   int sFGVB;
-//   int twrEmulMaxADC;
-//   int twrEmul3ADC;
-  
-//   int ttFlag;
-//   int TCCid;
-//   int TowerInTCC ;
-//   int strip;  
 
   Int_t v_nonisocounterm2     ;
   Int_t v_nonisocounterm1     ;
@@ -341,13 +307,10 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   //egammaPtCuts_.push_back(10.0);
   //egammaPtCuts_.push_back(20.0);
   //egammaPtCuts_.push_back(30.0);
-
   
   //ibx_vs_ieta_Iso = new TH2F("ibx_vs_ieta_Iso","ibx_vs_ieta_Iso", 5, -2.5, 2.5, 70, -70, 70);
   //ibx_vs_ieta_NonIso = new TH2F("ibx_vs_ieta_NonIso","ibx_vs_ieta_NonIso", 5, -2.5, 2.5, 70, -70, 70);
   ETTAnalyzerTree = fs->make<TTree>("ETTAnalyzerTree","ECAL trigger primitive and rec hit information");
-
-  // bool savePreFireInfo = 0; 
 
   // ibx_vs_ieta_Iso = fs->make<TH2F>("ibx_vs_ieta_Iso","ibx_vs_ieta_Iso", 5, -2.5, 2.5, 70, -70, 70);
   // ibx_vs_ieta_NonIso = fs->make<TH2F>("ibx_vs_ieta_NonIso","ibx_vs_ieta_NonIso", 5, -2.5, 2.5, 70, -70, 70);
@@ -361,44 +324,40 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   ETTAnalyzerTree->Branch("timeStamp", &timeStamp ,"timeStamp/i");
   
   // ADC counts for 10 samples when there is some significant energy deposit. 
-  ETTAnalyzerTree->Branch("ndataframe", &ndataframe ,"ndataframe/i");
-  ETTAnalyzerTree->Branch("nADC", &nADC ,"nADC/i");
-  ETTAnalyzerTree->Branch("index_df", index_df,"index_df[nADC]/I");
-  ETTAnalyzerTree->Branch("index_ts", index_ts,"index_ts[nADC]/I");
-  ETTAnalyzerTree->Branch("count_ADC", count_ADC,"count_ADC[nADC]/I");
-  ETTAnalyzerTree->Branch("gain_id", gain_id,"gain_id[nADC]/I");
+  // ETTAnalyzerTree->Branch("ndataframe", &ndataframe ,"ndataframe/i");
+  // ETTAnalyzerTree->Branch("nADC", &nADC ,"nADC/i");
+  // ETTAnalyzerTree->Branch("index_df", index_df,"index_df[nADC]/I");
+  // ETTAnalyzerTree->Branch("index_ts", index_ts,"index_ts[nADC]/I");
+  // ETTAnalyzerTree->Branch("count_ADC", count_ADC,"count_ADC[nADC]/I");
+  // ETTAnalyzerTree->Branch("gain_id", gain_id,"gain_id[nADC]/I");
 
-  ETTAnalyzerTree->Branch("tower_eta",tower_eta ,"tower_eta[nADC]/I");
-  ETTAnalyzerTree->Branch("tower_phi",tower_phi ,"tower_phi[nADC]/I");
-  ETTAnalyzerTree->Branch("xtal_ix", xtal_ix,"xtal_ix[nADC]/I");
-  ETTAnalyzerTree->Branch("xtal_iy", xtal_iy,"xtal_iy[nADC]/I");
+  // ETTAnalyzerTree->Branch("tower_eta",tower_eta ,"tower_eta[nADC]/I");
+  // ETTAnalyzerTree->Branch("tower_phi",tower_phi ,"tower_phi[nADC]/I");
+  // ETTAnalyzerTree->Branch("xtal_ix", xtal_ix,"xtal_ix[nADC]/I");
+  // ETTAnalyzerTree->Branch("xtal_iy", xtal_iy,"xtal_iy[nADC]/I");
   
   ETTAnalyzerTree->Branch("nbOfTowers",&nbOfTowers, "nbOfTowers/i");
-
-
-
-
 
   //-- Save information in groups of number of towers 
   ETTAnalyzerTree->Branch("ieta", ieta ,"ieta[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("iphi", iphi ,"iphi[nbOfTowers]/I");
-  ETTAnalyzerTree->Branch("nbOfXtals", nbOfXtals ,"nbOfXtals[nbOfTowers]/I");
-  ETTAnalyzerTree->Branch("rawTPData", rawTPData ,"rawTPData[nbOfTowers]/I");
-  ETTAnalyzerTree->Branch("rawTPEmul1", rawTPEmul1  ,"rawTPEmul1[nbOfTowers]/I");
-  ETTAnalyzerTree->Branch("rawTPEmul2", rawTPEmul2 ,"rawTPEmul2[nbOfTowers]/I");
+  // ETTAnalyzerTree->Branch("nbOfXtals", nbOfXtals ,"nbOfXtals[nbOfTowers]/I");
+  // ETTAnalyzerTree->Branch("rawTPData", rawTPData ,"rawTPData[nbOfTowers]/I");
+  // ETTAnalyzerTree->Branch("rawTPEmul1", rawTPEmul1 ,"rawTPEmul1[nbOfTowers]/I");
+  // ETTAnalyzerTree->Branch("rawTPEmul2", rawTPEmul2 ,"rawTPEmul2[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("rawTPEmul3", rawTPEmul3 ,"rawTPEmul3[nbOfTowers]/I");
-  ETTAnalyzerTree->Branch("rawTPEmul4", rawTPEmul4 ,"rawTPEmul4[nbOfTowers]/I");
-  ETTAnalyzerTree->Branch("rawTPEmul5", rawTPEmul5 ,"rawTPEmul5[nbOfTowers]/I");
-  ETTAnalyzerTree->Branch("rawTPEmulttFlag1", rawTPEmulttFlag1 ,"rawTPEmulttFlag1[nbOfTowers]/I");
-  ETTAnalyzerTree->Branch("rawTPEmulttFlag2", rawTPEmulttFlag2 ,"rawTPEmulttFlag2[nbOfTowers]/I");
+  // ETTAnalyzerTree->Branch("rawTPEmul4", rawTPEmul4 ,"rawTPEmul4[nbOfTowers]/I");
+  // ETTAnalyzerTree->Branch("rawTPEmul5", rawTPEmul5 ,"rawTPEmul5[nbOfTowers]/I");
+  // ETTAnalyzerTree->Branch("rawTPEmulttFlag1", rawTPEmulttFlag1 ,"rawTPEmulttFlag1[nbOfTowers]/I");
+  // ETTAnalyzerTree->Branch("rawTPEmulttFlag2", rawTPEmulttFlag2 ,"rawTPEmulttFlag2[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("rawTPEmulttFlag3", rawTPEmulttFlag3 ,"rawTPEmulttFlag3[nbOfTowers]/I");
-  ETTAnalyzerTree->Branch("rawTPEmulttFlag4", rawTPEmulttFlag4 ,"rawTPEmulttFlag4[nbOfTowers]/I");
-  ETTAnalyzerTree->Branch("rawTPEmulttFlag5", rawTPEmulttFlag5 ,"rawTPEmulttFlag5[nbOfTowers]/I");
-  ETTAnalyzerTree->Branch("rawTPEmulsFGVB1", rawTPEmulsFGVB1 ,"rawTPEmulsFGVB1[nbOfTowers]/I");
-  ETTAnalyzerTree->Branch("rawTPEmulsFGVB2", rawTPEmulsFGVB2 ,"rawTPEmulsFGVB2[nbOfTowers]/I");
+  // ETTAnalyzerTree->Branch("rawTPEmulttFlag4", rawTPEmulttFlag4 ,"rawTPEmulttFlag4[nbOfTowers]/I");
+  // ETTAnalyzerTree->Branch("rawTPEmulttFlag5", rawTPEmulttFlag5 ,"rawTPEmulttFlag5[nbOfTowers]/I");
+  // ETTAnalyzerTree->Branch("rawTPEmulsFGVB1", rawTPEmulsFGVB1 ,"rawTPEmulsFGVB1[nbOfTowers]/I");
+  // ETTAnalyzerTree->Branch("rawTPEmulsFGVB2", rawTPEmulsFGVB2 ,"rawTPEmulsFGVB2[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("rawTPEmulsFGVB3", rawTPEmulsFGVB3 ,"rawTPEmulsFGVB3[nbOfTowers]/I");
-  ETTAnalyzerTree->Branch("rawTPEmulsFGVB4", rawTPEmulsFGVB4 ,"rawTPEmulsFGVB4[nbOfTowers]/I");
-  ETTAnalyzerTree->Branch("rawTPEmulsFGVB5", rawTPEmulsFGVB5 ,"rawTPEmulsFGVB5[nbOfTowers]/I");
+  // ETTAnalyzerTree->Branch("rawTPEmulsFGVB4", rawTPEmulsFGVB4 ,"rawTPEmulsFGVB4[nbOfTowers]/I");
+  // ETTAnalyzerTree->Branch("rawTPEmulsFGVB5", rawTPEmulsFGVB5 ,"rawTPEmulsFGVB5[nbOfTowers]/I");
 
   // ETTAnalyzerTree->Branch("eRec", eRec ,"eRec[nbOfTowers][25]/I"); // Max of 25 xtals per TT 
   ETTAnalyzerTree->Branch("crystNb", crystNb ,"crystNb[nbOfTowers]/I");
@@ -412,50 +371,9 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   ETTAnalyzerTree->Branch("TowerInTCC", TowerInTCC ,"TowerInTCC[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("strip", strip ,"strip[nbOfTowers]/I");
   
-  ETTAnalyzerTree->Branch("twrEmulMaxADC", twrEmulMaxADC ,"twrEmulMaxADC[nbOfTowers]/I");
+  // ETTAnalyzerTree->Branch("twrEmulMaxADC", twrEmulMaxADC ,"twrEmulMaxADC[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("twrEmul3ADC", twrEmul3ADC ,"twrEmul3ADC[nbOfTowers]/I");
 
-  //-- Save information by entry, avoiding the need to flatten trees when plotting mass number of entries 
-//   ETTAnalyzerTree->Branch("ieta", &ieta ,"ieta/I");
-//   ETTAnalyzerTree->Branch("iphi", &iphi ,"iphi/I");
-//   ETTAnalyzerTree->Branch("nbOfXtals", &nbOfXtals ,"nbOfXtals/I");
-//   ETTAnalyzerTree->Branch("rawTPData", &rawTPData ,"rawTPData/I");
-//   ETTAnalyzerTree->Branch("rawTPEmul1", &rawTPEmul1  ,"rawTPEmul1/I");
-//   ETTAnalyzerTree->Branch("rawTPEmul2", &rawTPEmul2 ,"rawTPEmul2/I");
-//   ETTAnalyzerTree->Branch("rawTPEmul3", &rawTPEmul3 ,"rawTPEmul3/I");
-//   ETTAnalyzerTree->Branch("rawTPEmul4", &rawTPEmul4 ,"rawTPEmul4/I");
-//   ETTAnalyzerTree->Branch("rawTPEmul5", &rawTPEmul5 ,"rawTPEmul5/I");
-//   ETTAnalyzerTree->Branch("rawTPEmulttFlag1", &rawTPEmulttFlag1 ,"rawTPEmulttFlag1/I");
-//   ETTAnalyzerTree->Branch("rawTPEmulttFlag2", &rawTPEmulttFlag2 ,"rawTPEmulttFlag2/I");
-//   ETTAnalyzerTree->Branch("rawTPEmulttFlag3", &rawTPEmulttFlag3 ,"rawTPEmulttFlag3/I");
-//   ETTAnalyzerTree->Branch("rawTPEmulttFlag4", &rawTPEmulttFlag4 ,"rawTPEmulttFlag4/I");
-//   ETTAnalyzerTree->Branch("rawTPEmulttFlag5", &rawTPEmulttFlag5 ,"rawTPEmulttFlag5/I");
-//   ETTAnalyzerTree->Branch("rawTPEmulsFGVB1", &rawTPEmulsFGVB1 ,"rawTPEmulsFGVB1/I");
-//   ETTAnalyzerTree->Branch("rawTPEmulsFGVB2", &rawTPEmulsFGVB2 ,"rawTPEmulsFGVB2/I");
-//   ETTAnalyzerTree->Branch("rawTPEmulsFGVB3", &rawTPEmulsFGVB3 ,"rawTPEmulsFGVB3/I");
-//   ETTAnalyzerTree->Branch("rawTPEmulsFGVB4", &rawTPEmulsFGVB4 ,"rawTPEmulsFGVB4/I");
-//   ETTAnalyzerTree->Branch("rawTPEmulsFGVB5", &rawTPEmulsFGVB5 ,"rawTPEmulsFGVB5/I");
-
-//   // ETTAnalyzerTree->Branch("eRec", eRec ,"eRec[25]/I"); // Max of 25 xtals per TT 
-//   ETTAnalyzerTree->Branch("crystNb", &crystNb ,"crystNb/I");
-//   ETTAnalyzerTree->Branch("sevlv", &sevlv ,"sevlv/I");
-//   ETTAnalyzerTree->Branch("time", &time ,"time/I");
-//   ETTAnalyzerTree->Branch("spike", &spike ,"spike/I");
-//   ETTAnalyzerTree->Branch("twrADC", &twrADC ,"twrADC/I");
-//   ETTAnalyzerTree->Branch("sFGVB", &sFGVB ,"sFGVB/I");
-//   ETTAnalyzerTree->Branch("ttFlag", &ttFlag ,"ttFlag/I");
-//   ETTAnalyzerTree->Branch("TCCid", &TCCid ,"TCCid/I");
-//   ETTAnalyzerTree->Branch("TowerInTCC", &TowerInTCC ,"TowerInTCC/I");
-//   ETTAnalyzerTree->Branch("strip", &strip ,"strip/I");
-  
-//   ETTAnalyzerTree->Branch("twrEmulMaxADC", &twrEmulMaxADC ,"twrEmulMaxADC/I");
-//   ETTAnalyzerTree->Branch("twrEmul3ADC", &twrEmul3ADC ,"twrEmul3ADC/I");
-
-
-
-
-
-  
   if(savePreFireInfo_){
 
     //counters 

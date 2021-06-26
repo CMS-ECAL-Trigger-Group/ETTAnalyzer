@@ -5,11 +5,6 @@
 ## The purpose of this cmssw configuration file is to run over ZeroBias datasets In order to evaluate the expected gain from 
 ## double weights in CMS reconstruction.
 ##
-## Zero bias datasets from 2018 data taking:
-##
-## Fills 6960 and 6961 (corresponding to runs 320038-40 and 320061-65), we will 
-## have about 775 pb-1 (i.e. a factor of 15 more) -----> Check lumi w/ brilcalc? 
-## 
 ##-- Dataset names:
 ## /ZeroBias/Run2018C-v1/RAW#162eb239-00fd-4f18-a0ba-58e02f83a1c0
 ## /ZeroBias/Run2018C-v1/RAW#88bfc4ee-4270-48d6-8127-a86a15ba3094
@@ -23,7 +18,7 @@
 ##-- cmsRun commands:
 ## Run ETT analyzer locally:
 ## ##-- run 2 config 
-## cmsRun conf_11_3_0.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=0 userMaxEvents=1 OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1  RunETTAnalyzer=1
+## cmsRun conf_11_3_0.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=0 userMaxEvents=1 OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1 RunETTAnalyzer=1
 ## 
 ## Candidate double weights config 
 ## cmsRun conf_11_3_0.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run3_zeroing.db TPModeTag=EcalTPG_TPMode_Run3_zeroing TPinfoPrintout=0 userMaxEvents=10000 OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1 RunETTAnalyzer=1 
@@ -181,15 +176,12 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.userMaxEvents) )
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 999999999 ) ##-- Printout run, lumi, event info
 # process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1 ) ##-- Printout run, lumi, event info
-# process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 999999999 ) ##-- Printout run, lumi, event info
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1 ) ##-- Printout run, lumi, event info
 
 ##-- Get list of files 
 # Direc = "/eos/cms/store/user/khurana/ECAL/edmFiles/%s/"%(options.SevLevel) 
 # files = ["file:%s%s"%(Direc, f) for f in os.listdir(Direc) if os.path.isfile(os.path.join(Direc, f))]
-
-# files = ["/store/data/Run2018C/ZeroBias/RAW/v1/000/320/038/00000/A4F2A998-AE8D-E811-8860-FA163EEFDE44.root"] ##-- Random file as an example 
 
 files = ["/store/data/Run2018C/ZeroBias/RAW/v1/000/320/065/00000/26A77465-FE8D-E811-B971-FA163E4200C7.root"] ##-- file from Run 320065 
 
@@ -222,7 +214,6 @@ if(options.RunETTAnalyzer):
                                     ## For rechits 
                                     EcalRecHitCollectionEB = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
                                     EcalRecHitCollectionEE = cms.InputTag("ecalRecHit","EcalRecHitsEE"),                                                                        
-
                                     
                                     ## for data on Raw
                                     EBdigis      = cms.InputTag("ecalDigis","ebDigis"),
@@ -248,20 +239,10 @@ if(options.RunETTAnalyzer):
     process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
     process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
-    ol = "/eos/user/a/atishelm/SWAN_projects/EcalL1Optimization/ETTAnalyzer/" ##-- output location of ETT output
-    
-    # outFileName = "%s/ETTAnalyzer_Outputs/ETTAnalyzer_CMSSW_11_3_0_pre5_Sev%s_%sConfig.root"%(ol, options.SevLevel, options.TPModeTag.split('_')[2])
-    # outFileName = "%s/ETTAnalyzer_Outputs/ETTAnalyzer_CMSSW_11_3_0_%sConfig.root"%(ol, options.TPModeTag.split('_')[2])
-
-    # ##-- Used for local running output files 
+    ##-- Used for output root files 
     process.TFileService = cms.Service("TFileService",
-    #                                 # fileName = cms.string(outFileName)
                                     fileName = cms.string("ETTAnalyzer_output.root")
                                     )
-
-    # process.out = cms.OutputModule("PoolOutputModule", fileName = cms.untracked.string('ETT_test.root')
-                                # )
-
 
     ##-- Define Path Which includes necessary modules for ETTAnalyzer 
     process.p = cms.Path(process.gtDigis*process.RawToDigi*

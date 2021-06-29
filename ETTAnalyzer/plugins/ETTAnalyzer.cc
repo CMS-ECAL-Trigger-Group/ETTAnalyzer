@@ -496,7 +496,8 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 
      itTT = mapTower.find(TPtowid) ;
      if (itTT != mapTower.end())
-       for (int j=0 ; j<5 ; j++) {
+      //  for (int j=0 ; j<5 ; j++) { //-- 5 BX window
+       for (int j=2 ; j<3 ; j++) { //-- In time BX only
         (itTT->second).tpgEmul_[j] = (d[j].raw()&0xfff) ;
         (itTT->second).tpgEmulFlag_[j] = d[j].ttFlag();
         (itTT->second).tpgEmulsFGVB_[j] = d[j].sFGVB();
@@ -530,25 +531,28 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    // EB rec hits only 
    edm::Handle<EcalRecHitCollection> rechitsEB; 
    e.getByToken(EcalRecHitCollectionEB1_,rechitsEB); 
-   float maxRecHitEnergy = 0. ;
-   int irechit=0;
+   float maxRecHitEnergy = 0.; // If you search by rec hit below, shouldn't this be a map? Shouldn't each TT have its own maxRecHitEnergy? Otherwise having one high rec Hit in all of EB will raise the required threshold for all TTs to be assigned a a sevlvl and time
+   // Unless you only want to consider the highest recHit in the event, then ok.
+   int irechit = 0;
    if (rechitsEB.product()->size()!=0) {
      for ( EcalRecHitCollection::const_iterator rechitItr = rechitsEB->begin(); rechitItr != rechitsEB->end(); ++rechitItr ) {   
-       EBDetId id = rechitItr->id(); 
-       const EcalTrigTowerDetId towid = id.tower();
-       irechit++;
-       itTT = mapTower.find(towid) ;
-       if (itTT != mapTower.end()) {
-      // double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
-      // (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
-      int sevlvl_tmp =  (sevlv1->severityLevel(id, *rechitsEB)) ;
-      //  if ( rechitItr->energy() > maxRecHitEnergy && ((itTT->second).twrADC>32) ){
-      if ( rechitItr->energy() > maxRecHitEnergy ){
-        maxRecHitEnergy = rechitItr->energy();
-        (itTT->second).sevlv_ = sevlvl_tmp; 	
-        (itTT->second).time_ = rechitItr->time();
-      }
-      (itTT->second).crystNb_++;
+         EBDetId id = rechitItr->id(); 
+         const EcalTrigTowerDetId towid = id.tower();
+         irechit++;
+         itTT = mapTower.find(towid) ;
+
+         // If this recHit is in a mapTower trigger tower
+         if (itTT != mapTower.end()) {
+         // double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
+         // (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
+         int sevlvl_tmp =  (sevlv1->severityLevel(id, *rechitsEB)) ;
+         //  if ( rechitItr->energy() > maxRecHitEnergy && ((itTT->second).twrADC>32) ){
+         if ( rechitItr->energy() > maxRecHitEnergy ){
+          maxRecHitEnergy = rechitItr->energy();
+          (itTT->second).sevlv_ = sevlvl_tmp; 	
+          (itTT->second).time_ = rechitItr->time();
+         }
+        (itTT->second).crystNb_++;
        }
      }
    }

@@ -20,6 +20,9 @@
 ## ##-- run 2 config 
 ## cmsRun conf_11_3_0.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=0 userMaxEvents=1 OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1 RunETTAnalyzer=1
 ## 
+## ##-- debug 
+## cmsRun conf_11_3_0.py Debug=1 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=1 userMaxEvents=1 OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1 RunETTAnalyzer=0
+##
 ## Candidate double weights config 
 ## cmsRun conf_11_3_0.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run3_zeroing.db TPModeTag=EcalTPG_TPMode_Run3_zeroing TPinfoPrintout=0 userMaxEvents=10000 OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1 RunETTAnalyzer=1 
 ##
@@ -182,8 +185,9 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 99999999
 ##-- Get list of files 
 # Direc = "/eos/cms/store/user/khurana/ECAL/edmFiles/%s/"%(options.SevLevel) 
 # files = ["file:%s%s"%(Direc, f) for f in os.listdir(Direc) if os.path.isfile(os.path.join(Direc, f))]
-
-files = ["/store/data/Run2018C/ZeroBias/RAW/v1/000/320/065/00000/26A77465-FE8D-E811-B971-FA163E4200C7.root"] ##-- file from Run 320065 
+# root://cms-xrd-global.cern.ch/
+files = ["/store/data/Run2018C/ZeroBias/RAW/v1/000/320/063/00000/62F3929A-F08D-E811-8133-FA163E19E543.root"]
+# files = ["file:/eos/cms/store/data/Run2018C/ZeroBias/RAW/v1/000/320/065/00000/26A77465-FE8D-E811-B971-FA163E4200C7.root"] ##-- file from Run 320065 
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(

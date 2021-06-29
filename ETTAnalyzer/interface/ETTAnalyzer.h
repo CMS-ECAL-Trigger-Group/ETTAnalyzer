@@ -82,7 +82,8 @@ public:
     : eRec_(0),  crystNb_(0), tpgADC_(0),
       iphi_(-999), ieta_(-999), nbXtal_(0), spike_(0), twrADC(0), sFGVB(-999), sevlv_(-999) , ttFlag_(0), TCCid_(0), TowerInTCC_(0), strip_(0), time_(-999)
   {
-    for (int i=0 ; i<5 ; i ++) {
+    // for (int i=0 ; i<5 ; i ++) { //-- 5 BX window 
+      for (int i=2 ; i<3 ; i++) { //-- In time BX only
       tpgEmul_[i] = 0 ;
       tpgEmulFlag_[i]=0;
       tpgEmulsFGVB_[i]=0;

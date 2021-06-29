@@ -39,30 +39,31 @@ print "Number of input files:",len(CMS_files)
 from CRABClient.UserUtilities import config
 config = config()
  
-config.General.requestName = 'ETTAnalyzer_DoubleWeights_StripZeroing'
+config.General.requestName = 'ETTAnalyzer_DoubleWeights_StripZeroing_EBOnly_100FilesPerJob'
 config.General.workArea = 'crab_projects'
 config.General.transferOutputs = True ##-- Need this True to transfer output files!! at least with eos output.
 config.General.transferLogs = False 
  
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = '/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_11_3_0/src/ECALDoubleWeights/ETTAnalyzer/conf_11_3_0.py'
+
 # config.JobType.numCores = 8
 # config.JobType.maxMemoryMB = 8000
  
+"""Analysis job type with user input files only supports file-based splitting"""
 config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 1
-config.Data.outputPrimaryDataset = 'ZeroBias_2018'
-# config.Data.outLFNDirBase = '/store/user/atishelm/ntuples/ETTAnalyzer_320038_to_320065_StripZeroing/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
-# config.Data.outLFNDirBase = '/store/user/atishelm/ntuples/EcalL1Optimization/ETTAnalyzer_320065_StripZeroing_With_3JuneETTAnalyzer/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
-# config.Data.outLFNDirBase = '/store/user/atishelm/ntuples/EcalL1Optimization/ETTAnalyzer_320065/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
+# config.Data.splitting = 'Automatic'
+# config.Data.unitsPerJob = 1
+config.Data.unitsPerJob = 100 ##-- 100 files per job 
+
+config.Data.outputPrimaryDataset = 'ZeroBias_2018_EBOnly_100FilesPerJob'
 # config.Data.outLFNDirBase = '/store/user/atishelm/ntuples/EcalL1Optimization/ETTAnalyzer/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
 config.Data.outLFNDirBase = '/store/group/dpg_ecal/alca_ecalcalib/Trigger/DoubleWeights/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
-config.Data.outputDatasetTag = 'ETTAnalyzer_CMSSW_11_3_0_StripZeroing'
+config.Data.outputDatasetTag = 'ETTAnalyzer_CMSSW_11_3_0_StripZeroing_EBOnly_100FilesPerJob'
 config.Data.publication = False 
 
 config.Data.userInputFiles = CMS_files 
 
- 
 config.Site.whitelist = ['T2_FR_GRIF_LLR']
 config.Site.storageSite = 'T2_CH_CERN'
 # config.Site.storageSite = 'T3_CH_CERNBOX' ##-- CERNBOX, takes outLFNDirBase and changes '/store/user' in outLFNDirBase to /eos/user/
@@ -79,7 +80,5 @@ config.Site.storageSite = 'T2_CH_CERN'
 config.JobType.inputFiles = ['/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_11_3_0/src/ECALDoubleWeights/ETTAnalyzer/EcalTPGOddWeightGroup.db',
                              '/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_11_3_0/src/ECALDoubleWeights/ETTAnalyzer/ZeroCandidateSet.db',
                              '/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_11_3_0/src/ECALDoubleWeights/ETTAnalyzer/EcalTPG_TPMode_Run3_zeroing.db']                             
-
-
 
 # config.JobType.inputFiles = ['EcalTPGOddWeightGroup.db', 'EcalTPG_TPMode_Run2_default.db']

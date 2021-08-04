@@ -1,21 +1,29 @@
 # ETT Analyzer 
 
-The purpose of this repository is to create cmssw configuration files to perform ECAL Trigger Team tasks such as emulator development and general data / MC anaysis. This was originally setup to work with the data global tag 113X_dataRun2_relval_v1 in CMSSW_11_3_0_pre1.
+The purpose of this repository is to create cmssw configuration files to perform ECAL Trigger Team tasks such as emulator development and general data / MC anaysis.
 
-## Odd Weights Filter and TP mode from DB
+## Setup
 
-To run over events with even + odd filters and plot reconstructed ampltiudes, first perform a setup similar to the default:
+To setup CMSSW_11_3_0 which contains even + odd weight emulator additions:
 
-	cmsrel CMSSW_11_3_0_pre1
-	cd CMSSW_11_3_0_pre1/src
+	export SCRAM_ARCH=slc7_amd64_gcc900 
+	cmsrel CMSSW_11_3_0
+	cd CMSSW_11_3_0/src
 	cmsenv
 	git cms-init
-	git cms-merge-topic CMS-ECAL-Trigger-Group:ecal_double_weights_11_3_X 
-	git clone git@github.com:CMS-ECAL-Trigger-Group/ECALDoubleWeights.git -b CMSSW_11_3_0_pre1
+	git clone git@github.com:CMS-ECAL-Trigger-Group/ECALDoubleWeights.git -b CMSSW_11_3_0
 	scram b -j
 	cd ECALDoubleWeights/ETTAnalyzer
 
-This command will move your local CMSSW repository to the ecal_double_weights_11_3_X branch for odd weights emulator development. 
+## Examples
+
+To run the ETTAnalyzer locally over one file in Run 2 mode:
+
+	cmsRun conf_11_3_0.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db \ 
+	TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=0 userMaxEvents=1 \
+	OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1 RunETTAnalyzer=1
+
+## TP mode 
 
 The odd weights branches of the ETT analyzer and SimCalorimetry repositories are listed above. After obtaining and scramming the relevant repositories, you can run the configuration in the ETTAnalyzer directory and run the even + odd filters on an event. The even filter weights will be obtained from the DB by default, but the Odd filter weights can be set with the local sqlite files, generated thanks to CondTools/Ecal scripts. 
 
@@ -51,19 +59,3 @@ To run with a candidate zeroing mechanism, configuration 1, the only thing that 
 	 TPinfoPrintout=1 maxEvents=1 OddWeightsSqliteFile=weights/EcalTPGOddWeightIdMap.db BarrelOnly=1
 
 This zeroing mechanism zeroes at the strip level. If a strip's odd filter returns a greater value than the even filter, the even filter output will not be included in the TCP sum. As long as the total odd filter energy among the TT strips is greater than the even filter energy sum, this will be flagged in the form of the EB infobit1, where the FGVB is replaced. This is useful for monitoring zeroing, but at the cost of removing the FGVB.  
-
-
-# Notes and To Do 
-
-For the extra variables, I think the rechit severity level is an important one. 
-Here you need to add some extra commands to the python to run the rechit producer, and add an extra part to the analyser to find 
-the rechits corresponding to each tower and check the rechit severity level
-https://gitlab.cern.ch/ECALPFG/EcalTPGAnalysis/-/blob/tpganalysis2018/TriggerAnalysis/plugins/EcalTPGAnalyzer.cc#L935
-
-The other thing we will probably need is a way of extracting the digis for specific towers. In TPGAnalysis, this takes the form of a separate tree with one entry per channel. 
-Maybe we can come up with a better and more compact structure, i.e. for each tower we have an array with a set of 25x10 numbers  (25 crystals and 10 samples per crystal). 
-The issue here might be that the ntuple will become large. Perhaps it could be a configurable option, or something that just dumps a text file of the digis, 
-since we might only want to do it for a few selected events
-
-Add verbosity and debug statement in this piece of code to understand the steps and whats going on.. 
-https://cmssdt.cern.ch/lxr/source/SimCalorimetry/EcalTrigPrimAlgos/src/

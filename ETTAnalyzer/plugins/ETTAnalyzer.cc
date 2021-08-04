@@ -28,8 +28,10 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
      index_ts[i] = -999;
      tower_eta[i] = -999;
      tower_phi[i] = -999;
-     xtal_ix[i] = -999;
-     xtal_iy[i] = -999;
+    //  xtal_ix[i] = -999;
+    //  xtal_iy[i] = -999;
+     xtal_ieta[i] = -999;
+     xtal_iphi[i] = -999;    
    }
  
    if(savePreFireInfo_){
@@ -376,6 +378,7 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    // ---------------------------------
    runNb = e.id().run() ;
    evtNb = e.id().event() ;
+
    bxNb = e.bunchCrossing() ;
    orbitNb = e.orbitNumber() ;
    lumiBlock = e.luminosityBlock();
@@ -400,19 +403,72 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    map<EcalTrigTowerDetId, towerEner>::iterator itTT ;
    map<EcalTrigTowerDetId, towerEner> mapTower ;
    
-   edm::Handle<EEDigiCollection>  EEdigis;
+  // Get EE digis 
+  //  edm::Handle<EEDigiCollection>  EEdigis;
+  // //  std::cout << "Getting EEdigis..." << std::endl;
+  //  e.getByToken(EEdigistoken_,EEdigis);
+  // //  std::cout << "Got EEdigis" << std::endl;
+  //  if(not e.getByToken(EEdigistoken_,EEdigis)){
+  //    std::cout<<"FATAL EXCEPTION: "<<"Following Not Found: EEdigistoken_ "<<std::endl;
+  //    exit(0);
+  //  }
+
+   edm::Handle<EBDigiCollection>  EBdigis;
   //  std::cout << "Getting EEdigis..." << std::endl;
-   e.getByToken(EEdigistoken_,EEdigis);
+   e.getByToken(EBdigistoken_,EBdigis);
   //  std::cout << "Got EEdigis" << std::endl;
-   if(not e.getByToken(EEdigistoken_,EEdigis)){
+   if(not e.getByToken(EBdigistoken_,EBdigis)){
      std::cout<<"FATAL EXCEPTION: "<<"Following Not Found: EEdigistoken_ "<<std::endl;
      exit(0);
-   }
+   }   
 
-  //  int j=0;
-  //  int countNadc=0;
+   int j=0;
+   int countNadc=0;
    c.get<IdealGeometryRecord>().get(eTTmap_);
    
+
+  // Get EB digis 
+
+   // EB only 
+   for ( EBDigiCollection::const_iterator hitItr = EBdigis->begin(); hitItr != EBdigis->end(); ++hitItr ) {
+     EBDataFrame df(*hitItr);
+     const EBDetId & id = df.id();
+     const EcalTrigTowerDetId towid = (*eTTmap_).towerOf(id);
+     
+    //  const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(df.id());
+    //  uint32_t stripid = elId.rawId() & 0xfffffff8;  // from Pascal
+     //std::cout<<" strip id : "<<stripid<<std::endl;
+     
+     for(int i=0; i<10;++i){
+       //std::cout<<" tower (eta, phi): ("<<towid.ieta() << ", "<<towid.iphi()<<")"
+       //     <<" xtal (ix, iy): ("<<id.ix() <<", "<<id.iy()<<")"
+       //     <<" ADC for EEDataFrame: "<<j << "  sample number "<<i<<"  "<<df.sample(i).adc()<<std::endl;
+     
+     // these, tower_eta for example, is set to size 4092, but elements being filled for each digi per rec hit 
+     tower_eta[countNadc] = towid.ieta();
+     tower_phi[countNadc] = towid.iphi();
+    //  xtal_ix[countNadc] = id.ix();
+    //  xtal_iy[countNadc] = id.iy();
+     xtal_ieta[countNadc] = id.ieta();
+     xtal_iphi[countNadc] = id.iphi();    
+     
+     index_df[countNadc] = j;
+     index_ts[countNadc] = i;
+     count_ADC[countNadc] = df.sample(i).adc();
+     gain_id[countNadc]    = df.sample(i).gainId();
+       
+     countNadc++;
+     
+     }
+
+     j++;
+     
+   }
+   
+   //  ndataframe = j;
+    nADC       = countNadc;
+
+
   //  // EE only 
   //  for ( EEDigiCollection::const_iterator hitItr = EEdigis->begin(); hitItr != EEdigis->end(); ++hitItr ) {
   //    EEDataFrame df(*hitItr);
@@ -448,8 +504,8 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
      
   //  }
    
-   // //  ndataframe = j;
-   //  nADC       = countNadc;
+  //  //  ndataframe = j;
+  //   nADC       = countNadc;
    
    
    // pulseshape setup ends here 
@@ -621,7 +677,8 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
     //  }
 
     //  eRec[towerNb] = (itTT->second).eRec_ ;
-     sevlv[towerNb] = (itTT->second).sevlv_ ; 
+     maxRecHitEnergy[towerNb] = (itTT->second).maxRecHitEnergy_;
+     sevlv[towerNb] = (itTT->second).sevlv_ ;
      time[towerNb] = (itTT->second).time_ ; 
      ttFlag[towerNb] = (itTT->second).ttFlag_ ;
      spike[towerNb] = (itTT->second).spike_ ;

@@ -17,7 +17,7 @@ print "Adding CMS files..."
 # ##-- By run number 
 # for run in runs:
 #     print "Run",run
-#     text_file_path = "Files_Run_%s.txt"%(run)
+#     text_file_path = "RunsAndFiles/Files_Run_%s.txt"%(run)
 #     with open(text_file_path) as f: ##--- https://stackoverflow.com/questions/3277503/how-to-read-a-file-line-by-line-into-a-list
 #         content = f.readlines()
 #         content = [x.strip() for x in content] 
@@ -34,12 +34,13 @@ for block_i in range(0, Nblocks):
         for file in content:
             CMS_files.append(file)            
 
-print "Number of input files:",len(CMS_files)
+print "Number of input files:",len(CMS_files) ##-- 4511 files for all 11 blocks 
 
 from CRABClient.UserUtilities import config
 config = config()
  
-config.General.requestName = 'ETTAnalyzer_DoubleWeights_StripZeroing_EBOnly_100FilesPerJob'
+# config.General.requestName = 'ETTAnalyzer_DoubleWeights_StripZeroing_EBOnly_100FilesPerJob'
+config.General.requestName = 'ETTAnalyzer_CMSSW_11_3_0_StripZeroing_EBOnly_FixedOccProportion'
 config.General.workArea = 'crab_projects'
 config.General.transferOutputs = True ##-- Need this True to transfer output files!! at least with eos output.
 config.General.transferLogs = False 
@@ -56,10 +57,12 @@ config.Data.splitting = 'FileBased'
 # config.Data.unitsPerJob = 1
 config.Data.unitsPerJob = 100 ##-- 100 files per job 
 
-config.Data.outputPrimaryDataset = 'ZeroBias_2018_EBOnly_100FilesPerJob'
+# config.Data.outputPrimaryDataset = 'ZeroBias_2018_EBOnly_100FilesPerJob'
+config.Data.outputPrimaryDataset = 'ZeroBias_2018_EBOnly_FixedOccProportion'
 # config.Data.outLFNDirBase = '/store/user/atishelm/ntuples/EcalL1Optimization/ETTAnalyzer/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
 config.Data.outLFNDirBase = '/store/group/dpg_ecal/alca_ecalcalib/Trigger/DoubleWeights/' ##-- for T2_CH_CERN storage site  ##-- 'gsiftp://eosuserftp.cern.ch/eos/user/a/atishelm/ntuples/CRAB_TEST/'
-config.Data.outputDatasetTag = 'ETTAnalyzer_CMSSW_11_3_0_StripZeroing_EBOnly_100FilesPerJob'
+# config.Data.outputDatasetTag = 'ETTAnalyzer_CMSSW_11_3_0_StripZeroing_EBOnly_100FilesPerJob'
+config.Data.outputDatasetTag = 'ETTAnalyzer_CMSSW_11_3_0_StripZeroing_EBOnly_FixedOccProportion'
 config.Data.publication = False 
 
 config.Data.userInputFiles = CMS_files 

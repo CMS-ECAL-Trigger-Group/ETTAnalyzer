@@ -166,15 +166,17 @@ private:
   
   // variables for pulse shape
   // uint ndataframe;
-  // uint nADC;
+  uint nADC;
   int index_df[8064];
   int index_ts[8064];
   int count_ADC[8064];
   int gain_id[8064];
   int tower_eta[8064];
   int tower_phi[8064];
-  int xtal_ix[8064];
-  int xtal_iy[8064];
+  // int xtal_ix[8064];
+  // int xtal_iy[8064];
+  int xtal_ieta[8064];
+  int xtal_iphi[8064];  
   
   uint nbOfTowers ; //max 4032 EB+EE            
 
@@ -200,6 +202,7 @@ private:
   int rawTPEmulsFGVB5[4032] ;
   float eRec[4032] ;
   int crystNb[4032];
+  float maxRecHitEnergy[4032]; 
   int sevlv[4032];
   int time[4032];
   int spike[4032] ;
@@ -327,16 +330,16 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   
   // ADC counts for 10 samples when there is some significant energy deposit. 
   // ETTAnalyzerTree->Branch("ndataframe", &ndataframe ,"ndataframe/i");
-  // ETTAnalyzerTree->Branch("nADC", &nADC ,"nADC/i");
-  // ETTAnalyzerTree->Branch("index_df", index_df,"index_df[nADC]/I");
-  // ETTAnalyzerTree->Branch("index_ts", index_ts,"index_ts[nADC]/I");
-  // ETTAnalyzerTree->Branch("count_ADC", count_ADC,"count_ADC[nADC]/I");
-  // ETTAnalyzerTree->Branch("gain_id", gain_id,"gain_id[nADC]/I");
+  ETTAnalyzerTree->Branch("nADC", &nADC ,"nADC/i");
+  ETTAnalyzerTree->Branch("index_df", index_df,"index_df[nADC]/I");
+  ETTAnalyzerTree->Branch("index_ts", index_ts,"index_ts[nADC]/I");
+  ETTAnalyzerTree->Branch("count_ADC", count_ADC,"count_ADC[nADC]/I");
+  ETTAnalyzerTree->Branch("gain_id", gain_id,"gain_id[nADC]/I");
 
-  // ETTAnalyzerTree->Branch("tower_eta",tower_eta ,"tower_eta[nADC]/I");
-  // ETTAnalyzerTree->Branch("tower_phi",tower_phi ,"tower_phi[nADC]/I");
-  // ETTAnalyzerTree->Branch("xtal_ix", xtal_ix,"xtal_ix[nADC]/I");
-  // ETTAnalyzerTree->Branch("xtal_iy", xtal_iy,"xtal_iy[nADC]/I");
+  ETTAnalyzerTree->Branch("tower_eta",tower_eta ,"tower_eta[nADC]/I");
+  ETTAnalyzerTree->Branch("tower_phi",tower_phi ,"tower_phi[nADC]/I");
+  ETTAnalyzerTree->Branch("xtal_ieta", xtal_ieta,"xtal_ieta[nADC]/I");
+  ETTAnalyzerTree->Branch("xtal_iphi", xtal_iphi,"xtal_iphi[nADC]/I");
   
   ETTAnalyzerTree->Branch("nbOfTowers",&nbOfTowers, "nbOfTowers/i");
 
@@ -363,6 +366,7 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
 
   // ETTAnalyzerTree->Branch("eRec", eRec ,"eRec[nbOfTowers][25]/I"); // Max of 25 xtals per TT 
   ETTAnalyzerTree->Branch("crystNb", crystNb ,"crystNb[nbOfTowers]/I");
+  ETTAnalyzerTree->Branch("maxRecHitEnergy", maxRecHitEnergy ,"maxRecHitEnergy[nbOfTowers]/F");
   ETTAnalyzerTree->Branch("sevlv", sevlv ,"sevlv[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("time", time ,"time[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("spike", spike ,"spike[nbOfTowers]/I");
@@ -416,7 +420,6 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
     ETTAnalyzerTree->Branch("L1preIsoPtzero", L1preIsoPtzero , "L1preIsoPtzero[isocounterzero]/F");
     ETTAnalyzerTree->Branch("L1preIsoPtp1", L1preIsoPtp1 , "L1preIsoPtp1[isocounterp1]/F");
     ETTAnalyzerTree->Branch("L1preIsoPtp2", L1preIsoPtp2 , "L1preIsoPtp2[isocounterp2]/F");
-
 
     // non isolated 
     ETTAnalyzerTree->Branch("L1preNonisoIetam2", L1preNonisoIetam2 , "L1preNonisoIetam2[nonisocounterm2]/I");

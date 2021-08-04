@@ -186,7 +186,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 99999999
 # Direc = "/eos/cms/store/user/khurana/ECAL/edmFiles/%s/"%(options.SevLevel) 
 # files = ["file:%s%s"%(Direc, f) for f in os.listdir(Direc) if os.path.isfile(os.path.join(Direc, f))]
 # root://cms-xrd-global.cern.ch/
-files = ["/store/data/Run2018C/ZeroBias/RAW/v1/000/320/063/00000/62F3929A-F08D-E811-8133-FA163E19E543.root"]
+files = ["file:Run_320026_Event_12323268.root"]
+# files = ["/store/data/Run2018C/ZeroBias/RAW/v1/000/320/063/00000/62F3929A-F08D-E811-8133-FA163E19E543.root"]
 # files = ["file:/eos/cms/store/data/Run2018C/ZeroBias/RAW/v1/000/320/065/00000/26A77465-FE8D-E811-B971-FA163E4200C7.root"] ##-- file from Run 320065 
 
 process.source = cms.Source("PoolSource",
@@ -235,8 +236,17 @@ if(options.RunETTAnalyzer):
 
     ## Load appropriate processes for Rec Hits 
     process.load("Configuration/StandardSequences/Reconstruction_cff")
-    import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
-    process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
+
+    ## Multifit 
+    import RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi
+    process.ecalUncalibHit =  RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi.ecalMultiFitUncalibRecHit.clone()
+    process.ecalUncalibHit.algoPSet.activeBXs =cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4)
+    process.ecalUncalibHit.algoPSet.useLumiInfoRunHeader = cms.bool (False )
+
+    ## Offline weights 
+    # import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
+    # process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
+
     process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
     process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
     process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")

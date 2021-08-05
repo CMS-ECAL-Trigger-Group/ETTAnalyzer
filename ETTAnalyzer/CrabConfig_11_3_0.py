@@ -55,7 +55,8 @@ config.JobType.psetName = '/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger
 config.Data.splitting = 'FileBased'
 # config.Data.splitting = 'Automatic'
 # config.Data.unitsPerJob = 1
-config.Data.unitsPerJob = 100 ##-- 100 files per job 
+# config.Data.unitsPerJob = 100 ##-- 100 files per job 
+config.Data.unitsPerJob = 25 
 
 # config.Data.outputPrimaryDataset = 'ZeroBias_2018_EBOnly_100FilesPerJob'
 config.Data.outputPrimaryDataset = 'ZeroBias_2018_EBOnly_FixedOccProportion'

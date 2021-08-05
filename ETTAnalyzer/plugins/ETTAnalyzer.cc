@@ -674,7 +674,7 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 
     //  for(int ixtal = 0; ixtal < 25; ixtal++){
     //    eRec[towerNb][ixtal] = (itTT->second).eRec_ ;
-    //  }
+    //  } 
 
     //  eRec[towerNb] = (itTT->second).eRec_ ;
      maxRecHitEnergy[towerNb] = (itTT->second).maxRecHitEnergy_;

@@ -109,7 +109,12 @@ options.register ('inFile',
                 '', 
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
-                "inFile")                               
+                "inFile")   
+options.register ('RecoMethod', ##-- Offline energy reconstruction method                               
+                'weights', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "RecoMethod")                                               
 options.parseArguments()
 
 process.GlobalTag.toGet = cms.VPSet(
@@ -256,15 +261,22 @@ if(options.RunETTAnalyzer):
     ## Load appropriate processes for Rec Hits 
     process.load("Configuration/StandardSequences/Reconstruction_cff")
 
-    ## Multifit 
-    import RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi
-    process.ecalUncalibHit =  RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi.ecalMultiFitUncalibRecHit.clone()
-    process.ecalUncalibHit.algoPSet.activeBXs =cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4)
-    process.ecalUncalibHit.algoPSet.useLumiInfoRunHeader = cms.bool (False )
+    if(options.RecoMethod == "Multifit"):
+        print("Offline energy reconstruction to be performed with Multifit")
+        ## Multifit 
+        import RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi
+        process.ecalUncalibHit =  RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi.ecalMultiFitUncalibRecHit.clone()
+        process.ecalUncalibHit.algoPSet.activeBXs =cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4)
+        process.ecalUncalibHit.algoPSet.useLumiInfoRunHeader = cms.bool (False )
 
-    ## Offline weights 
-    # import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
-    # process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
+    elif(options.RecoMethod == "weights"):
+        print("Offline energy reconstruction to be performed with offline weights")
+        ## Offline weights 
+        import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
+        process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
+
+    else:
+        raise Exception("Unknown reconstruction method: %s"%(options.RecoMethod))
 
     process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
     process.load("Geometry.CaloEventSetup.CaloTopology_cfi")

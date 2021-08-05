@@ -17,11 +17,25 @@ To setup CMSSW_11_3_0 which contains even + odd weight emulator additions:
 
 ## Examples
 
-To run the ETTAnalyzer locally over one file in Run 2 mode:
+First, if you need to access files on the grid, make sure to set your VOMS proxy first:
 
-	cmsRun conf_11_3_0.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db \ 
-	TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=0 userMaxEvents=1 \
-	OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1 RunETTAnalyzer=1
+	voms-proxy-init --voms cms --valid 168:00	
+
+To run the ETTAnalyzer locally over one file in Run 2 mode:
+	  
+	cmsRun conf_11_3_0.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db \
+	  TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=0 userMaxEvents=10 \
+	  OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1 RunETTAnalyzer=1 \
+	  inFile="/store/data/Run2018C/ZeroBias/RAW/v1/000/320/063/00000/62F3929A-F08D-E811-8133-FA163E19E543.root"
+	  
+If this ran successfully, you should have an output file "ETTAnalyzer_output.root" containing a TDirectory "tuplizer" with a tree "ETTAnalyzerTree". This tree contains all of the variables defined in the ETTAnalyzer, such as TP associated severity level, max rec hit energy in the TT, associated time, real and emulated TP energy, etc. 
+	  
+To run with strip zeroing and a candidate set of odd weights:
+
+	cmsRun conf_11_3_0.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run3_zeroing.db \
+	  TPModeTag=EcalTPG_TPMode_Run3_zeroing TPinfoPrintout=0 userMaxEvents=10 \
+	  OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1 RunETTAnalyzer=1 \
+	  inFile="/store/data/Run2018C/ZeroBias/RAW/v1/000/320/063/00000/62F3929A-F08D-E811-8133-FA163E19E543.root"
 
 ## TP mode 
 

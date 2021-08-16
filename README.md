@@ -11,7 +11,7 @@ To setup CMSSW_11_3_0 which contains even + odd weight emulator additions:
 	cd CMSSW_11_3_0/src
 	cmsenv
 	git cms-init
-	git clone git@github.com:CMS-ECAL-Trigger-Group/ECALDoubleWeights.git -b CMSSW_11_3_0
+	git clone git@github.com:CMS-ECAL-Trigger-Group/ETTAnalyzer.git -b CMSSW_11_3_0
 	scram b -j
 	cd ECALDoubleWeights/ETTAnalyzer
 

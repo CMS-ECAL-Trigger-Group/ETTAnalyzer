@@ -9,7 +9,7 @@
 // the member functions used by the ETTAnalyzer class.                    //
 //------------------------------------------------------------------------//
 
-#include "ECALDoubleWeights/ETTAnalyzer/interface/ETTAnalyzer.h"
+#include "ETTAnalyzer/interface/ETTAnalyzer.h"
 
 // ------------ method called for each event  ------------
 void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)

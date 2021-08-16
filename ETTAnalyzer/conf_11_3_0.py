@@ -41,8 +41,10 @@ import os
 process = cms.Process("ECALDoubleWeightsETTAnalyzer",eras.Run2_2017)
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cff") ##-- Configuration for module which produces an EcalTrigPrimDigiCollection
+# process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_CosmicsConfiguration_cff") 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = '113X_dataRun2_relval_v1'
+# process.GlobalTag.globaltag = '113X_dataRun2_relval_v1'
+process.GlobalTag.globaltag = '113X_dataRun3_HLT_v3'
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 
@@ -51,17 +53,9 @@ options = VarParsing.VarParsing('analysis')
 
 options.register ('userMaxEvents',
                 -1, # default value
-                # 1, # default value
                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                 VarParsing.VarParsing.varType.int,           # string, int, or float
                 "userMaxEvents")
-
-##-- Used when looking at the severity zero, three or four datasets 
-# options.register ('SevLevel',
-#                 'zero', # default value
-#                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-#                 VarParsing.VarParsing.varType.string,           # string, int, or float
-#                 "SevLevel")
 options.register ('TPinfoPrintout',
                 False, # default value
                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
@@ -115,7 +109,14 @@ options.register ('RecoMethod', ##-- Offline energy reconstruction method
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "RecoMethod")                                               
+
+options.register ('Printerval', ##-- How often to print event information  
+                99999, # default value
+                VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                VarParsing.VarParsing.varType.int,           # string, int, or float
+                "Printerval")     
 options.parseArguments()
+
 
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string("EcalTPGLinearizationConstRcd"),
@@ -125,29 +126,33 @@ process.GlobalTag.toGet = cms.VPSet(
 )
 
 # Load the odd weights
-process.load("CondCore.CondDB.CondDB_cfi")
+#process.load("CondCore.CondDB.CondDB_cfi")
 # input database (in this case the local sqlite file)
-process.EcalOnTheFlyTPGconf = cms.ESSource("PoolDBESSource",
-    DumpStat=cms.untracked.bool(True),
-    toGet = cms.VPSet(cms.PSet(
-                            record = cms.string('EcalTPGOddWeightIdMapRcd'),
-                            tag = cms.string("EcalTPGOddWeightIdMap_test"),
-                            connect = cms.string('sqlite_file:%s'%(options.OddWeightsSqliteFile))
-                            # connect = cms.string('%s'%(options.OddWeightsSqliteFile))
-                        ),
-                    cms.PSet(
-                            record = cms.string('EcalTPGOddWeightGroupRcd'),
-                            tag = cms.string("EcalTPGOddWeightGroup_test"),
-                            # connect = cms.string('sqlite_file:weights/EcalTPGOddWeightGroup.db')
-                            connect = cms.string('sqlite_file:EcalTPGOddWeightGroup.db')
-                        ),
-                    cms.PSet(
-                            record = cms.string('EcalTPGTPModeRcd'),
-                            tag = cms.string(options.TPModeTag),
-                            connect = cms.string('sqlite_file:%s'%(options.TPModeSqliteFile))
-                        )
-    ),
-)
+
+
+
+# process.EcalOnTheFlyTPGconf = cms.ESSource("PoolDBESSource",
+#     DumpStat=cms.untracked.bool(True),
+#     toGet = cms.VPSet(cms.PSet(
+#                             record = cms.string('EcalTPGOddWeightIdMapRcd'),
+#                             tag = cms.string("EcalTPGOddWeightIdMap_test"),
+#                             connect = cms.string('sqlite_file:%s'%(options.OddWeightsSqliteFile))
+#                             # connect = cms.string('%s'%(options.OddWeightsSqliteFile))
+#                         ),
+#                     cms.PSet(
+#                             record = cms.string('EcalTPGOddWeightGroupRcd'),
+#                             tag = cms.string("EcalTPGOddWeightGroup_test"),
+#                             # connect = cms.string('sqlite_file:weights/EcalTPGOddWeightGroup.db')
+#                             connect = cms.string('sqlite_file:EcalTPGOddWeightGroup.db')
+#                         ),
+#                     cms.PSet(
+#                             record = cms.string('EcalTPGTPModeRcd'),
+#                             tag = cms.string(options.TPModeTag),
+#                             connect = cms.string('sqlite_file:%s'%(options.TPModeSqliteFile))
+#                         )
+#     ),
+# )
+
 # process.es_prefer_ecalweights = cms.ESPrefer("PoolDBESSource","EcalOddWeights")
 
 # ECAL Unpacker
@@ -179,6 +184,7 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    InstanceEB = cms.string('ebDigis'),
    InstanceEE = cms.string('eeDigis'),
    Label = cms.string('ecalDigis'),
+#    Label = cms.string('ecalEBunpacker'), # # ecalEBunpacker, simEcalDigis two labels to try 
 #    BarrelOnly = cms.bool(options.BarrelOnly),
    BarrelOnly = cms.bool(True),
    Famos = cms.bool(False),
@@ -190,13 +196,16 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.userMaxEvents) )
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 999999999 ) ##-- Printout run, lumi, event info
+#process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( options.Printerval ) ##-- Printout run, lumi, event info
+#process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( options.Printerval ) ##-- Printout run, lumi, event info
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 99999999 ) ##-- Printout run, lumi, event info
 # process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1 ) ##-- Printout run, lumi, event info
 
 ##-- Get list of files 
 # Direc = "/eos/cms/store/user/khurana/ECAL/edmFiles/%s/"%(options.SevLevel) 
 # files = ["file:%s%s"%(Direc, f) for f in os.listdir(Direc) if os.path.isfile(os.path.join(Direc, f))]
 # root://cms-xrd-global.cern.ch/
+# copy a file from the grid: xrdcp 
 
 files = []
 
@@ -229,12 +238,13 @@ if(options.RunETTAnalyzer):
     process.tuplizer = cms.EDAnalyzer('ETTAnalyzer',
                                     ugtProducer = cms.InputTag("gtStage2Digis"),
                                     savePreFireInfo = cms.bool(False), 
-                                    TPEmulatorCollection =  cms.InputTag("ecalTriggerPrimitiveDigis",""),
+                                    TPEmulatorCollection =  cms.InputTag("ecalTriggerPrimitiveDigis",""), ##-- Different name for full readout?
+                                    # TPEmulatorCollection =  cms.InputTag("ecalTriggerPrimitiveDigis","ecalTriggerPrimitiveDigis"), ##-- Different name for full readout?
                                     useAlgoDecision = cms.untracked.string("initial"),
                                     firstBXInTrainAlgo = cms.untracked.string("L1_FirstCollisionInTrain"),
                                     lastBXInTrainAlgo = cms.untracked.string("L1_LastCollisionInTrain"),
                                     isoBXAlgo = cms.untracked.string("L1_IsolatedBunch"),
-                                    TPCollection = cms.InputTag("ecalDigis","EcalTriggerPrimitives"),
+                                    TPCollection = cms.InputTag("ecalDigis","EcalTriggerPrimitives"), 
                                     ## for data 
                                     stage2CaloLayer2EGammaProducer = cms.InputTag("gtStage2Digis","EGamma"),
                                     ## for mc 
@@ -290,14 +300,16 @@ if(options.RunETTAnalyzer):
                                     )
 
     ##-- Define Path Which includes necessary modules for ETTAnalyzer 
-    process.p = cms.Path(process.gtDigis*process.RawToDigi*
-                        process.L1Reco*
-                        process.gtStage2Digis*
-                        process.ecalTriggerPrimitiveDigis*
-                        process.ecalUncalibHit*
-                        process.ecalDetIdToBeRecovered*
-                        process.ecalRecHit*
-                        process.tuplizer
+    process.p = cms.Path(
+                         process.gtDigis*
+                         process.RawToDigi*
+                         process.L1Reco*
+                         process.gtStage2Digis*
+                         process.ecalTriggerPrimitiveDigis*
+                         process.ecalUncalibHit*
+                         process.ecalDetIdToBeRecovered*
+                         process.ecalRecHit*
+                         process.tuplizer
                     )
 
 ##-- If not running ETT Analyzer

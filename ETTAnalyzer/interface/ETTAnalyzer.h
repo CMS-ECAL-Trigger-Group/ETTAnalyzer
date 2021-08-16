@@ -171,7 +171,9 @@ private:
   int index_ts[8064];
   int count_ADC[8064];
   int gain_id[8064];
+
   int tower_eta[8064];
+  
   int tower_phi[8064];
   // int xtal_ix[8064];
   // int xtal_iy[8064];
@@ -330,16 +332,16 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   
   // ADC counts for 10 samples when there is some significant energy deposit. 
   // ETTAnalyzerTree->Branch("ndataframe", &ndataframe ,"ndataframe/i");
-  ETTAnalyzerTree->Branch("nADC", &nADC ,"nADC/i");
-  ETTAnalyzerTree->Branch("index_df", index_df,"index_df[nADC]/I");
-  ETTAnalyzerTree->Branch("index_ts", index_ts,"index_ts[nADC]/I");
-  ETTAnalyzerTree->Branch("count_ADC", count_ADC,"count_ADC[nADC]/I");
-  ETTAnalyzerTree->Branch("gain_id", gain_id,"gain_id[nADC]/I");
+  //ETTAnalyzerTree->Branch("nADC", &nADC ,"nADC/i");
+  //ETTAnalyzerTree->Branch("index_df", index_df,"index_df[nADC]/I");
+  //ETTAnalyzerTree->Branch("index_ts", index_ts,"index_ts[nADC]/I");
+  //ETTAnalyzerTree->Branch("count_ADC", count_ADC,"count_ADC[nADC]/I");
+  //ETTAnalyzerTree->Branch("gain_id", gain_id,"gain_id[nADC]/I");
 
-  ETTAnalyzerTree->Branch("tower_eta",tower_eta ,"tower_eta[nADC]/I");
-  ETTAnalyzerTree->Branch("tower_phi",tower_phi ,"tower_phi[nADC]/I");
-  ETTAnalyzerTree->Branch("xtal_ieta", xtal_ieta,"xtal_ieta[nADC]/I");
-  ETTAnalyzerTree->Branch("xtal_iphi", xtal_iphi,"xtal_iphi[nADC]/I");
+  //ETTAnalyzerTree->Branch("tower_eta",tower_eta ,"tower_eta[nADC]/I");
+  //ETTAnalyzerTree->Branch("tower_phi",tower_phi ,"tower_phi[nADC]/I");
+  //ETTAnalyzerTree->Branch("xtal_ieta", xtal_ieta,"xtal_ieta[nADC]/I");
+  //ETTAnalyzerTree->Branch("xtal_iphi", xtal_iphi,"xtal_iphi[nADC]/I");
   
   ETTAnalyzerTree->Branch("nbOfTowers",&nbOfTowers, "nbOfTowers/i");
 

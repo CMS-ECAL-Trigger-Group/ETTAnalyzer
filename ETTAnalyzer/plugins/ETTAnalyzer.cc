@@ -397,8 +397,10 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    // -------------------------------
    
    edm::Handle<EcalTrigPrimDigiCollection> tp; 
+  //  std::cout << "Getting tp by collection..." << std::endl;
    e.getByToken(tpCollection_,tp);
-   //std::cout<<"TP collection size="<<tp.product()->size()<<std::endl ;
+  //  std::cout << "Got tp by collection..." << std::endl;
+  //  std::cout<<"TP collection size="<<tp.product()->size()<<std::endl ;
    
    map<EcalTrigTowerDetId, towerEner>::iterator itTT ;
    map<EcalTrigTowerDetId, towerEner> mapTower ;
@@ -414,13 +416,14 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   //  }
 
    edm::Handle<EBDigiCollection>  EBdigis;
-  //  std::cout << "Getting EEdigis..." << std::endl;
+  //  std::cout << "Getting EBdigis..." << std::endl;
    e.getByToken(EBdigistoken_,EBdigis);
-  //  std::cout << "Got EEdigis" << std::endl;
+  //  std::cout << "Got EBdigis" << std::endl;
    if(not e.getByToken(EBdigistoken_,EBdigis)){
-     std::cout<<"FATAL EXCEPTION: "<<"Following Not Found: EEdigistoken_ "<<std::endl;
+     std::cout<<"FATAL EXCEPTION: "<<"Following Not Found: EBdigistoken_ "<<std::endl;
      exit(0);
    }   
+  //  std::cout << "Right after Got EBdigis" << std::endl;
 
    int j=0;
    int countNadc=0;
@@ -430,43 +433,61 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   // Get EB digis 
 
    // EB only 
-   for ( EBDigiCollection::const_iterator hitItr = EBdigis->begin(); hitItr != EBdigis->end(); ++hitItr ) {
-     EBDataFrame df(*hitItr);
-     const EBDetId & id = df.id();
-     const EcalTrigTowerDetId towid = (*eTTmap_).towerOf(id);
-     
-    //  const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(df.id());
-    //  uint32_t stripid = elId.rawId() & 0xfffffff8;  // from Pascal
-     //std::cout<<" strip id : "<<stripid<<std::endl;
-     
-     for(int i=0; i<10;++i){
-       //std::cout<<" tower (eta, phi): ("<<towid.ieta() << ", "<<towid.iphi()<<")"
-       //     <<" xtal (ix, iy): ("<<id.ix() <<", "<<id.iy()<<")"
-       //     <<" ADC for EEDataFrame: "<<j << "  sample number "<<i<<"  "<<df.sample(i).adc()<<std::endl;
-     
-     // these, tower_eta for example, is set to size 4092, but elements being filled for each digi per rec hit 
-     tower_eta[countNadc] = towid.ieta();
-     tower_phi[countNadc] = towid.iphi();
-    //  xtal_ix[countNadc] = id.ix();
-    //  xtal_iy[countNadc] = id.iy();
-     xtal_ieta[countNadc] = id.ieta();
-     xtal_iphi[countNadc] = id.iphi();    
-     
-     index_df[countNadc] = j;
-     index_ts[countNadc] = i;
-     count_ADC[countNadc] = df.sample(i).adc();
-     gain_id[countNadc]    = df.sample(i).gainId();
-       
-     countNadc++;
-     
-     }
 
-     j++;
+  /*
+      
+  //  std::cout << "Right before EB digis loop" << std::endl;
+   int numDigis = 0; 
+   for ( EBDigiCollection::const_iterator hitItr = EBdigis->begin(); hitItr != EBdigis->end(); ++hitItr ) {
+
+    EBDataFrame df(*hitItr); // full readout runs crashing here. Does not crash on same EBdigis instance every time. Memory issue? 
+    const EBDetId & id = df.id();
+    const EcalTrigTowerDetId towid = (*eTTmap_).towerOf(id);
      
+    // //  const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(df.id());
+    // //  uint32_t stripid = elId.rawId() & 0xfffffff8;  // from Pascal
+    //  //std::cout<<" strip id : "<<stripid<<std::endl;
+     
+    for(int i=0; i<10;++i){
+      //std::cout<<" tower (eta, phi): ("<<towid.ieta() << ", "<<towid.iphi()<<")"
+      //     <<" xtal (ix, iy): ("<<id.ix() <<", "<<id.iy()<<")"
+      //     <<" ADC for EEDataFrame: "<<j << "  sample number "<<i<<"  "<<df.sample(i).adc()<<std::endl;
+     
+    //  // these, tower_eta for example, is set to size 4092, but elements being filled for each digi per rec hit 
+    tower_eta[countNadc] = towid.ieta();
+    tower_phi[countNadc] = towid.iphi();
+    // //  xtal_ix[countNadc] = id.ix();
+    // //  xtal_iy[countNadc] = id.iy();
+    xtal_ieta[countNadc] = id.ieta();
+    xtal_iphi[countNadc] = id.iphi();    
+     
+    index_df[countNadc] = j;
+    index_ts[countNadc] = i;
+    count_ADC[countNadc] = df.sample(i).adc();
+    gain_id[countNadc]    = df.sample(i).gainId();
+       
+    countNadc++;
+     
+    }
+
+  //  std::cout << "5" << std::endl;
+
+    //  j++;
+    //  numDigis++;
+     
+    // df.~EBDataFrame(); 
+    // id.~EBDetId(); 
+    // towid.~EcalTrigTowerDetId();
+
    }
+
+   */
+
+   // std::cout << "numDigis: " << numDigis << std::endl; 
+   
    
    //  ndataframe = j;
-    nADC       = countNadc;
+    // nADC       = countNadc;
 
 
   //  // EE only 
@@ -512,6 +533,7 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 
    for (unsigned int i=0;i<tp.product()->size();i++) {
      EcalTriggerPrimitiveDigi d = (*(tp.product()))[i];
+    //  std::cout << "Right after defining EcalTriggerPrimitiveDigi" << std::endl;
      const EcalTrigTowerDetId TPtowid= d.id();
      towerEner tE ;
 
@@ -538,10 +560,11 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    // -------------------------------
    //  emulator information 
    // -------------------------------
-   //  std::cout << "Getting tpEmul..." << std::endl;
-   edm::Handle<EcalTrigPrimDigiCollection> tpEmul ;
+  //  std::cout << "Getting tpEmul..." << std::endl;
+  //  std::cout << "e:" << e << std::endl; 
+   edm::Handle<EcalTrigPrimDigiCollection> tpEmul ; // ecalTriggerPrimitiveDigis
    e.getByToken(tpEmulatorCollection_, tpEmul);
-   //  std::cout << "Got tpEmul" << std::endl;
+  //  std::cout << "Got tpEmul" << std::endl;
    
    for (unsigned int i = 0; i < tpEmul.product()->size(); i++) {
      EcalTriggerPrimitiveDigi d = (*(tpEmul.product()))[i];
@@ -585,8 +608,10 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    // https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideEcalRecoLocalReco#Mapping_into_severity_levels
 
    // EB rec hits only 
+
    edm::Handle<EcalRecHitCollection> rechitsEB; 
    e.getByToken(EcalRecHitCollectionEB1_,rechitsEB); 
+
   //  float maxRecHitEnergy = 0.; // If you search by rec hit below, shouldn't this be a map? Shouldn't each TT have its own maxRecHitEnergy? Otherwise having one high rec Hit in all of EB will raise the required threshold for all TTs to be assigned a a sevlvl and time
    // Unless you only want to consider the highest recHit in the event, then ok.
    int irechit = 0;
@@ -635,7 +660,6 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   //    }
   //  }
 
-  //  std::cout << "About to start writing tree" << std::endl; 
 
    int towerNb = 0 ;
    for (itTT = mapTower.begin() ; itTT != mapTower.end() ; ++itTT) {
@@ -693,7 +717,6 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    }
 
    nbOfTowers = towerNb ;
-   
    ETTAnalyzerTree->Fill();
 
 }

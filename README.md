@@ -13,7 +13,7 @@ To setup CMSSW_11_3_0 which contains even + odd weight emulator additions:
 	git cms-init
 	git clone git@github.com:CMS-ECAL-Trigger-Group/ETTAnalyzer.git -b CMSSW_11_3_0
 	cd ETTAnalyzer/ETTAnalyzer
-	scram b -j 
+	scram b -j  
 
 ## Examples
 
@@ -36,6 +36,20 @@ To run with strip zeroing and a candidate set of odd weights:
 	  TPModeTag=EcalTPG_TPMode_Run3_zeroing TPinfoPrintout=0 userMaxEvents=10 \
 	  OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1 RunETTAnalyzer=1 \
 	  inFile="/store/data/Run2018C/ZeroBias/RAW/v1/000/320/063/00000/62F3929A-F08D-E811-8133-FA163E19E543.root"
+
+## Optional: Add hack to remove TDirectory from ETTAnalyzer output files
+
+By default the output TFile from the ETTAnalyzer plugin must have a TDirectory. To produce output files without this TDirectory, one can add a hacked cms package which removes it:
+
+	cd CMSSW_11_3_0/src/
+	git remote add unofficial-cmssw git@github.com:atishelmanch/cmssw.git
+	git cms-addpkg CommonTools/UtilAlgos
+	git cms-addpkg CommonTools/Utils
+	wget https://raw.githubusercontent.com/atishelmanch/cmssw/from-CMSSW_11_3_0_TDirectory_Hack/CommonTools/Utils/src/TFileDirectory.cc
+	mv TFileDirectory.cc CommonTools/Utils/src/TFileDirectory.cc 
+	wget https://raw.githubusercontent.com/atishelmanch/cmssw/from-CMSSW_11_3_0_TDirectory_Hack/CommonTools/UtilAlgos/src/TFileService.cc
+	mv TFileService.cc CommonTools/UtilAlgos/src/TFileService.cc 
+	scram b -j 	
 
 ## TP mode 
 

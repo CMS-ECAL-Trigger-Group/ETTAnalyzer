@@ -9,11 +9,7 @@ The purpose of this crab configuration file is to run the ETTAnalyzer over many 
 If running over files based on run number or blocks:
 """
 
-# runs = [343193, 343196, 343198, 343200, 343202, 343204] ##-- CRUZET 2021 double weights test 
-
-runs = [324725]
-
-#Nblocks = 11 ##-- Max: 11 
+Nblocks = 11 ##-- Max: 11 
 oneFile = 0 ##-- Run over one file as a test 
 
 ##-- https://twiki.cern.ch/twiki/bin/view/CMS/AbrahamTishelmanCharnyHomepage#Checking_Dataset_Luminosity
@@ -26,6 +22,7 @@ CMS_files = []
 
 print "Adding CMS files..."
 
+"""
 ##-- By run number 
 for run in runs:
      print "Run",run
@@ -36,6 +33,7 @@ for run in runs:
          for file in content:
              CMS_files.append(file)
 """
+
 ##-- By block number 
 for block_i in range(0, Nblocks):
     print "On block",block_i
@@ -45,14 +43,11 @@ for block_i in range(0, Nblocks):
         content = [x.strip() for x in content] 
         for file in content:
             CMS_files.append(file)            
-"""
 
 if(oneFile):
   CMS_files = ["/store/data/Run2018C/ZeroBias/RAW/v1/000/319/759/00000/8AC0ADC0-9689-E811-8E0B-FA163E2F2CF9.root"] 
 
 print "Number of input files:",len(CMS_files) ##-- 4511 files for all 11 blocks 
-
-exit(1)
 
 """
 CRAB configuration parameters 
@@ -63,7 +58,7 @@ inDir = "/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_11_3_
 from CRABClient.UserUtilities import config
 config = config()
  
-config.General.requestName = 'Run_324725_Run2018D_ZeroBias_FullReadout'
+config.General.requestName = 'ZeroBias_2018_EBOnly_FixedOccProportion_Multifit'
 config.General.workArea = 'crab_projects'
 config.General.transferOutputs = True ##-- Need this True to transfer output files!! at least with eos output.
 config.General.transferLogs = False 
@@ -72,7 +67,7 @@ config.General.transferLogs = False
 config.JobType.pyCfgParams = [
                                 'OverrideWeights=True', 
                                 'UserGlobalTag=113X_dataRun2_relval_v1',
-                                'RecoMethod=weights'
+                                'RecoMethod=Multifit'
                              ] 
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = '%s/conf_11_3_0.py'%(inDir)
@@ -82,11 +77,10 @@ config.Data.splitting = 'FileBased'
 # config.Data.splitting = 'Automatic'
 # config.Data.unitsPerJob = 1
 # config.Data.unitsPerJob = 100 ##-- 100 files per job 
-# config.Data.unitsPerJob = 25 
-config.Data.unitsPerJob = 2 
+config.Data.unitsPerJob = 25 
 
-config.Data.outputPrimaryDataset = 'Run_324725_Run2018D_ZeroBias_FullReadout'
-config.Data.outputDatasetTag = 'ETTAnalyzer_CMSSW_11_3_0_StripZeroing_OfflineWeights'
+config.Data.outputPrimaryDataset = 'ZeroBias_2018_EBOnly_FixedOccProportion_Multifit'
+config.Data.outputDatasetTag = 'ETTAnalyzer_CMSSW_11_3_0_StripZeroing_Multifit'
 config.Data.outLFNDirBase = '/store/group/dpg_ecal/alca_ecalcalib/Trigger/DoubleWeights/' 
 config.Data.publication = False 
 

@@ -5,7 +5,7 @@
 // Abraham Tishelman-Charny                                               //
 //                                                                        //
 // The purpose of this plugin is to save trigger primitive and Level 1    //
-// information from CMS data and MC AODs. This source code file defines   //
+// information from CMS RAW files. This source code file defines   //
 // the member functions used by the ETTAnalyzer class.                    //
 //------------------------------------------------------------------------//
 

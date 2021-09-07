@@ -77,7 +77,7 @@ public:
   int iphi_, ieta_, nbXtal_, spike_ ;
   int twrADC, sFGVB, sevlv_, ttFlag_;
   int TCCid_, TowerInTCC_, strip_;
-  int time_;
+  float time_;
   float maxRecHitEnergy_; 
   towerEner()
     : eRec_(0),  crystNb_(0), tpgADC_(0),
@@ -206,7 +206,7 @@ private:
   int crystNb[4032];
   float maxRecHitEnergy[4032]; 
   int sevlv[4032];
-  int time[4032];
+  float time[4032];
   int spike[4032] ;
   int twrADC[4032];
   int sFGVB[4032];
@@ -370,7 +370,7 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet& ps)
   ETTAnalyzerTree->Branch("crystNb", crystNb ,"crystNb[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("maxRecHitEnergy", maxRecHitEnergy ,"maxRecHitEnergy[nbOfTowers]/F");
   ETTAnalyzerTree->Branch("sevlv", sevlv ,"sevlv[nbOfTowers]/I");
-  ETTAnalyzerTree->Branch("time", time ,"time[nbOfTowers]/I");
+  ETTAnalyzerTree->Branch("time", time ,"time[nbOfTowers]/F");
   ETTAnalyzerTree->Branch("spike", spike ,"spike[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("twrADC", twrADC ,"twrADC[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("sFGVB", sFGVB ,"sFGVB[nbOfTowers]/I");

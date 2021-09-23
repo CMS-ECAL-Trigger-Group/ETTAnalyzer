@@ -425,8 +425,6 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    }   
   //  std::cout << "Right after Got EBdigis" << std::endl;
 
-   int j=0;
-   int countNadc=0;
    c.get<IdealGeometryRecord>().get(eTTmap_);
    
 
@@ -663,11 +661,6 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 
    int towerNb = 0 ;
    for (itTT = mapTower.begin() ; itTT != mapTower.end() ; ++itTT) {
-
-    // Only save non-zero TPs 
-    if((itTT->second).twrADC == 0){
-      continue; 
-    }
 
      //-- Save entries per tower 
      ieta[towerNb] = (itTT->second).ieta_ ;

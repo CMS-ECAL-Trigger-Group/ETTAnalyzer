@@ -1,6 +1,9 @@
-# ETT Analyzer 
+# ETT Analyzer - CMSSW_12_1_0_pre3
 
-The purpose of this repository is to create cmssw configuration files to perform ECAL Trigger Team tasks such as emulator development and general data / MC anaysis.
+The purpose of this ETTAnalyzer branch is twofold: 
+
+- Solve CMSSW issue [#33425](https://github.com/cms-sw/cmssw/issues/33425), using the ETTAnalyzer CMSSW configuration as an example configuration file 
+- Determine CMSSW_11_3_0 version of ETTAnalyzer and configuration file compatibility / required changed for CMSSW_12_1_0
 
 ## Setup
 

@@ -55,7 +55,6 @@ class TPInfoProcess:
             exec("d%s_avg = d%s.mean()"%(i,i))
             exec("digiAverages.append(d%s_avg)"%(i))
         digis = np.stack((d0, d1, d2, d3, d4), axis=1)
-        print"digis:",digis
 
         # plt.scatter([50, 75, 100, 125, 150], digiAverages, label = "Digi averages")
         plt.plot(digis.T, label = "Digis")
@@ -103,7 +102,7 @@ class TPInfoProcess:
 ##-- Non-Class Functions 
 def CheckMakeOutLocation(outLoc_):
     if(not os.path.exists(outLoc_)):
-        print"Creating output directory: %s"%(outLoc_)
+        print("Creating output directory: %s"%(outLoc_))
         beforeOutLoc = "%s/../"%(outLoc_)
         os.system('mkdir %s'%(outLoc_))
         os.system('cp %s/index.php %s'%(beforeOutLoc,outLoc_))  

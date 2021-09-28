@@ -19,8 +19,6 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
                                
 ##-- Global Tag 
 process.GlobalTag.globaltag = options.UserGlobalTag
-# process.GlobalTag.globaltag = '113X_dataRun2_relval_v1'
-# process.GlobalTag.globaltag = '113X_dataRun3_HLT_v3' ##-- July 2021 CRUZET 
 
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
@@ -175,11 +173,11 @@ if(options.RunETTAnalyzer):
     else:
         raise Exception("Unknown reconstruction method: %s"%(options.RecoMethod))
 
-    process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
+    process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cff") # This cff was introduced after 11_3_0 to handle the ECAL local reco configuration on GPU automatically.
     process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
     process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
-    process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
-    process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
+    process.ecalRecHit.cpu.EBuncalibRecHitCollection = cms.InputTag('ecalUncalibHit', 'EcalUncalibRecHitsEB') # ecalRecHit used to be a simple EDProducer in 11_3_0 but now it is a SwitchProducerCUDA
+    process.ecalRecHit.cpu.EEuncalibRecHitCollection = cms.InputTag('ecalUncalibHit', 'EcalUncalibRecHitsEE')    
 
     ##-- Used for output root files 
     process.TFileService = cms.Service("TFileService",

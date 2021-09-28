@@ -42,6 +42,10 @@ To run with strip zeroing and a candidate set of odd weights:
 	  inFile="/store/data/Run2018C/ZeroBias/RAW/v1/000/320/063/00000/62F3929A-F08D-E811-8133-FA163E19E543.root" \
 	  OverrideWeights=1 UserGlobalTag=113X_dataRun2_relval_v1 RecoMethod=weights
 
+Full readout file on disk:
+
+	inFile="/store/data/Run2018D/ZeroBias3/RAW/v1/000/324/725/00000/93581922-91B4-9547-8212-B1D9B99C2AA5.root"
+
 ## Optional: Add hack to remove TDirectory from ETTAnalyzer output files
 
 By default the output TFile from the ETTAnalyzer plugin must have a TDirectory. To produce output files without this TDirectory, one can add a hacked cms package which removes it:

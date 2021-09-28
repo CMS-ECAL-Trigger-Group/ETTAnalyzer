@@ -1,23 +1,22 @@
 """
-16 August 2021
 Abraham Tishelman-Charny 
 
 The purpose of this CMSSW configuration file is to run over CMSSW data files, with or without the ETTAnalyzer run on top. 
 """
 
-##-- Imports 
+# Imports 
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 import os 
 from ConfigParams import options 
 
-##-- Define cms process 
+# Define cms process 
 process = cms.Process("ETTAnalyzer",eras.Run2_2017)
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cff") ##-- Configuration for module which produces an EcalTrigPrimDigiCollection
+process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cff") # Configuration for module which produces an EcalTrigPrimDigiCollection
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
                                
-##-- Global Tag 
+# Global Tag 
 process.GlobalTag.globaltag = options.UserGlobalTag
 
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -30,7 +29,7 @@ process.GlobalTag.toGet = cms.VPSet(
          )
 )
 
-##-- If overriding odd weights' records over global tag 
+# If overriding odd weights' records over global tag 
 if(options.OverrideWeights):
     print("Setting double weights records to user input values")
     process.load("CondCore.CondDB.CondDB_cfi")
@@ -60,7 +59,7 @@ if(options.OverrideWeights):
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
-process.load('Configuration.StandardSequences.RawToDigi_Data_cff') ##--  --> RawToDigi_cff --> Loads ecalTriggerPrimitiveDigis_cfi.py 
+process.load('Configuration.StandardSequences.RawToDigi_Data_cff') #  --> RawToDigi_cff --> Loads ecalTriggerPrimitiveDigis_cfi.py 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('L1Trigger.Configuration.L1TReco_cff')
 process.load('Configuration.EventContent.EventContent_cff')
@@ -74,12 +73,11 @@ process.schedule = cms.Schedule(process.raw2digi_step)
 from L1Trigger.Configuration.customiseReEmul import L1TReEmulFromRAW
 
 #call to customisation function L1TReEmulFromRAW imported from L1Trigger.Configuration.customiseReEmul
-#process = L1TReEmulFromRAW(process)
 from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import caloStage2Digis
 process.rawCaloStage2Digis = caloStage2Digis.clone()
 process.rawCaloStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 
-##-- Create ECAL TP digis module 
+# Create ECAL TP digis module 
 process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    InstanceEB = cms.string('ebDigis'),
    InstanceEE = cms.string('eeDigis'),
@@ -87,24 +85,38 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    BarrelOnly = cms.bool(True),
    Famos = cms.bool(False),
    TcpOutput = cms.bool(False),
-   Debug = cms.bool(options.Debug), ##-- Lots of printout 
-   binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
+   Debug = cms.bool(options.Debug), # Lots of printout 
+   binOfMaximum = cms.int32(6), # optional from release 200 on, from 1-10
    TPinfoPrintout = cms.bool(options.TPinfoPrintout),
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.userMaxEvents) )
-#process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( options.Printerval ) ##-- Printout run, lumi, event info
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 99999999 ) ##-- Printout run, lumi, event info
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 99999999 ) # Printout run, lumi, event info
+
+# Save TPinfo
+if(options.TPinfoPrintout or options.Debug):
+    process.MessageLogger = cms.Service("MessageLogger",
+                        destinations       =  cms.untracked.vstring('TPinfo'),
+                        categories         = cms.untracked.vstring('EcalTPG'),
+                        debugModules  = cms.untracked.vstring('*'),
+
+                        TPinfo          = cms.untracked.PSet(
+                                                    threshold =  cms.untracked.string('DEBUG'),
+                                                    INFO       =  cms.untracked.PSet(limit = cms.untracked.int32(0)),
+                                                    DEBUG   = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+                                                    EcalTPG = cms.untracked.PSet(limit = cms.untracked.int32(1000000000))
+                                                    )
+    )
 
 files = []
 
-##-- If a file is passed as a flag, run over it 
+# If a file is passed as a flag, run over it 
 if(options.inFile != ""):
     print("inFile flag value found:")
     print(options.inFile)
     files.append(options.inFile)
 
-##-- If not file is passed, process a default files from 2018 Zerobias data 
+# If not file is passed, process a default file from 2018 Zerobias data 
 else:
     files = ["/store/data/Run2018C/ZeroBias/RAW/v1/000/320/063/00000/62F3929A-F08D-E811-8133-FA163E19E543.root"]
 
@@ -114,59 +126,57 @@ process.source = cms.Source("PoolSource",
                             )
                         )
 
-##-- If running ETT Analyzer
+# If running ETT Analyzer
 if(options.RunETTAnalyzer):
 
-    print("[conf_11_3_0.py] - Running ETT Analyzer")
-
-    ##-- Create EDAnalyzer 
-    process.tuplizer = cms.EDAnalyzer('ETTAnalyzer', ##-- Name ultimately comes from plugins/ETTAnalyzer.cc final lines with plugin name definition 
+    # Create EDAnalyzer 
+    process.tuplizer = cms.EDAnalyzer('ETTAnalyzer', # Name ultimately comes from plugins/ETTAnalyzer.cc final lines with plugin name definition 
                                     ugtProducer = cms.InputTag("gtStage2Digis"),
                                     savePreFireInfo = cms.bool(False), 
-                                    TPEmulatorCollection =  cms.InputTag("ecalTriggerPrimitiveDigis",""), ##-- Different name for full readout?
-                                    # TPEmulatorCollection =  cms.InputTag("ecalTriggerPrimitiveDigis","ecalTriggerPrimitiveDigis"), ##-- Different name for full readout?
+                                    TPEmulatorCollection =  cms.InputTag("ecalTriggerPrimitiveDigis",""), # Different name for full readout?
+                                    # TPEmulatorCollection =  cms.InputTag("ecalTriggerPrimitiveDigis","ecalTriggerPrimitiveDigis"), # Different name for full readout?
                                     useAlgoDecision = cms.untracked.string("initial"),
                                     firstBXInTrainAlgo = cms.untracked.string("L1_FirstCollisionInTrain"),
                                     lastBXInTrainAlgo = cms.untracked.string("L1_LastCollisionInTrain"),
                                     isoBXAlgo = cms.untracked.string("L1_IsolatedBunch"),
                                     TPCollection = cms.InputTag("ecalDigis","EcalTriggerPrimitives"), 
-                                    ## for data 
+                                    # for data 
                                     stage2CaloLayer2EGammaProducer = cms.InputTag("gtStage2Digis","EGamma"),
-                                    ## for mc 
+                                    # for mc 
                                     #stage2CaloLayer2EGammaProducer = cms.InputTag("hltGtStage2Digis","EGamma"),
                                     
-                                    ## For rechits 
+                                    # For rechits 
                                     EcalRecHitCollectionEB = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
                                     EcalRecHitCollectionEE = cms.InputTag("ecalRecHit","EcalRecHitsEE"),                                                                        
                                     
-                                    ## for data on Raw
+                                    # for data on Raw
                                     EBdigis      = cms.InputTag("ecalDigis","ebDigis"),
                                     EEdigis      = cms.InputTag("ecalDigis","eeDigis"),
                                     
-                                    ## for data on DIGIS : make sure why is this diff, w.r.t. RAW
+                                    # for data on DIGIS : make sure why is this diff, w.r.t. RAW
                                     #EBdigis      = cms.InputTag("selectDigi","selectedEcalEBDigiCollection"),
                                     #EEdigis      = cms.InputTag("selectDigi","selectedEcalEEDigiCollection"),
                                     
-                                    ## for mc
+                                    # for mc
                                     #EBdigis      = cms.InputTag("simEcalDigis","ebDigis"),
                                     #EEdigis      = cms.InputTag("simEcalDigis","eeDigis"),
                                     genparticles = cms.InputTag("genParticles")
                                 )
 
-    ## Load appropriate processes for Rec Hits 
+    # Load appropriate processes for Rec Hits 
     process.load("Configuration/StandardSequences/Reconstruction_cff")
 
+    # Multifit
     if(options.RecoMethod == "Multifit"):
         print("Offline energy reconstruction to be performed with Multifit")
-        ## Multifit 
         import RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi
         process.ecalUncalibHit =  RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi.ecalMultiFitUncalibRecHit.clone()
         process.ecalUncalibHit.algoPSet.activeBXs =cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4)
         process.ecalUncalibHit.algoPSet.useLumiInfoRunHeader = cms.bool (False )
 
+    # Offline weights 
     elif(options.RecoMethod == "weights"):
         print("Offline energy reconstruction to be performed with offline weights")
-        ## Offline weights 
         import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
         process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
 
@@ -179,12 +189,12 @@ if(options.RunETTAnalyzer):
     process.ecalRecHit.cpu.EBuncalibRecHitCollection = cms.InputTag('ecalUncalibHit', 'EcalUncalibRecHitsEB') # ecalRecHit used to be a simple EDProducer in 11_3_0 but now it is a SwitchProducerCUDA
     process.ecalRecHit.cpu.EEuncalibRecHitCollection = cms.InputTag('ecalUncalibHit', 'EcalUncalibRecHitsEE')    
 
-    ##-- Used for output root files 
+    # Name for output root files 
     process.TFileService = cms.Service("TFileService",
                                     fileName = cms.string("ETTAnalyzer_output.root")
                                     )
 
-    ##-- Define Path Which includes necessary modules for ETTAnalyzer 
+    # Define Path Which includes necessary modules for ETTAnalyzer 
     process.p = cms.Path(
                          process.gtDigis*
                          process.RawToDigi*
@@ -197,15 +207,15 @@ if(options.RunETTAnalyzer):
                          process.tuplizer
                     )
 
-##-- If not running ETT Analyzer
+# If not running ETT Analyzer
 else: 
 
-    ##-- Define Path Without ETTAnalyzer modules 
+    # Define Path Without ETTAnalyzer modules 
     process.p = cms.Path(
                         process.L1Reco*
                         process.gtStage2Digis*
                         process.ecalTriggerPrimitiveDigis
                     )
 
-##-- In either case, append process path to process schedule 
+# In either case, append process path to process schedule 
 process.schedule.append(process.p)

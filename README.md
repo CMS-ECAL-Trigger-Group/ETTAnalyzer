@@ -46,6 +46,14 @@ Full readout file on disk:
 
 	inFile="/store/data/Run2018D/ZeroBias3/RAW/v1/000/324/725/00000/93581922-91B4-9547-8212-B1D9B99C2AA5.root"
 
+Run on a single TP view: 
+
+	cmsRun conf_12_1_0_pre3.py Debug=1 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db \
+	  TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=1 userMaxEvents=1 OddWeightsSqliteFile=weights \
+	  ZeroCandidateSet.db BarrelOnly=1 RunETTAnalyzer=1 \
+	  inFile="file:/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/DoubleWeights/Single_TP_View/Root_Files/Run_319697_Lumi_256_Event_376665141.root" \
+	  OverrideWeights=1UserGlobalTag=113X_dataRun2_relval_v1 RecoMethod=weights
+
 ## Optional: Add hack to remove TDirectory from ETTAnalyzer output files
 
 By default the output TFile from the ETTAnalyzer plugin must have a TDirectory. To produce output files without this TDirectory, one can add a hacked cms package which removes it:

@@ -7,14 +7,14 @@ The purpose of this ETTAnalyzer branch is twofold:
 
 ## Setup
 
-To setup CMSSW_11_3_0 which contains even + odd weight emulator additions:
+To setup CMSSW_12_1_0_pre3_CMSSW_Issue which contains even + odd weight emulator additions:
 
 	export SCRAM_ARCH=slc7_amd64_gcc900 
-	cmsrel CMSSW_11_3_0
-	cd CMSSW_11_3_0/src
+	cmsrel CMSSW_12_1_0_pre3
+	cd CMSSW_12_1_0_pre3/src
 	cmsenv
 	git cms-init
-	git clone git@github.com:CMS-ECAL-Trigger-Group/ETTAnalyzer.git -b CMSSW_11_3_0
+	git clone git@github.com:CMS-ECAL-Trigger-Group/ETTAnalyzer.git -b CMSSW_12_1_0_pre3_CMSSW_Issue
 	cd ETTAnalyzer/ETTAnalyzer
 	scram b -j  
 
@@ -26,7 +26,7 @@ First, if you need to access files on the grid, make sure to set your VOMS proxy
 
 To run the ETTAnalyzer locally over one file in Run 2 mode:
 	  
-	cmsRun conf_11_3_0.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db \
+	cmsRun conf_12_1_0_pre3.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db \
 	  TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=0 userMaxEvents=10 \
 	  OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1 RunETTAnalyzer=1 \
 	  inFile="/store/data/Run2018C/ZeroBias/RAW/v1/000/320/063/00000/62F3929A-F08D-E811-8133-FA163E19E543.root" \
@@ -36,7 +36,7 @@ If this ran successfully, you should have an output file "ETTAnalyzer_output.roo
 	  
 To run with strip zeroing and a candidate set of odd weights:
 
-	cmsRun conf_11_3_0.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run3_zeroing.db \
+	cmsRun conf_12_1_0_pre3.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run3_zeroing.db \
 	  TPModeTag=EcalTPG_TPMode_Run3_zeroing TPinfoPrintout=0 userMaxEvents=10 \
 	  OddWeightsSqliteFile=weights/ZeroCandidateSet.db BarrelOnly=1 RunETTAnalyzer=1 \
 	  inFile="/store/data/Run2018C/ZeroBias/RAW/v1/000/320/063/00000/62F3929A-F08D-E811-8133-FA163E19E543.root" \
@@ -48,11 +48,11 @@ Full readout file on disk:
 
 Run on a single TP view: 
 
-	cmsRun conf_12_1_0_pre3.py Debug=1 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db \
-	  TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=1 userMaxEvents=1 OddWeightsSqliteFile=weights \
-	  ZeroCandidateSet.db BarrelOnly=1 RunETTAnalyzer=1 \
-	  inFile="file:/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/DoubleWeights/Single_TP_View/Root_Files/Run_319697_Lumi_256_Event_376665141.root" \
-	  OverrideWeights=1UserGlobalTag=113X_dataRun2_relval_v1 RecoMethod=weights
+	cmsRun cmsRun conf_12_1_0_pre3.py Debug=1 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db \ 
+	TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=1 userMaxEvents=1 OddWeightsSqliteFile=weights/ZeroCandidateSet.db \ 
+	BarrelOnly=1 RunETTAnalyzer=1 \  
+	inFile="file:/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/DoubleWeights/Single_TP_View/Root_Files/Run_319697_Lumi_256_Event_376665141.root" \ 
+	OverrideWeights=1 UserGlobalTag=113X_dataRun2_relval_v1 RecoMethod=weights
 
 ## Optional: Add hack to remove TDirectory from ETTAnalyzer output files
 

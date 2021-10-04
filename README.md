@@ -48,10 +48,10 @@ Full readout file on disk:
 
 Run on a single TP view: 
 
-	cmsRun cmsRun conf_12_1_0_pre3.py Debug=1 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db \ 
-	TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=1 userMaxEvents=1 OddWeightsSqliteFile=weights/ZeroCandidateSet.db \ 
-	BarrelOnly=1 RunETTAnalyzer=1 \  
-	inFile="file:/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/DoubleWeights/Single_TP_View/Root_Files/Run_319697_Lumi_253_Event_376665141.root" \ 
+	cmsRun cmsRun conf_12_1_0_pre3.py Debug=1 TPModeSqliteFile=TPModes/EcalTPG_TPMode_Run2_default.db \
+	TPModeTag=EcalTPG_TPMode_Run2_default TPinfoPrintout=1 userMaxEvents=1 OddWeightsSqliteFile=weights/ZeroCandidateSet.db \
+	BarrelOnly=1 RunETTAnalyzer=1 \
+	inFile="file:/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/DoubleWeights/Single_TP_View/Root_Files/Run_319697_Lumi_253_Event_376665141.root" \
 	OverrideWeights=1 UserGlobalTag=113X_dataRun2_relval_v1 RecoMethod=weights
 
 ## Optional: Add hack to remove TDirectory from ETTAnalyzer output files

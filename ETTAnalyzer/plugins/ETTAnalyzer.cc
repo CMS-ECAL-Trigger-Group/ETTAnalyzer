@@ -257,6 +257,7 @@ void ETTAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 	     if (bxNumberActual ==  1){ 
 	       L1preIsoIetap1[isocounterp1] = egamma->hwEta();
 	       L1preIsoIphip1[isocounterp1] = egamma->hwPhi();
+	       L1preIsoPtp1[isocounterzero]   = egamma->pt();
 	       L1preIsoEnergyp1[isocounterp1] = egamma->energy();
 	       isocounterp1++;
 	     }

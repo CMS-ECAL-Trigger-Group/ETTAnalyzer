@@ -73,15 +73,16 @@ public:
   int tpgEmul_[5];
   int tpgEmulFlag_[5];
   int tpgEmulsFGVB_[5];
+  int tpgEmulFineGrainBit_[5]; 
   int tpgADC_;
   int iphi_, ieta_, nbXtal_, spike_;
-  int twrADC, sFGVB, sevlv_, ttFlag_;
+  int twrADC, sFGVB, FineGrainBit, sevlv_, ttFlag_;
   int TCCid_, TowerInTCC_, strip_;
   float time_;
   float maxRecHitEnergy_;
   towerEner()
       : eRec_(0), crystNb_(0), tpgADC_(0),
-        iphi_(-999), ieta_(-999), nbXtal_(0), spike_(0), twrADC(0), sFGVB(-999), sevlv_(-999), ttFlag_(0), TCCid_(0), TowerInTCC_(0), strip_(0), time_(-999), maxRecHitEnergy_(-999)
+        iphi_(-999), ieta_(-999), nbXtal_(0), spike_(0), twrADC(0), sFGVB(-999), FineGrainBit(-999), sevlv_(-999), ttFlag_(0), TCCid_(0), TowerInTCC_(0), strip_(0), time_(-999), maxRecHitEnergy_(-999)
   {
     // for (int i=0 ; i<5 ; i ++) { //-- 5 BX window
     for (int i = 2; i < 3; i++)
@@ -89,6 +90,7 @@ public:
       tpgEmul_[i] = 0;
       tpgEmulFlag_[i] = 0;
       tpgEmulsFGVB_[i] = 0;
+      tpgEmulFineGrainBit_[i] = 0; 
     }
   }
 };
@@ -200,6 +202,11 @@ private:
   int rawTPEmulsFGVB3[4032];
   int rawTPEmulsFGVB4[4032];
   int rawTPEmulsFGVB5[4032];
+  int rawTPEmulFineGrainBit1[4032]; 
+  int rawTPEmulFineGrainBit2[4032]; 
+  int rawTPEmulFineGrainBit3[4032]; 
+  int rawTPEmulFineGrainBit4[4032]; 
+  int rawTPEmulFineGrainBit5[4032]; 
   float eRec[4032];
   int crystNb[4032];
   float maxRecHitEnergy[4032];
@@ -208,6 +215,7 @@ private:
   int spike[4032];
   int twrADC[4032];
   int sFGVB[4032];
+  int FineGrainBit[4032]; 
   int twrEmulMaxADC[4032];
   int twrEmul3ADC[4032];
 
@@ -362,6 +370,9 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet &ps)
   // ETTAnalyzerTree->Branch("rawTPEmulsFGVB4", rawTPEmulsFGVB4 ,"rawTPEmulsFGVB4[nbOfTowers]/I");
   // ETTAnalyzerTree->Branch("rawTPEmulsFGVB5", rawTPEmulsFGVB5 ,"rawTPEmulsFGVB5[nbOfTowers]/I");
 
+  ETTAnalyzerTree->Branch("rawTPEmulFineGrainBit3", rawTPEmulFineGrainBit3, "rawTPEmulFineGrainBit3[nbOfTowers]/I");
+
+
   // ETTAnalyzerTree->Branch("eRec", eRec ,"eRec[nbOfTowers][25]/I"); // Max of 25 xtals per TT
   ETTAnalyzerTree->Branch("crystNb", crystNb, "crystNb[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("maxRecHitEnergy", maxRecHitEnergy, "maxRecHitEnergy[nbOfTowers]/F");
@@ -370,6 +381,7 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet &ps)
   ETTAnalyzerTree->Branch("spike", spike, "spike[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("twrADC", twrADC, "twrADC[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("sFGVB", sFGVB, "sFGVB[nbOfTowers]/I");
+  ETTAnalyzerTree->Branch("FineGrainBit", FineGrainBit, "FineGrainBit[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("ttFlag", ttFlag, "ttFlag[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("TCCid", TCCid, "TCCid[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("TowerInTCC", TowerInTCC, "TowerInTCC[nbOfTowers]/I");

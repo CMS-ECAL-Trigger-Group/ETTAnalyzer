@@ -587,8 +587,6 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
   for (unsigned int i = 0; i < tp.product()->size(); i++)
   {
     EcalTriggerPrimitiveDigi d = (*(tp.product()))[i];
-    //  std::cout << "Right after defining EcalTriggerPrimitiveDigi" <<
-    //  std::endl;
     const EcalTrigTowerDetId TPtowid = d.id();
     towerEner tE;
 
@@ -596,8 +594,6 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
     if (TPtowid.ieta() > 17 || TPtowid.ieta() < -17)
       continue;
 
-    // suggested by David
-    // follow from
     // https://github.com/cms-ecal-L1TriggerTeam/CMS-ECAL_TPGAnalysis/blob/master/TriggerAnalysis/plugins/EcalTPGAnalyzer.cc#L845
     tE.TCCid_ = theMapping_->TCCid(TPtowid);
     tE.TowerInTCC_ = theMapping_->iTT(TPtowid);
@@ -611,6 +607,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
     tE.tpgADC_ = (d[0].raw() & 0xfff);
     tE.twrADC = (d[0].raw() & 0xff);
     tE.sFGVB = (d[0].sFGVB());
+    tE.FineGrainBit = (d[0].fineGrain()); 
     // if ((d[0].raw()&0xfff)>0 ) {std::cout<<" EcalTrigTowerDetId :: filling
     // "<<TPtowid<<" twradc: "<<(d[0].raw()&0xff)<<std::endl;}
     mapTower[TPtowid] = tE;
@@ -619,11 +616,8 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
   // -------------------------------
   //  emulator information
   // -------------------------------
-  //  std::cout << "Getting tpEmul..." << std::endl;
-  //  std::cout << "e:" << e << std::endl;
   edm::Handle<EcalTrigPrimDigiCollection> tpEmul; // ecalTriggerPrimitiveDigis
   e.getByToken(tpEmulatorCollection_, tpEmul);
-  //  std::cout << "Got tpEmul" << std::endl;
 
   for (unsigned int i = 0; i < tpEmul.product()->size(); i++)
   {
@@ -642,6 +636,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
         (itTT->second).tpgEmul_[j] = (d[j].raw() & 0xfff);
         (itTT->second).tpgEmulFlag_[j] = d[j].ttFlag();
         (itTT->second).tpgEmulsFGVB_[j] = d[j].sFGVB();
+        (itTT->second).tpgEmulFineGrainBit_[j] = d[j].fineGrain();
       }
   }
 
@@ -762,6 +757,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
     //  rawTPEmulsFGVB1[towerNb] = (itTT->second).tpgEmulsFGVB_[0] ;
     //  rawTPEmulsFGVB2[towerNb] = (itTT->second).tpgEmulsFGVB_[1] ;
     rawTPEmulsFGVB3[towerNb] = (itTT->second).tpgEmulsFGVB_[2];
+    rawTPEmulFineGrainBit3[towerNb] = (itTT->second).tpgEmulFineGrainBit_[2];
     //  rawTPEmulsFGVB4[towerNb] = (itTT->second).tpgEmulsFGVB_[3] ;
     //  rawTPEmulsFGVB5[towerNb] = (itTT->second).tpgEmulsFGVB_[4] ;
 
@@ -779,6 +775,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
     spike[towerNb] = (itTT->second).spike_;
     twrADC[towerNb] = (itTT->second).twrADC;
     sFGVB[towerNb] = (itTT->second).sFGVB;
+    FineGrainBit[towerNb] = (itTT->second).FineGrainBit;
 
     TCCid[towerNb] = (itTT->second).TCCid_;
     TowerInTCC[towerNb] = (itTT->second).TowerInTCC_;

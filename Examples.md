@@ -19,6 +19,12 @@ RunETTAnalyzer=1 inFile="file:/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigg
 OverrideWeights=1 UserGlobalTag=120X_dataRun3_HLT_v3 RecoMethod=weights
 ```
 
+Plot fine grain bit for a given event:
+
+```
+ETTAnalyzerTree->Draw("iphi:ieta >> h(58,-29,29,81,0,81)","FineGrainBit==1&&ttFlag!=4&&twrADC>0&&evtNb==13707","COLZ1")
+```
+
 ## 2018 Beam Splash re-emulation 
 
 Run 2 mode:

@@ -590,9 +590,9 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
     const EcalTrigTowerDetId TPtowid = d.id();
     towerEner tE;
 
-    // SKIP EE
-    if (TPtowid.ieta() > 17 || TPtowid.ieta() < -17)
-      continue;
+    // // SKIP EE
+    // if (TPtowid.ieta() > 17 || TPtowid.ieta() < -17)
+    //   continue;
 
     // https://github.com/cms-ecal-L1TriggerTeam/CMS-ECAL_TPGAnalysis/blob/master/TriggerAnalysis/plugins/EcalTPGAnalyzer.cc#L845
     tE.TCCid_ = theMapping_->TCCid(TPtowid);

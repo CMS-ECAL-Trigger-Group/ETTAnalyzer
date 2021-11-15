@@ -2,6 +2,29 @@
 
 The purpose of this file is to keep track of examples for running ETTAnalyzer.
 
+## 2021 Beam Splash analysis 
+
+To check global tag from a file:
+
+```
+edmProvDump /eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021BeamSplashes/skimSplashEvents2021_run_346050.root | grep "globaltag"
+```
+
+Run ETTAnalyzer over 2021 beam splash skim file:
+
+```
+cmsRun conf_12_1_0_pre3.py Debug=0 TPModeSqliteFile=TPModes/EcalTPG_TPMode_tagging.db \
+TPinfoPrintout=0 userMaxEvents=-1 BarrelOnly=1 \
+RunETTAnalyzer=1 inFile="file:/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021BeamSplashes/skimSplashEvents2021_run_346050.root" \
+OverrideWeights=0 UserGlobalTag=120X_dataRun3_HLT_v3 RecoMethod=weights
+```
+
+Plot fine grain bit for a given event:
+
+```
+ETTAnalyzerTree->Draw("iphi:ieta >> h(58,-29,29,81,0,81)","FineGrainBit==1&&ttFlag!=4&&twrADC>0&&evtNb==13707","COLZ1")
+```
+
 ## 2018 Beam Splash re-emulation 
 
 Run 2 mode:

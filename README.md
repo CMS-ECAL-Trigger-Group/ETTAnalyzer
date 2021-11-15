@@ -1,4 +1,4 @@
-# ETT Analyzer - CMSSW_12_1_0_pre3
+# ETT Analyzer
 
 The purpose of this ETTAnalyzer branch is twofold: 
 

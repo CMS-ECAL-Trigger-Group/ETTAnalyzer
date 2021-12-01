@@ -13,7 +13,7 @@ To setup CMSSW_12_1_0_pre3_CMSSW_Issue which contains even + odd weight emulator
 	cd CMSSW_12_1_0_pre3/src
 	cmsenv
 	git cms-init
-	git clone git@github.com:CMS-ECAL-Trigger-Group/ETTAnalyzer.git -b CMSSW_12_1_0_pre3_CMSSW_Issue
+	git clone git@github.com:CMS-ECAL-Trigger-Group/ETTAnalyzer.git
 	cd ETTAnalyzer/ETTAnalyzer
 	scram b -j  
 

@@ -13,8 +13,9 @@ If running over files based on run number or blocks:
 """
 
 Nblocks = 11 ##-- Max: 11 
-oneFile = 1 ##-- Run over one file as a test 
-addFilePrefix = 1 # Add "file:" to start of file paths 
+oneFile = 0 ##-- Run over one file as a test 
+addFilePrefix = 0 # Add "file:" to start of file paths 
+removeEOSprefix = 1 
 
 ##-- https://twiki.cern.ch/twiki/bin/view/CMS/AbrahamTishelmanCharnyHomepage#Checking_Dataset_Luminosity
 # export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7/bin:$PATH
@@ -28,7 +29,7 @@ print("Adding CMS files...")
 
 #"""
 
-runs = [346446]
+runs = [346447]
 
 ##-- By run number 
 for run in runs:
@@ -39,7 +40,10 @@ for run in runs:
          content = [x.strip() for x in content] 
          for file in content:
              if(addFilePrefix): file_path = "file:%s"%(file)
-             else: file_path = file 
+             else: 
+                 if(removeEOSprefix): file = file.replace("/eos/cms", "")
+                 file_path = file 
+
              CMS_files.append(file_path)
 
 #"""
@@ -57,9 +61,9 @@ for block_i in range(0, Nblocks):
 """
 
 if(oneFile):
-  CMS_files = ["/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021StableBeams/Run_346446/00be91b0-9a0b-4f60-ad02-2f9aac16c7cf.root"] 
+  CMS_files = ["/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021StableBeams/Run_346447/0053ac71-c7ce-4ee0-9d5b-e1e09823f903.root"] 
 
-print("Number of input files:",len(CMS_files)) ##-- 4511 files for all 11 blocks 
+print("Number of input files:",len(CMS_files))
 
 """
 CRAB configuration parameters 
@@ -70,7 +74,7 @@ inDir = "/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_12_1_
 from CRABClient.UserUtilities import config
 config = config()
  
-config.General.requestName = 'Run_346446_PilotBeam_2021'
+config.General.requestName = 'Run_346447_PilotBeam_2021'
 config.General.workArea = 'crab_projects'
 config.General.transferOutputs = True ##-- Need this True to transfer output files!! at least with eos output.
 config.General.transferLogs = False 
@@ -92,7 +96,7 @@ config.Data.unitsPerJob = 1
 # config.Data.unitsPerJob = 100 ##-- 100 files per job 
 # config.Data.unitsPerJob = 25 
 
-config.Data.outputPrimaryDataset = 'Run_346446_PilotBeam_2021'
+config.Data.outputPrimaryDataset = 'Run_346447_PilotBeam_2021'
 config.Data.outputDatasetTag = 'ETTAnalyzer_CMSSW_12_1_0_pre3_DoubleWeightsTaggingMode'
 config.Data.outLFNDirBase = '/store/group/dpg_ecal/alca_ecalcalib/Trigger/DoubleWeights/' 
 config.Data.publication = False 

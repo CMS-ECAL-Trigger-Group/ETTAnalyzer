@@ -1,9 +1,8 @@
 # ETT Analyzer
 
-The purpose of this ETTAnalyzer branch is twofold: 
+The purpose of the ETT (ECAL Trigger Team) Analyzer is to process RAW CMS data files for ETT studies and re-emulation. Studies include the evaluation of double weights configurations with 2018 data and 2021 CMS commissioning data, and the studying of ECAL TP pre-firing. 
 
-- Solve CMSSW issue [#33425](https://github.com/cms-sw/cmssw/issues/33425), using the ETTAnalyzer CMSSW configuration as an example configuration file 
-- Determine CMSSW_11_3_0 version of ETTAnalyzer and configuration file compatibility / required changed for CMSSW_12_1_0
+Current CMSSW version compatibility: CMSSW_12_1_0_pre3
 
 ## Setup
 

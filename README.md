@@ -6,7 +6,7 @@ Current CMSSW version compatibility: CMSSW_12_1_0_pre3
 
 ## Setup
 
-To setup CMSSW_12_1_0_pre3_CMSSW_Issue which contains even + odd weight emulator additions:
+To setup the repository in CMSSW_12_1_0_pre3:
 
 	export SCRAM_ARCH=slc7_amd64_gcc900 
 	cmsrel CMSSW_12_1_0_pre3
@@ -67,7 +67,7 @@ Run on a single TP view:
 
 By default the output TFile from the ETTAnalyzer plugin must have a TDirectory. To produce output files without this TDirectory, one can add a hacked cms package which removes it:
 
-	cd CMSSW_11_3_0/src/
+	cd CMSSW_12_1_0_pre3/src/
 	git remote add unofficial-cmssw git@github.com:atishelmanch/cmssw.git
 	git cms-addpkg CommonTools/UtilAlgos
 	git cms-addpkg CommonTools/Utils

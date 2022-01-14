@@ -13,7 +13,17 @@ To setup CMSSW_12_1_0_pre3_CMSSW_Issue which contains even + odd weight emulator
 	cd CMSSW_12_1_0_pre3/src
 	cmsenv
 	git cms-init
+	
+Then one should clone the repository either via HTTPS protocol:
+
+	git clone https://github.com/CMS-ECAL-Trigger-Group/ETTAnalyzer.git
+	
+or SSH protocol:
+	
 	git clone git@github.com:CMS-ECAL-Trigger-Group/ETTAnalyzer.git
+	
+And proceed to build:
+	
 	cd ETTAnalyzer/ETTAnalyzer
 	scram b -j  
 

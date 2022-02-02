@@ -671,11 +671,9 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
   edm::Handle<EcalRecHitCollection> rechitsEB;
   e.getByToken(EcalRecHitCollectionEB1_, rechitsEB);
 
-  //  float maxRecHitEnergy = 0.; // If you search by rec hit below, shouldn't
-  //  this be a map? Shouldn't each TT have its own maxRecHitEnergy? Otherwise
-  //  having one high rec Hit in all of EB will raise the required threshold for
-  //  all TTs to be assigned a a sevlvl and time
-  // Unless you only want to consider the highest recHit in the event, then ok.
+  // Find the recHit for each TT which has the highest energy. 
+  // If there are >= 2 recHits with the same energy in a TT, the first one in the order of the rechitcollection will be used for E, Severity, and time assignment
+
   int irechit = 0;
   if (rechitsEB.product()->size() != 0)
   {
@@ -699,10 +697,9 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
         // if ( rechitItr->energy() > maxRecHitEnergy ){
         if (rechitItr->energy() > (itTT->second).maxRecHitEnergy_)
         {
-          // maxRecHitEnergy = rechitItr->energy();
           (itTT->second).maxRecHitEnergy_ = rechitItr->energy();
           (itTT->second).sevlv_ = sevlvl_tmp;
-          (itTT->second).time_ = rechitItr->time();
+          (itTT->second).time_ = rechitItr->time(); 
         }
         (itTT->second).crystNb_++;
       }

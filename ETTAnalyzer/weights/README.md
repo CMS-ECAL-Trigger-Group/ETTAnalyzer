@@ -39,8 +39,8 @@ If this works properly, you should have an output SQLite file `output/test.db`. 
 ```
 sqlite3 
 .open output/MinDelta_2p5_OddWeights.db
-SELECT * FROM 'IOV'
-SELECT * FROM 'PAYLOAD'
-SELECT * FROM 'TAG'
-SELECT * FROM 'TAG_LOG'
+SELECT * FROM 'IOV';
+SELECT * FROM 'PAYLOAD';
+SELECT * FROM 'TAG';
+SELECT * FROM 'TAG_LOG';
 ```

@@ -45,4 +45,4 @@ SELECT DATA FROM 'PAYLOAD';
 
 ## Creating a TPGOddWeightGroup SQLite file (weight groups assigned to each strip)
 
-The purpose of creating a TPGOddWeightGroup SQLite file is to assign weight group IDs for each ECAL strip. 
+The purpose of creating a TPGOddWeightGroup SQLite file is to assign weight group IDs for each ECAL strip. Strip IDs come from the `stripid` column of the following DOF (Degree of freedom) files: [EB](https://gitlab.cern.ch/cms-ecal-dpg/ecall1algooptimization/-/blob/master/PileupMC/parameters/DOF_EB_2018.csv), [EE](https://gitlab.cern.ch/cms-ecal-dpg/ecall1algooptimization/-/blob/master/PileupMC/parameters/DOF_EE_2018.csv). (at least for EE...to be confirmed for EB).

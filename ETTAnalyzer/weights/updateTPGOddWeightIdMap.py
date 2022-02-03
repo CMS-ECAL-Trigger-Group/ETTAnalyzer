@@ -1,5 +1,21 @@
+"""
+3 February 2022
+Davide Valsecchi
+Abraham Tishelman-Charny 
+
+The purpose of this CMSSW configuration file is to create an SQLite file to override CMSSW DB records when re-emulating.
+
+Example usage:
+cd ETTAnalyzer/ETTAnalyzer/weights
+cmsenv
+cmsRun updateTPGOddWeightIdMap.py input=input/MinDelta_2p5_OddWeights.txt output=output/test.db
+
+"""
+
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
+
+
 
 ##-- Options that can be set on the command line 
 options = VarParsing.VarParsing('analysis')

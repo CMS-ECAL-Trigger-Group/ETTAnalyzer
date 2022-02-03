@@ -34,4 +34,13 @@ cd ETTAnalyzer/ETTAnalyzer/weights
 cmsRun updateTPGOddWeightIdMap.py input=input/MinDelta_2p5_OddWeights.txt output=output/test.db
 ```
 
-If this works properly, you should have an output SQLite file `output/test.db`.
+If this works properly, you should have an output SQLite file `output/test.db`. The following are some miscellanous commands that can be used for inpsecting this SQLite file with `sqlite3` (available currently on lxplus):
+
+```
+sqlite3 
+.open output/MinDelta_2p5_OddWeights.db
+SELECT * FROM 'IOV'
+SELECT * FROM 'PAYLOAD'
+SELECT * FROM 'TAG'
+SELECT * FROM 'TAG_LOG'
+```

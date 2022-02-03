@@ -1,4 +1,21 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+##-- Options that can be set on the command line 
+options = VarParsing.VarParsing('analysis')
+
+options.register ('input', # input text file with encoded weight groups                             
+                'input/MinDelta_2p5_OddWeights.txt', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "input")           
+options.register ('output', # output file with SQLite format                              
+                'output/MinDelta_2p5_OddWeights.db', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "output")                                                               
+
+options.parseArguments()
 
 process = cms.Process("ProcessOne")
 
@@ -19,7 +36,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.load("CondCore.CondDB.CondDB_cfi")
 
-process.CondDB.connect = 'sqlite_file:EcalTPGOddWeightIdMap.db'
+process.CondDB.connect = 'sqlite_file:%s'%(options.output)
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
   process.CondDB, 
@@ -50,7 +67,7 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGOddWeightIdMapAnalyzer",
 #    fileType = cms.string('xml'),
     fileType = cms.string('txt'),
 #    fileName = cms.string('EcalTPGOddWeightIdMap.xml'),
-    fileName = cms.string('MinDelta2p5_EncodedWeights.txt'),
+    fileName = cms.string(options.input),
   )                            
 )
 

@@ -1,4 +1,4 @@
-# FENIX weight encoding and SQLite creation 
+# FENIX weight encoding and SQLite File creation 
 
 The purpose of this directory is to produce the FENIX integer encoded versions of decimal weights, and produce SQLite files in order to overwrite ODD weights that would be picked up from the DB. This 
 is useful for re-emulating with a custom set of ODD weights that were not necessarily used at the time of data taking, and in particular for which a class which may 

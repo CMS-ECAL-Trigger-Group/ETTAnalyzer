@@ -10,6 +10,7 @@ If one has decimal weights they would like to convert to integers (encoded versi
 
 ```
 cd ETTAnalyzer/ETTAnalyzer/weights
+cmsenv
 python3 weights_encoder.py
 ```
 

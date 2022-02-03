@@ -3,4 +3,5 @@
 *__init__.pyc
 ETTAnalyzer/python/__init__.pyc
 ETTAnalyzer/TPinfo.log
-ETTAnalyzer_output.root
+ETTAnalyzer/ETTAnalyzer_output.root
+ETTAnalyzer/crab_projects

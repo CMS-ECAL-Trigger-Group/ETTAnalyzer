@@ -22,7 +22,7 @@ To create a map from weight ID to encoded weight values, one should input a text
 
 ```
 cd ETTAnalyzer/ETTAnalyzer/weights
-cmsRun updateTPGOddWeightIdMap.py input=input/MinDelta_2p5_OddWeights.txt output=output/test.db
+cmsRun updateTPGOddWeightIdMap.py input=input/MinDelta_2p5_OddWeights.txt output=output/MinDelta_2p5_OddWeights.db
 ```
 
 If this works properly, you should have an output SQLite file `output/test.db`. The following are some miscellanous commands that can be used for inpsecting this SQLite file with `sqlite3` (available currently on lxplus):
@@ -46,3 +46,15 @@ SELECT DATA FROM 'PAYLOAD';
 ## Creating a TPGOddWeightGroup SQLite file (weight groups assigned to each strip)
 
 The purpose of creating a TPGOddWeightGroup SQLite file is to assign weight group IDs for each ECAL strip. Strip IDs come from the `stripid` column of the following DOF (Degree of freedom) files: [EB](https://gitlab.cern.ch/cms-ecal-dpg/ecall1algooptimization/-/blob/master/PileupMC/parameters/DOF_EB_2018.csv), [EE](https://gitlab.cern.ch/cms-ecal-dpg/ecall1algooptimization/-/blob/master/PileupMC/parameters/DOF_EE_2018.csv). (at least for EE...to be confirmed for EB).
+
+One can use the script `GetStripIDs.py` to output a text file with a pairing of EB/EE strip to weight group. One has already been produced and placed in `input/OneEBOneEEset.txt`, corresponding to one set of weights for EB and one for EE. EB strips are assigned group 0 aka row 0 from the above produced `output/MinDelta_2p5_OddWeights.db`, and group 1, aka row 1 from `output/MinDelta_2p5_OddWeights.db` is assigned to EE strips. One can produce the corresponding SQLite file from this text file using (the file is already in the `output` direc by default but you can create it for yourself here):
+
+```
+cmsRun updateTPGOddWeightGroup.py input=input/OneEBOneEEset.txt output=output/OneEBOneEEset.db
+```
+
+If this works properly, the OddWeightGroup SQLite file should be placed at `output/OneEBOneEEset.db`. 
+
+## Notes 
+
+With the above two files, one can then create custom weight groups and ID maps. For example, creating more granular ODD weights sets, such as a specific set of ODD weights per strip. This can be useful if one has strip by strip optimized ODD weights. 

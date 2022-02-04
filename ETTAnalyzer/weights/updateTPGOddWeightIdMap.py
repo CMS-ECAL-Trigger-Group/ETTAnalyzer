@@ -8,7 +8,7 @@ The purpose of this CMSSW configuration file is to create an SQLite file to over
 Example usage:
 cd ETTAnalyzer/ETTAnalyzer/weights
 cmsenv
-cmsRun updateTPGOddWeightIdMap.py input=input/MinDelta_2p5_OddWeights.txt output=output/test.db
+cmsRun updateTPGOddWeightIdMap.py input=input/MinDelta_2p5_OddWeights.txt output=output/MinDelta_2p5_OddWeights.db
 
 """
 
@@ -19,12 +19,12 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing('analysis')
 
 options.register ('input', # input text file with encoded weight groups                             
-                'input/MinDelta_2p5_OddWeights.txt', 
+                'input/InputTextFile.txt',
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "input")           
 options.register ('output', # output file with SQLite format                              
-                'output/MinDelta_2p5_OddWeights.db', 
+                'output/OutputDBFile.db', 
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "output")                                                               

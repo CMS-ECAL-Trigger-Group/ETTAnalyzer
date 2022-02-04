@@ -19,12 +19,12 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing('analysis')
 
 options.register ('input', # input text file with encoded weight groups                             
-                'input/OneEBOneEEset.txt', 
+                'input/InputTextFile.txt', 
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "input")           
 options.register ('output', # output file with SQLite format                              
-                'output/OneEBOneEEset.db', 
+                'output/OutputDBFile.db', 
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "output")                                                               

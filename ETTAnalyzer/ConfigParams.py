@@ -46,6 +46,11 @@ options.register ('OddWeightsSqliteFile',
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "OddWeightsSqliteFile") 
+options.register ('OddWeightsGroupSqliteFile',                                        
+                'weights/output/OneEBOneEEset.db', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "OddWeightsGroupSqliteFile")                 
 options.register ('RunETTAnalyzer', ##-- If true, produce output ntuple with ETTAnalyzer 
                 True, # default value
                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list

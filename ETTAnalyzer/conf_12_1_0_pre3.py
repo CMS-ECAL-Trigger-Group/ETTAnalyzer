@@ -45,7 +45,7 @@ if(options.OverrideWeights):
                         cms.PSet(
                                 record = cms.string('EcalTPGOddWeightGroupRcd'),
                                 tag = cms.string("EcalTPGOddWeightGroup_test"),
-                                connect = cms.string('sqlite_file:EcalTPGOddWeightGroup.db')
+                                connect = cms.string('sqlite_file:%s'%(options.OddWeightsGroupSqliteFile))
                             ),
                         cms.PSet(
                                 record = cms.string('EcalTPGTPModeRcd'),
@@ -172,7 +172,7 @@ if(options.RunETTAnalyzer):
         import RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi
         process.ecalUncalibHit =  RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi.ecalMultiFitUncalibRecHit.clone()
         process.ecalUncalibHit.algoPSet.activeBXs =cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4)
-        process.ecalUncalibHit.algoPSet.useLumiInfoRunHeader = cms.bool (False )
+        process.ecalUncalibHit.algoPSet.useLumiInfoRunHeader = cms.bool (False)
 
     # Offline weights 
     elif(options.RecoMethod == "weights"):

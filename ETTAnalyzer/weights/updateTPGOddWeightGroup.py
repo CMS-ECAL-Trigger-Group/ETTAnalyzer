@@ -1,4 +1,35 @@
+"""
+3 February 2022
+Davide Valsecchi
+Abraham Tishelman-Charny 
+
+The purpose of this CMSSW configuration file is to create an SQLite file to override CMSSW DB records when re-emulating.
+
+Example usage:
+cd ETTAnalyzer/ETTAnalyzer/weights
+cmsenv
+cmsRun updateTPGOddWeightGroup.py input=input/OneEBOneEEset.txt output=output/OneEBOneEEset.db
+
+"""
+
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+##-- Options that can be set on the command line 
+options = VarParsing.VarParsing('analysis')
+
+options.register ('input', # input text file with encoded weight groups                             
+                'input/OneEBOneEEset.txt', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "input")           
+options.register ('output', # output file with SQLite format                              
+                'output/OneEBOneEEset.db', 
+                VarParsing.VarParsing.multiplicity.singleton, 
+                VarParsing.VarParsing.varType.string,          
+                "output")                                                               
+
+options.parseArguments()
 
 process = cms.Process("ProcessOne")
 
@@ -19,7 +50,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.load("CondCore.CondDB.CondDB_cfi")
 
-process.CondDB.connect = 'sqlite_file:EcalTPGOddWeightGroup.db'
+process.CondDB.connect = 'sqlite_file:%s'%(options.output)
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
   process.CondDB, 
@@ -50,7 +81,7 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGOddWeightGroupAnalyzer",
 #    fileType = cms.string('xml'),
     fileType = cms.string('txt'),
 #    fileName = cms.string('EcalTPGOddWeightGroup.xml'),
-    fileName = cms.string('EcalTPGOddWeightGroup.txt'),
+    fileName = cms.string(options.input),
   )
 )
 

@@ -15,8 +15,6 @@ cmsRun updateTPGOddWeightIdMap.py input=input/MinDelta_2p5_OddWeights.txt output
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
-
-
 ##-- Options that can be set on the command line 
 options = VarParsing.VarParsing('analysis')
 

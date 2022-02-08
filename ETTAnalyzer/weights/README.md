@@ -18,7 +18,7 @@ This will take a set of ODD amplitude weights output from the [Numerical Optimiz
 
 ## Creating a TPGOddWeightIdMap SQLite file (weight values to be used by stips)
 
-To create a map from weight ID to encoded weight values, one should input a text file with one row per weight group into `updateTPGOddWeightIdMap.py`, which should output an SQLite file. An example usage would be using the text file `input/MinDelta_2p5_OddWeights.txt`:
+To create a map from weight ID to encoded weight values, one should input a text file with one row per weight group into `updateTPGOddWeightIdMap.py`, which should output an SQLite file. An example usage would be using the text file `input/MinDelta_2p5Prime_OddWeights.txt`, takes weight values from the encoding step above:
 
 ```
 cd ETTAnalyzer/ETTAnalyzer/weights

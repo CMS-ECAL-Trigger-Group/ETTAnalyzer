@@ -6,15 +6,15 @@ not exist.
 
 ## Weight encoding 
 
-If one has decimal weights they would like to convert to integers (encoded version of weights to be read by the FENIX), one can use the python module `weights_encoder.py`. One can run a hardcoded example with the following:
+If one has decimal weights they would like to convert to integers (encoded version of weights to be read by the FENIX), one can use the python module `weights_encoder.py`, passing the decimal values (in steps of 1/64.) like so:
 
 ```
 cd ETTAnalyzer/ETTAnalyzer/weights
 cmsenv
-python3 weights_encoder.py
+python3 weights_encoder.py --DecimalWeights " -0.703125,0.0,-0.546875,0.984375,0.265625" # note that a space at the start of the string is necessary in order to avoid a negative value appearing to be a flag 
 ```
 
-This will take a set of ODD amplitude weights output from the [Numerical Optimization](https://github.com/CMS-ECAL-Trigger-Group/DoubleWeightsOptimization) which have been converted to intervals of 1/64 (FENIX decimal precision), and will return the encoded integer values to be passed to the FENIX and used for re-emulation with a custom ODD weights set. 
+This will take a set of ODD amplitude weights output from the [Numerical Optimization](https://github.com/CMS-ECAL-Trigger-Group/DoubleWeightsOptimization) which have been converted to intervals of 1/64 (FENIX decimal precision), in this case the 5 values passed by the `DecimalWeights` option, and will return the encoded integer values to be passed to the FENIX and used for re-emulation with a custom ODD weights set. 
 
 ## Creating a TPGOddWeightIdMap SQLite file (weight values to be used by stips)
 

@@ -36,3 +36,4 @@ And proceed to build:
 - Some ETTAnalyzer running examples can be found in the [Examples README](Examples.md).
 - Encode and save custom ODD FENIX weights as SQLite files to use for re-emulation in the [weights directory](https://github.com/CMS-ECAL-Trigger-Group/ETTAnalyzer/tree/main/ETTAnalyzer/weights).
 - Save custom TPModes as SQLite files to use for re-emulation in the [TPModes directory](https://github.com/CMS-ECAL-Trigger-Group/ETTAnalyzer/tree/main/ETTAnalyzer/TPModes).
+- Re-emulate CMS data: [Instructions](https://github.com/CMS-ECAL-Trigger-Group/ETTAnalyzer/blob/main/Reemulation.md).

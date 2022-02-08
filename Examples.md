@@ -98,19 +98,6 @@ By default the output TFile from the ETTAnalyzer plugin must have a TDirectory. 
 	mv TFileService.cc CommonTools/UtilAlgos/src/TFileService.cc 
 	scram b -j 	
 
-### TP mode 
-
-The odd weights branches of the ETT analyzer and SimCalorimetry repositories are listed above. After obtaining and scramming the relevant repositories, you can run the configuration in the ETTAnalyzer directory and run the even + odd filters on an event. The even filter weights will be obtained from the DB by default, but the Odd filter weights can be set with the local sqlite files, generated thanks to CondTools/Ecal scripts. 
-
-The TP mode needs also to be read from a DB tag
-    
-	cmsRun conf_11_3_0_pre1.py Debug=1    TPinfoPrintout=1 maxEvents=10 \
-	  TPModeSqliteFile=TPModes/EcalTPGTPMode_Run2_default.db TPModeTag=EcalTPG_TPMode_Run2_default \
-	  OddWeightsSqliteFile=weights/EcalTPGOddWeightIdMap.db 
-	
-
-The available TPmodes are described in these slides https://indico.cern.ch/event/995229/contributions/4189814/attachments/2173034/3669116/21_01_18%20-%20ECAL%20Trigger%20meeting%20-%20Emulator%20configuration.pdf
-
 #### Run 2 
 
 To run with the Run 2 ECAL L1 configuration, the TPmode should be set to zero, shown in binary form in the following command's for visual purposes, as this sets all of the optional configuration flags to their defaults: 

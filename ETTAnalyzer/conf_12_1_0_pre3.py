@@ -55,6 +55,10 @@ if(options.OverrideWeights):
         ),
     )
 
+    # If using 120X_dataRun3_HLT_v3 global tag which already has EcalTPGTPMode source defined, and you want to overwrite it, need to use an es_prefer below
+    if(options.UserGlobalTag == "120X_dataRun3_HLT_v3"): 
+        process.es_prefer_tpmode = cms.ESPrefer("PoolDBESSource","EcalOnTheFlyTPGconf") # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToUseESPrefer
+
 # ECAL Unpacker
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")

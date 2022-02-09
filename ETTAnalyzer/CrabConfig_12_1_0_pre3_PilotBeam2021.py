@@ -63,15 +63,15 @@ config.General.transferLogs = False
  
 ##-- Set cmssw configuration file parameters 
 config.JobType.pyCfgParams = [
-                                'OverrideWeights=True', # whether or not to override weights 
+                                'OverrideWeights=1', # whether or not to override weights 
                                 'UserGlobalTag=120X_dataRun3_HLT_v3',
-                                'TPModeSqliteFile=EcalTPG_TPMode_Run3_zeroing.db', # strip zeroing, with or without ODD PF 
-                                'OddWeightsGroupSqliteFile=OneEBOneEEset_adding2021Strips.db'
+                                'TPModeSqliteFile=EcalTPG_TPMode_Run3_zeroing.db', # strip zeroing, with or without ODD PF configs to try: [EcalTPG_TPMode_Run3_zeroingOddPeakFinder.db, EcalTPG_TPMode_Run3_zeroing,db]
+                                'OddWeightsGroupSqliteFile=OneEBOneEEset_adding2021Strips.db',
                                 'BarrelOnly=1',
                                 'RunETTAnalyzer=1',
                                 'TPModeTag=EcalTPG_TPMode_Run3_zeroing',
-                                'OddWeightsSqliteFile=MinDelta_2p5Prime_OddWeights.db', # WP
-                                'RecoMethod=weights', # offline reco method
+                                'OddWeightsSqliteFile=MinDelta_2p5Prime_OddWeights.db', # Working points to try: [MinDelta_2p5Prime_OddWeights, MinDelta_0p5Prime_OddWeights.db]
+                                'RecoMethod=weights', # offline reco methods to try: [Multifit, weights] 
                              ] 
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = '%s/conf_12_1_0_pre3.py'%(inDir)

@@ -15,7 +15,15 @@ One can run on a single file with:
 cmsRun conf_12_1_0_pre3.py Debug=0 TPModeSqliteFile=TPModes/output/EcalTPG_TPMode_Run3_zeroing.db   TPModeTag=EcalTPG_TPMode_Run3_zeroing TPinfoPrintout=0 userMaxEvents=1 \
 OddWeightsSqliteFile=weights/output/MinDelta_2p5Prime_OddWeights.db  OddWeightsGroupSqliteFile="weights/output/OneEBOneEEset_adding2021Strips.db"  BarrelOnly=1 RunETTAnalyzer=1 \
 inFile="file:/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021StableBeams/Run_346446/f811cb68-7ac4-4148-abbc-3a76d95881d2.root" OverrideWeights=1 \
-UserGlobalTag=113X_dataRun2_relval_v1 RecoMethod=weights
+UserGlobalTag=120X_dataRun3_HLT_v3 RecoMethod=weights
 ```
 
 6 cases to look at: (WP X PF X RECO) --> 2 working points, with or without ODD peak finder, with weights or multifit offline reco. 
+
+## Useful ntuple commands
+
+For plotting useful quantities quickly from single files:
+
+```
+ETTAnalyzerTree->Draw("(1 - (twrEmul3ADC/twrADC)):twrADC","ttFlag!=4&&twrADC>0&&sevlv==0","COLZ1")
+```

@@ -6,16 +6,17 @@ The purpose of this crab configuration file is to run the ETTAnalyzer over many 
 crab submit -c CrabConfig_12_1_0_pre3.py
 """
 
-# import argparse 
-# parser = argparse.ArgumentParser()
-# parser.add_argument("--Run", required=True, type=str, help="Run number to run over.")
-# args = parser.parse_args()
-# Run = args.Run
-
 oneFile = 1 ##-- Run over one file as a test 
+Run = "346446"
 addFilePrefix = 0 # Add "file:" to start of file paths 
 removeEOSprefix = 1 
-Run = "346446"
+
+# Run = options.RunNumber
+# oneFile = options.oneFile
+
+print("Configuration parameters:")
+print("Run:",Run)
+print("oneFile:",oneFile)
 
 CMS_files = []
 
@@ -44,12 +45,9 @@ if(oneFile):
 
 print("Number of input files:",len(CMS_files))
 
-"""
-CRAB configuration parameters 
-"""
-
 inDir = "/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_12_1_0_pre3/src/ETTAnalyzer/ETTAnalyzer/"
 
+# Crab configuration parameters
 from CRABClient.UserUtilities import config
 config = config()
 
@@ -58,10 +56,10 @@ if(oneFile): oneFileStr = "_oneFile"
 
 config.General.requestName = 'Run_%s_PilotBeam_2021%s'%(Run, oneFileStr)
 config.General.workArea = 'crab_projects'
-config.General.transferOutputs = True ##-- Need this True to transfer output files!! at least with eos output.
+config.General.transferOutputs = True # Need this True to transfer output files, at least with eos output.
 config.General.transferLogs = False 
  
-##-- Set cmssw configuration file parameters 
+# cmssw configuration file parameters 
 config.JobType.pyCfgParams = [
                                 'OverrideWeights=1', # whether or not to override weights 
                                 'UserGlobalTag=120X_dataRun3_HLT_v3',
@@ -80,7 +78,7 @@ config.JobType.psetName = '%s/conf_12_1_0_pre3.py'%(inDir)
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
 
-# Namings
+# Output directory / file naming
 config.Data.outputPrimaryDataset = 'Run_%s_PilotBeam_2021%s'%(Run, oneFileStr)
 config.Data.outputDatasetTag = 'ETTAnalyzer_CMSSW_12_1_0_pre3_DoubleWeights_StripZeroingMode'
 config.Data.outLFNDirBase = '/store/group/dpg_ecal/alca_ecalcalib/Trigger/DoubleWeights/' 
@@ -90,18 +88,18 @@ config.Data.userInputFiles = CMS_files
 
 config.Site.whitelist = ['T2_CH_CERN'] ##-- Eventually had to change from 'T2_FR_GRIF_LLR' whitelist to this 
 config.Site.storageSite = 'T2_CH_CERN'
-# config.Site.storageSite = 'T3_CH_CERNBOX' ##-- CERNBOX, takes outLFNDirBase and changes '/store/user' in outLFNDirBase to /eos/user/
 
-# ##-- Strip zeroing 
-# config.JobType.inputFiles = ['%s/EcalTPGOddWeightGroup.db'%(inDir),
-#                              '%s/ZeroCandidateSet.db'%(inDir),
-#                              '%s/EcalTPG_TPMode_Run3_zeroing.db'%(inDir),
-#                              '%s/ConfigParams.py'%(inDir) ##-- For cmssw config options 
-#                              ]                             
+# input files 
+config.JobType.inputFiles = [
+                             # ODD weights working points
+                             '%s/weights/output/MinDelta_2p5Prime_OddWeights.db'%(inDir),
+                             '%s/weights/output/MinDelta_0p5Prime_OddWeights.db'%(inDir),
 
-##-- Strip zeroing 
-config.JobType.inputFiles = ['%s/weights/output/MinDelta_2p5Prime_OddWeights.db'%(inDir),
-                             '%s/weights/output/OneEBOneEEset_adding2021Strips.db'%(inDir),
+                             # TPModes
                              '%s/TPModes/output/EcalTPG_TPMode_Run3_zeroing.db'%(inDir),
-                             '%s/ConfigParams.py'%(inDir) ##-- For cmssw config options 
+                             '%s/TPModes/output/EcalTPG_TPMode_Run3_zeroingOddPeakFinder.db'%(inDir),
+
+                             # Misc
+                             '%s/weights/output/OneEBOneEEset_adding2021Strips.db'%(inDir), # OddWeightsGroup - defines odd weights to be used by each ECAL strip 
+                             '%s/ConfigParams.py'%(inDir) # To define cmssw config options 
                              ]    

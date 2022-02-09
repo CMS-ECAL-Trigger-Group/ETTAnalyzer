@@ -77,7 +77,7 @@ options.register ('OverrideWeights',
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.bool,           
                 "OverrideWeights")    
-options.register ('UserGlobalTag', ##-- Offline energy reconstruction method                               
+options.register ('UserGlobalTag', ##-- global tag                           
                 '113X_dataRun2_relval_v1', 
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          

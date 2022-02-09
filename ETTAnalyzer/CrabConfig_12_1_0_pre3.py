@@ -13,7 +13,7 @@ If running over files based on run number or blocks:
 """
 
 Nblocks = 11 ##-- Max: 11 
-oneFile = 0 ##-- Run over one file as a test 
+oneFile = 1 ##-- Run over one file as a test 
 addFilePrefix = 0 # Add "file:" to start of file paths 
 removeEOSprefix = 1 
 
@@ -73,15 +73,18 @@ inDir = "/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_12_1_
 
 from CRABClient.UserUtilities import config
 config = config()
- 
-config.General.requestName = 'Run_346447_PilotBeam_2021'
+
+oneFileStr = ""
+if(oneFile): oneFileStr = "_oneFile"
+
+config.General.requestName = 'Run_346447_PilotBeam_2021%s'%(oneFileStr)
 config.General.workArea = 'crab_projects'
 config.General.transferOutputs = True ##-- Need this True to transfer output files!! at least with eos output.
 config.General.transferLogs = False 
  
 ##-- Set cmssw configuration file parameters 
 config.JobType.pyCfgParams = [
-                                'OverrideWeights=False', 
+                                'OverrideWeights=False', # whether or not to override weights 
                                 'UserGlobalTag=120X_dataRun3_HLT_v3',
                                 'RecoMethod=weights'
                              ] 

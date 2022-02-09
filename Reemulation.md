@@ -19,3 +19,11 @@ UserGlobalTag=120X_dataRun3_HLT_v3 RecoMethod=weights
 ```
 
 6 cases to look at: (WP X PF X RECO) --> 2 working points, with or without ODD peak finder, with weights or multifit offline reco. 
+
+## Useful ntuple commands
+
+For plotting useful quantities quickly from single files:
+
+```
+ETTAnalyzerTree->Draw("(1 - (twrEmul3ADC/twrADC)):twrADC","ttFlag!=4&&twrADC>0&&sevlv==0","COLZ1")
+```

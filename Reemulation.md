@@ -20,6 +20,17 @@ UserGlobalTag=120X_dataRun3_HLT_v3 RecoMethod=weights
 
 6 cases to look at: (WP X PF X RECO) --> 2 working points, with or without ODD peak finder, with weights or multifit offline reco. 
 
+## Full readout data 
+
+Example command:
+
+```
+cmsRun conf_12_1_0_pre3.py Debug=0 TPModeSqliteFile=TPModes/output/EcalTPG_TPMode_Run3_zeroing.db TPinfoPrintout=0 userMaxEvents=1 BarrelOnly=1 RunETTAnalyzer=1 \
+inFile="file:/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/Full_Readout_Data/One_Root_File/266DAA99-D153-8843-ADCA-6AFCB7FBD3EA.root" OverrideWeights=1 \
+UserGlobalTag=101X_dataRun2_HLT_v7 RecoMethod=weights OddWeightsGroupSqliteFile="weights/output/OneEBOneEEset_adding2021Strips.db" TPModeTag=EcalTPG_TPMode_Run3_zeroing \
+OddWeightsSqliteFile=weights/output/MinDelta_2p5Prime_OddWeights.db
+```
+
 ## Useful ntuple commands
 
 For plotting useful quantities quickly from single files:

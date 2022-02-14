@@ -75,14 +75,14 @@ public:
   int tpgEmulsFGVB_[5];
   int tpgEmulFineGrainBit_[5]; 
   int tpgADC_;
-  int iphi_, ieta_, nbXtal_, spike_;
+  int iphi_, ieta_, nbXtal_; 
   int twrADC, sFGVB, FineGrainBit, sevlv_, ttFlag_;
   int TCCid_, TowerInTCC_, strip_;
   float time_;
   float maxRecHitEnergy_;
   towerEner()
       : eRec_(0), crystNb_(0), tpgADC_(0),
-        iphi_(-999), ieta_(-999), nbXtal_(0), spike_(0), twrADC(0), sFGVB(-999), FineGrainBit(-999), sevlv_(-999), ttFlag_(0), TCCid_(0), TowerInTCC_(0), strip_(0), time_(-999), maxRecHitEnergy_(-999)
+        iphi_(-999), ieta_(-999), nbXtal_(0), twrADC(0), sFGVB(-999), FineGrainBit(-999), sevlv_(-999), ttFlag_(0), TCCid_(0), TowerInTCC_(0), strip_(0), time_(-999), maxRecHitEnergy_(-999)
   {
     // for (int i=0 ; i<5 ; i ++) { //-- 5 BX window
     for (int i = 2; i < 3; i++)
@@ -212,7 +212,6 @@ private:
   float maxRecHitEnergy[4032];
   int sevlv[4032];
   float time[4032];
-  int spike[4032];
   int twrADC[4032];
   int sFGVB[4032];
   int FineGrainBit[4032]; 
@@ -378,7 +377,6 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet &ps)
   ETTAnalyzerTree->Branch("maxRecHitEnergy", maxRecHitEnergy, "maxRecHitEnergy[nbOfTowers]/F");
   ETTAnalyzerTree->Branch("sevlv", sevlv, "sevlv[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("time", time, "time[nbOfTowers]/F");
-  ETTAnalyzerTree->Branch("spike", spike, "spike[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("twrADC", twrADC, "twrADC[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("sFGVB", sFGVB, "sFGVB[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("FineGrainBit", FineGrainBit, "FineGrainBit[nbOfTowers]/I");

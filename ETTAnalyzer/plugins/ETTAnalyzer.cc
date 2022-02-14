@@ -661,8 +661,8 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
   theEndcapGeometry_ = &(*theEndcapGeometry_handle);
   theBarrelGeometry_ = &(*theBarrelGeometry_handle);
 
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv1;
-  c.get<EcalSeverityLevelAlgoRcd>().get(sevlv1);
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlvl;
+  c.get<EcalSeverityLevelAlgoRcd>().get(sevlvl);
 
   // https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideEcalRecoLocalReco#Mapping_into_severity_levels
 
@@ -691,7 +691,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
         // double theta =
         // theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
         // (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
-        int sevlvl_tmp = (sevlv1->severityLevel(id, *rechitsEB));
+        int sevlvl_tmp = (sevlvl->severityLevel(id, *rechitsEB));
         //  if ( rechitItr->energy() > maxRecHitEnergy &&
         //  ((itTT->second).twrADC>32) ){
         // if ( rechitItr->energy() > maxRecHitEnergy ){
@@ -769,7 +769,6 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
     sevlv[towerNb] = (itTT->second).sevlv_;
     time[towerNb] = (itTT->second).time_;
     ttFlag[towerNb] = (itTT->second).ttFlag_;
-    spike[towerNb] = (itTT->second).spike_;
     twrADC[towerNb] = (itTT->second).twrADC;
     sFGVB[towerNb] = (itTT->second).sFGVB;
     FineGrainBit[towerNb] = (itTT->second).FineGrainBit;

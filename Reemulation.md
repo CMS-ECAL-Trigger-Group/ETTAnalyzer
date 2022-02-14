@@ -27,3 +27,12 @@ For plotting useful quantities quickly from single files:
 ```
 ETTAnalyzerTree->Draw("(1 - (twrEmul3ADC/twrADC)):twrADC","ttFlag!=4&&twrADC>0&&sevlv==0","COLZ1")
 ```
+## CRAB
+
+After making sure things work locally, one can run over many files using a crab configuration, for example for the 2021 pilot beam data:
+
+```
+crab submit -c CrabConfig_12_1_0_pre3_PilotBeam2021.py
+```
+
+One can then analyze output ntuples using [ETT_Coffea](https://github.com/CMS-ECAL-Trigger-Group/ETT_Coffea).

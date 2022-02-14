@@ -10,6 +10,8 @@ To check global tag from a file:
 edmProvDump /eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021BeamSplashes/skimSplashEvents2021_run_346050.root | grep "globaltag"
 ```
 
+If you run with this global tag and find a record is missing, you can search that tag in the CondDB and find which global tags it is available in, using `EcalSimPulseShapeRcd` as an example search: [CondDB_Search](https://cms-conddb.cern.ch/cmsDbBrowser/search/Prod/EcalSimPulseShapeRcd).
+
 Run ETTAnalyzer over 2021 beam splash skim file:
 
 ```

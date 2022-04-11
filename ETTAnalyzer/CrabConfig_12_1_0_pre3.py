@@ -14,7 +14,7 @@ Dataset = "Run2_FR" # 306425: 2017F. 324725: 2018D
 DatasetInfo = {
   "PilotBeam2021" : [["346446", "346447"], "Runs_346446_346447_PilotBeam_2021", "120X_dataRun3_HLT_v3"], 
   "ZeroBias2018C" : [None, None, None],
-  "Run2_FR" : [["324725", "306425"], "Runs_324725_306425_FullReadoutData", "103X_dataRun2_v6"] # 103X_dataRun2_v6 ? 
+  "Run2_FR" : [["324725", "306425"], "Runs_324725_306425_FullReadoutData", "103X_dataRun2_v6"] 
 }
 
 runs, DatasetLabel, UserGlobalTag = DatasetInfo[Dataset]
@@ -26,7 +26,7 @@ WeightsWP = "2p5Prime"  # odd weights working point. Options: [2p5Prime, 0p5Prim
 ODD_PF = 1 # 0: No ODD peak finder. 1: With ODD peak finder
 addFilePrefix = 0 # Add "file:" to start of file paths 
 removeEOSprefix = 1 
-RecoMethod = "weights" # options: Multifit, weights
+RecoMethod = "Multifit" # options: Multifit, weights
 
 if(ODD_PF): 
   TPMode_file = "EcalTPG_TPMode_Run3_zeroingOddPeakFinder.db"
@@ -79,7 +79,10 @@ for block_i in range(0, Nblocks):
 # https://twiki.cern.ch/twiki/bin/view/CMS/AbrahamTishelmanCharnyHomepage#Checking_Dataset_Luminosity
 # export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7/bin:$PATH
 # pip install --install-option="--prefix=$HOME/.local" brilws
+# https://cms-service-lumi.web.cern.ch/cms-service-lumi/brilwsdoc.html
 # voms 
+# http://opendata.cern.ch/docs/cms-guide-luminosity-calculation ?
+
 ##-- brilcalc lumi -r 320038            
 
 """

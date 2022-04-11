@@ -59,9 +59,6 @@ if(options.OverrideWeights):
     if(options.UserGlobalTag == "120X_dataRun3_HLT_v3"): 
         process.es_prefer_tpmode = cms.ESPrefer("PoolDBESSource","EcalOnTheFlyTPGconf") # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToUseESPrefer
 
-    elif(options.UserGlobalTag == "101X_dataRun2_HLT_v7"):
-        process.es_prefer_SimPulseShape = cms.ESPrefer("EcalSimPulseShapeRcd","EcalOnTheFlyTPGconf") 
-
 # ECAL Unpacker
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")

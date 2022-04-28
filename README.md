@@ -10,7 +10,7 @@ Current CMSSW version compatibility: `CMSSW_12_3_0`
 
 ## Setup
 
-To setup the repository in `CMSSW_12_1_0_pre3`:
+To setup the repository in `CMSSW_12_3_0`:
 
 	export SCRAM_ARCH=slc7_amd64_gcc900 
 	cmsrel CMSSW_12_3_0

@@ -9,7 +9,8 @@ The purpose of this module is to analyze 2021 beam splash data to investigate EC
 
 Example usage: 
 
-python3 plot/BeamSplashes_2021.py --TPMode Tagging --Weights 0p5
+python3 plot/PlotBeamSplashes.py --TPMode Tagging --Weights 0p5 --year 2022 --beam one 
+python3 plot/PlotBeamSplashes.py --TPMode KillNTag --Weights 0p5 --year 2022 --beam two
 
 """
 
@@ -30,10 +31,12 @@ parser.add_argument("--Weights", type = str, required = True, help = "Weights du
 # parser.add_argument("--Event", type = int, required = True, help = "Event number to run over")
 parser.add_argument("--lowEvents", action = "store_true", help = "Run over fewer events")
 parser.add_argument("--verbose", action = "store_true", help = "Print out more things")
+parser.add_argument("--year", type = str, help = "Year of beam splashes")
+parser.add_argument("--beamNumber", type = str, help = "Beam number (one or two)")
 args = parser.parse_args()
 
 f_path_dict = GetPathDict()
-f_path = f_path_dict[args.Weights][args.TPMode]
+f_path = f_path_dict[args.Weights][args.TPMode][args.beamNumber]
 verbose = args.verbose
 
 f = uproot.open(f_path)
@@ -198,7 +201,7 @@ if(plotRatio):
     upper.tick_params(axis = 'y', labelsize = 12)    
     lower.set_ylim(0, 1)
     # plt.show()
-    OUT_DIRECTORY_RATIO = "/eos/user/a/atishelm/www/EcalL1Optimization/BeamSplash2021_Reemulation_DeltaMin%sWeights/%s_Mode/"%(args.Weights, args.TPMode)
+    OUT_DIRECTORY_RATIO = "/eos/user/a/atishelm/www/EcalL1Optimization/BeamSplash%s_Reemulation_DeltaMin%sWeights_beam%s/%s_Mode/"%(args.year, args.Weights, args.beamNumber, args.TPMode)
     plt.savefig("%s/TaggedTimesRatio.png"%(OUT_DIRECTORY_RATIO))
     plt.savefig("%s/TaggedTimesRatio.pdf"%(OUT_DIRECTORY_RATIO))
     plt.close()  
@@ -215,22 +218,24 @@ DATA_VARIABLES = []
 EMU_VARIABLES = []
 
 events = t['evtNb'].array()
+runNumbers = t['runNb'].array()
 lowEvents = args.lowEvents
 
 N_events = len(events)
 for v_to_plot in variables:
     print("v_to_plot:",v_to_plot)
-    OUT_DIRECTORY = "/eos/user/a/atishelm/www/EcalL1Optimization/BeamSplash2021_Reemulation_DeltaMin%sWeights/%s_Mode/%s/"%(args.Weights, args.TPMode, v_to_plot)
+    OUT_DIRECTORY = "/eos/user/a/atishelm/www/EcalL1Optimization/BeamSplash%s_Reemulation_DeltaMin%sWeights_beam%s/%s_Mode/%s/"%(args.year, args.Weights, args.beamNumber, args.TPMode, v_to_plot)
     if(not os.path.isdir(OUT_DIRECTORY)):
         cmd = "mkdir -p %s"%(OUT_DIRECTORY)
-        print("$,%s"%(cmd))
+        print("$ %s"%(cmd))
         os.system(cmd)
         cmd_cp = "cp /eos/user/a/atishelm/www/EcalL1Optimization/index.php %s"%(OUT_DIRECTORY)
         cmd_cp_2 = "cp /eos/user/a/atishelm/www/EcalL1Optimization/index.php %s/../"%(OUT_DIRECTORY)
-        print("$,%s"%(cmd_cp))
+        print("$ %s"%(cmd_cp))
         os.system(cmd_cp)
         os.system(cmd_cp_2)
     for ievent, event in enumerate(events):
+        runNumber = runNumbers[ievent]
         if(ievent%20==0): print("On event %s / %s: %s"%(ievent, N_events, event))
         if((ievent==1) and (lowEvents)): 
             print("Leaving early")
@@ -447,7 +452,7 @@ for v_to_plot in variables:
         )     
 
         fig.tight_layout()
-        plt.savefig("%s/BeamSplash2021_%s_Event%s.png"%(OUT_DIRECTORY, v_to_plot, event))
-        plt.savefig("%s/BeamSplash2021_%s_Event%s.pdf"%(OUT_DIRECTORY, v_to_plot, event))
+        plt.savefig("%s/BeamSplash%s_%s_Run%s_Event%s.png"%(OUT_DIRECTORY, args.year, v_to_plot, runNumber, event))
+        plt.savefig("%s/BeamSplash%s_%s_Run%s_Event%s.pdf"%(OUT_DIRECTORY, args.year, v_to_plot, runNumber, event))
         plt.close()
 print("DONE")

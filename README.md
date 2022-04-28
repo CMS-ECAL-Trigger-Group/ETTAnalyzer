@@ -6,15 +6,15 @@ The purpose of the ETT (ECAL Trigger Team) Analyzer is to process RAW CMS data f
 - Studies of 5BX L1 TP readout
 - `<Your creative idea here>` 
 
-Current CMSSW version compatibility: `CMSSW_12_1_0_pre3`
+Current CMSSW version compatibility: `CMSSW_12_3_0`
 
 ## Setup
 
 To setup the repository in `CMSSW_12_1_0_pre3`:
 
 	export SCRAM_ARCH=slc7_amd64_gcc900 
-	cmsrel CMSSW_12_1_0_pre3
-	cd CMSSW_12_1_0_pre3/src
+	cmsrel CMSSW_12_3_0
+	cd CMSSW_12_3_0/src
 	cmsenv
 	git cms-init
 	

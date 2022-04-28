@@ -11,15 +11,6 @@ Example usage:
 
 python3 plot/BeamSplashes_2021.py --TPMode Tagging --Weights 0p5
 
-ETTAnalyzer:
-
-cmsRun conf_12_1_0_pre3.py Debug=0 TPModeSqliteFile=TPModes/output/EcalTPG_TPMode_Run3_zeroingOddPeakFinder.db TPModeTag=EcalTPG_TPMode_Run3_zeroingOddPeakFinder TPinfoPrintout=0 userMaxEvents=-1 BarrelOnly=1 RunETTAnalyzer=1 inFile="file:/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021BeamSplashes/skimSplashEvents2021_run_346050.root" OverrideWeights=1 UserGlobalTag=120X_dataRun3_HLT_v3 RecoMethod=weights OddWeightsSqliteFile=weights/output/MinDelta_2p5Prime_OddWeights.db 
-
-python3 plot/BeamSplashes_2021.py --TPMode Killing --Event 14654 --lowEvents
-
-# python3 plot/BeamSplashes_2021.py --inFile /eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021BeamSplashes/ETTAnalyzerOutput/ReEmulation/2021Splashes_Run_346050_ReEmulated2p5primeweightsTaggingMode.root --Event 14654
-python3 plot/BeamSplashes_2021.py --TPMode Tagging --Event 14654
-files: /eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021BeamSplashes/ETTAnalyzerOutput/ReEmulation/2021Splashes_Run_346050_ReEmulated2p5primeweightsTaggingMode.root
 """
 
 import uproot 
@@ -38,16 +29,22 @@ parser.add_argument("--TPMode", type = str, required = True, help = "TPMode duri
 parser.add_argument("--Weights", type = str, required = True, help = "Weights during re-emulation (deltamin 0p5, or 2p5)")
 # parser.add_argument("--Event", type = int, required = True, help = "Event number to run over")
 parser.add_argument("--lowEvents", action = "store_true", help = "Run over fewer events")
+parser.add_argument("--verbose", action = "store_true", help = "Print out more things")
 args = parser.parse_args()
 
 f_path_dict = GetPathDict()
-
 f_path = f_path_dict[args.Weights][args.TPMode]
+verbose = args.verbose
 
 f = uproot.open(f_path)
 t = f["tuplizer/ETTAnalyzerTree"]
-# t.keys()
-# print(t['time'].array())
+
+# extra info if the user wants it 
+if(verbose):
+    print("Available branches:")
+    print(t.keys())
+    print("CMS Event numbers:")
+    print(t['evtNb'].array())
 
 """
 Ratio plot 
@@ -58,150 +55,153 @@ isWide = 0
 TTF_clean = 1 
 flatten = 1
 log = 0
+plotRatio = 0
 
 event = -1 
 
-##-- Overlay two plots and plot ratio 
-fig, axarr = plt.subplots(2, 
-                            sharex=True, 
-                            gridspec_kw={
-                                'hspace': 0.15,
-#                                     'height_ratios': (0.8,0.2)
-                                'height_ratios': (0.7,0.3)
-                                }
-                            )          
+if(plotRatio):
 
-fig.set_dpi(100)
-fig.set_size_inches(8, 6)
+    ##-- Overlay two plots and plot ratio 
+    fig, axarr = plt.subplots(2, 
+                                sharex=True, 
+                                gridspec_kw={
+                                    'hspace': 0.15,
+    #                                     'height_ratios': (0.8,0.2)
+                                    'height_ratios': (0.7,0.3)
+                                    }
+                                )          
 
-upper = axarr[0] ##-- Upper axis. Will contain two distributions, one for each CMSSW config 
-lower = axarr[1] ##-- Lower axis. Will contain ratio of two upper distributions 
-upper.ticklabel_format(style='plain') ##-- Remove scientific notation
-#             lower.ticklabel_format(style='plain') ##-- Remove scientific notation            
-upper.grid(True)        
-lower.grid(True)        
+    fig.set_dpi(100)
+    fig.set_size_inches(8, 6)
 
-#         fig, ax = plt.subplots()
+    upper = axarr[0] ##-- Upper axis. Will contain two distributions, one for each CMSSW config 
+    lower = axarr[1] ##-- Lower axis. Will contain ratio of two upper distributions 
+    upper.ticklabel_format(style='plain') ##-- Remove scientific notation
+    #             lower.ticklabel_format(style='plain') ##-- Remove scientific notation            
+    upper.grid(True)        
+    lower.grid(True)        
 
-v = "time"
-variable_values = t[v].array()
+    #         fig, ax = plt.subplots()
 
-# If looking at a single event
-Event_index = -1 
-if(event != -1):
-    Event_index = np.where(t['evtNb'].array() == event)[0][0]
-#     evtNb_vals_tagged = evtNb_vals[MASK]
-#     evtNb_vals_tagged = evtNb_vals_tagged[tagged_filter]
-#     evtNb_vals_all = evtNb_vals[MASK]
-#     event_mask_all = [val == event for val in evtNb_vals_all]
-#     event_mask_tagged = [val == event for val in evtNb_vals_tagged]
-#     variable_values = variable_values[event_mask_all]
-#     variable_values_tagged = variable_values[event_mask_tagged]
+    v = "time"
+    variable_values = t[v].array()
 
-if(TTF_clean):
-    TTF_values = t["ttFlag"].array()
+    # If looking at a single event
+    Event_index = -1 
+    if(event != -1):
+        Event_index = np.where(t['evtNb'].array() == event)[0][0]
+    #     evtNb_vals_tagged = evtNb_vals[MASK]
+    #     evtNb_vals_tagged = evtNb_vals_tagged[tagged_filter]
+    #     evtNb_vals_all = evtNb_vals[MASK]
+    #     event_mask_all = [val == event for val in evtNb_vals_all]
+    #     event_mask_tagged = [val == event for val in evtNb_vals_tagged]
+    #     variable_values = variable_values[event_mask_all]
+    #     variable_values_tagged = variable_values[event_mask_tagged]
 
-if(flatten): 
-    if(Event_index == -1):
-        variable_values = ak.flatten(variable_values)
-    else:
-        variable_values = variable_values[Event_index]
-    
     if(TTF_clean):
-        if(Event_index == -1): TTF_values = ak.flatten(TTF_values)
-        else: TTF_values = TTF_values[Event_index]
+        TTF_values = t["ttFlag"].array()
+
+    if(flatten): 
+        if(Event_index == -1):
+            variable_values = ak.flatten(variable_values)
+        else:
+            variable_values = variable_values[Event_index]
         
-if(TTF_clean):
-    TTF4_Mask = [val != 4 for val in TTF_values]
-    MASK = np.logical_and(True, TTF4_Mask)
-    variable_values = variable_values[MASK]
-    
-    # Data_FGbit_vals = t["FineGrainBit"].array() # if you want to check tagging in data 
-    Data_FGbit_vals = t["rawTPEmulFineGrainBit3"].array() # if you want to check tagging in emulator 
-    if(Event_index == -1):
-        Data_FGbit_vals = ak.flatten(Data_FGbit_vals)
-    else: 
-        Data_FGbit_vals = Data_FGbit_vals[Event_index]
-    Data_FGbit_vals = Data_FGbit_vals[MASK]
-    
-tagged = [val == 1 for val in Data_FGbit_vals]
-tagged_filter = np.logical_and(True, tagged)
-variable_values_tagged = variable_values[tagged_filter]
+        if(TTF_clean):
+            if(Event_index == -1): TTF_values = ak.flatten(TTF_values)
+            else: TTF_values = TTF_values[Event_index]
+            
+    if(TTF_clean):
+        TTF4_Mask = [val != 4 for val in TTF_values]
+        MASK = np.logical_and(True, TTF4_Mask)
+        variable_values = variable_values[MASK]
+        
+        # Data_FGbit_vals = t["FineGrainBit"].array() # if you want to check tagging in data 
+        Data_FGbit_vals = t["rawTPEmulFineGrainBit3"].array() # if you want to check tagging in emulator 
+        if(Event_index == -1):
+            Data_FGbit_vals = ak.flatten(Data_FGbit_vals)
+        else: 
+            Data_FGbit_vals = Data_FGbit_vals[Event_index]
+        Data_FGbit_vals = Data_FGbit_vals[MASK]
+        
+    tagged = [val == 1 for val in Data_FGbit_vals]
+    tagged_filter = np.logical_and(True, tagged)
+    variable_values_tagged = variable_values[tagged_filter]
 
-    
-# convert values from awkward to numpy array
-vals_all = []
-vals_all = np.append(vals_all, np.array(variable_values))
-vals_tagged = []
-vals_tagged = np.append(vals_tagged, np.array(variable_values_tagged))
+        
+    # convert values from awkward to numpy array
+    vals_all = []
+    vals_all = np.append(vals_all, np.array(variable_values))
+    vals_tagged = []
+    vals_tagged = np.append(vals_tagged, np.array(variable_values_tagged))
 
-binVals_all, edges = np.histogram(vals_all, bins = bins) ##-- Make numpy histogram to get histogram height values in order to avoid drawing on pyplot artist
-binVals_tagged, edges = np.histogram(vals_tagged, bins = bins) ##-- Make numpy histogram to get histogram height values in order to avoid drawing on pyplot artist
+    binVals_all, edges = np.histogram(vals_all, bins = bins) ##-- Make numpy histogram to get histogram height values in order to avoid drawing on pyplot artist
+    binVals_tagged, edges = np.histogram(vals_tagged, bins = bins) ##-- Make numpy histogram to get histogram height values in order to avoid drawing on pyplot artist
 
-upper.hist(bins[:-1], weights = binVals_all, bins = bins, label = "All")
-upper.hist(bins[:-1], weights = binVals_tagged, bins = bins, label = "Tagged")
-# upper.set_yscale('log')    
+    upper.hist(bins[:-1], weights = binVals_all, bins = bins, label = "All")
+    upper.hist(bins[:-1], weights = binVals_tagged, bins = bins, label = "Tagged")
+    # upper.set_yscale('log')    
 
-##-- Take ratio 
-print("Taking ratio...")
-binvalues1_a = np.array(binVals_all, dtype = float)
-binvalues2_a = np.array(binVals_tagged, dtype = float)          
-bin_centers = [ (((float(bins[i+1]) - float(bins[i])) / 2.) + float(bins[i])) for i in range(0, len(bins)-1)]
+    ##-- Take ratio 
+    print("Taking ratio...")
+    binvalues1_a = np.array(binVals_all, dtype = float)
+    binvalues2_a = np.array(binVals_tagged, dtype = float)          
+    bin_centers = [ (((float(bins[i+1]) - float(bins[i])) / 2.) + float(bins[i])) for i in range(0, len(bins)-1)]
 
-##-- Ratio plot lines 
-# lower.plot([bins[0],bins[-1]],[1,1],linestyle=':', color = 'black')
+    ##-- Ratio plot lines 
+    # lower.plot([bins[0],bins[-1]],[1,1],linestyle=':', color = 'black')
 
-zero_errors = [0 for entry in bin_centers]
-ratio = np.true_divide(binvalues2_a , binvalues1_a, out = np.zeros_like(binvalues1_a), where = binvalues1_a != 0)    
+    zero_errors = [0 for entry in bin_centers]
+    ratio = np.true_divide(binvalues2_a , binvalues1_a, out = np.zeros_like(binvalues1_a), where = binvalues1_a != 0)    
 
-lower.errorbar(bin_centers, ratio, xerr = zero_errors , yerr = zero_errors, marker = '.', color = 'black', ls = '')     
+    lower.errorbar(bin_centers, ratio, xerr = zero_errors , yerr = zero_errors, marker = '.', color = 'black', ls = '')     
 
-textstr = "\n".join([
-    "Event = %s"%(str(event)),
-#     r"%s"%(energy_label)
-    #"%s matched TPs"%(TP_type),
-#             r"Ratio MostlyZeroed$\geq$32 ADC: %s"%(round(Fraction_Tagged_32to256, 4)),
-#             r"Ratio MostlyZeroed$<$32 ADC: %s"%(round(Fraction_Tagged_1to32, 4))
-])
+    textstr = "\n".join([
+        "Event = %s"%(str(event)),
+    #     r"%s"%(energy_label)
+        #"%s matched TPs"%(TP_type),
+    #             r"Ratio MostlyZeroed$\geq$32 ADC: %s"%(round(Fraction_Tagged_32to256, 4)),
+    #             r"Ratio MostlyZeroed$<$32 ADC: %s"%(round(Fraction_Tagged_1to32, 4))
+    ])
 
-props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-text_x, text_y = 0.025, 0.95
-if(event != -1):    
-    fig.text(text_x, text_y, textstr, transform=upper.transAxes, fontsize=20,
-            verticalalignment='top', bbox=props)  
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    text_x, text_y = 0.025, 0.95
+    if(event != -1):    
+        fig.text(text_x, text_y, textstr, transform=upper.transAxes, fontsize=20,
+                verticalalignment='top', bbox=props)  
 
-plt.gcf().subplots_adjust(bottom=0.1)
-plt.gcf().subplots_adjust(left=0.1)
-lower.set_xlabel("Rec hit time (ns)", fontsize = 15)
-upper.set_ylabel("Entries", fontsize = 15)
+    plt.gcf().subplots_adjust(bottom=0.1)
+    plt.gcf().subplots_adjust(left=0.1)
+    lower.set_xlabel("Rec hit time (ns)", fontsize = 15)
+    upper.set_ylabel("Entries", fontsize = 15)
 
-upperRightText = "Beam Splash 2021"
-xmin = 0.115
-Add_CMS_Header(plt, isWide, upper, upperRightText, xmin)
-yLabel = "Entries"
-upper.set_ylabel(yLabel, fontsize = 20)
-lower.set_ylabel("Ratio", fontsize = 20)
-plt.yticks(fontsize=15)
-plt.xticks(fontsize=15)
-
-if(log):
-    upper.set_yscale('log')
-    upper_ymin, upper_ymax = upper.get_ylim()
-    upper.set_ylim(upper_ymin, upper_ymax * 100.)    
-    upper.legend(fontsize = 20, ncol = 2)
+    upperRightText = "Beam Splash 2021"
+    xmin = 0.115
+    Add_CMS_Header(plt, isWide, upper, upperRightText, xmin)
+    yLabel = "Entries"
+    upper.set_ylabel(yLabel, fontsize = 20)
+    lower.set_ylabel("Ratio", fontsize = 20)
     plt.yticks(fontsize=15)
-    plt.xticks(fontsize=15)    
+    plt.xticks(fontsize=15)
 
-else:
-    upper.legend(fontsize = 20)
+    if(log):
+        upper.set_yscale('log')
+        upper_ymin, upper_ymax = upper.get_ylim()
+        upper.set_ylim(upper_ymin, upper_ymax * 100.)    
+        upper.legend(fontsize = 20, ncol = 2)
+        plt.yticks(fontsize=15)
+        plt.xticks(fontsize=15)    
 
-upper.tick_params(axis = 'y', labelsize = 12)    
-lower.set_ylim(0, 1)
-# plt.show()
-OUT_DIRECTORY_RATIO = "/eos/user/a/atishelm/www/EcalL1Optimization/BeamSplash2021_Reemulation_DeltaMin%sWeights/%s_Mode/"%(args.Weights, args.TPMode)
-plt.savefig("%s/TaggedTimesRatio.png"%(OUT_DIRECTORY_RATIO))
-plt.savefig("%s/TaggedTimesRatio.pdf"%(OUT_DIRECTORY_RATIO))
-plt.close()  
+    else:
+        upper.legend(fontsize = 20)
+
+    upper.tick_params(axis = 'y', labelsize = 12)    
+    lower.set_ylim(0, 1)
+    # plt.show()
+    OUT_DIRECTORY_RATIO = "/eos/user/a/atishelm/www/EcalL1Optimization/BeamSplash2021_Reemulation_DeltaMin%sWeights/%s_Mode/"%(args.Weights, args.TPMode)
+    plt.savefig("%s/TaggedTimesRatio.png"%(OUT_DIRECTORY_RATIO))
+    plt.savefig("%s/TaggedTimesRatio.pdf"%(OUT_DIRECTORY_RATIO))
+    plt.close()  
 
 """
 Variable plots 

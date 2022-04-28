@@ -49,22 +49,39 @@ def Add_CMS_Header(plt, isWide, ax, upperRightText, xmin):
     )  
 
 
-
 def GetPathDict():
+    MAIN_DIREC = "/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021BeamSplashes/ETTAnalyzerOutput/ReEmulation/"
+
     f_path_dict = {
 
         "0p5" : {
-            "Tagging" : "/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021BeamSplashes/ETTAnalyzerOutput/ReEmulation/2021Splashes_Run_346050_ReEmulated0p5primeweights_TaggingMode.root",
-            "Killing" : "",
-            "TagAndKill" : ""
+            "Tagging" : "%s/ETTAnalyzer_output_TPModeTagging_Weights0p5.root"%(MAIN_DIREC),
+            "Killing" : "%s/ETTAnalyzer_output_TPModeKilling_Weights0p5.root"%(MAIN_DIREC),
+            "KillNTag" : "%s/ETTAnalyzer_output_TPModeKillNTag_Weights0p5.root"%(MAIN_DIREC)
         },
 
         "2p5" : {
-            "Tagging" : "/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021BeamSplashes/ETTAnalyzerOutput/ReEmulation/2021Splashes_Run_346050_ReEmulated2p5primeweightsTaggingMode.root",
-            "Killing" : "/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021BeamSplashes/ETTAnalyzerOutput/ReEmulation/2021Splashes_Run_346050_ReEmulated2p5primeweights_KillingMode.root",
-            "TagAndKill" : ""
-        }
+            "Tagging" : "%s/ETTAnalyzer_output_TPModeTagging_Weights2p5.root"%(MAIN_DIREC),
+            "Killing" : "%s/ETTAnalyzer_output_TPModeKilling_Weights2p5.root"%(MAIN_DIREC),
+            "KillNTag" : "%s/ETTAnalyzer_output_TPModeKillNTag_Weights2p5.root"%(MAIN_DIREC)
+        },
 
     }    
+
+    # f_path_dict = {
+
+    #     "0p5" : {
+    #         "Tagging" : "/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021BeamSplashes/ETTAnalyzerOutput/ReEmulation/2021Splashes_Run_346050_ReEmulated0p5primeweights_TaggingMode.root",
+    #         "Killing" : "",
+    #         "TagAndKill" : ""
+    #     },
+
+    #     "2p5" : {
+    #         "Tagging" : "/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021BeamSplashes/ETTAnalyzerOutput/ReEmulation/2021Splashes_Run_346050_ReEmulated2p5primeweightsTaggingMode.root",
+    #         "Killing" : "/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021BeamSplashes/ETTAnalyzerOutput/ReEmulation/2021Splashes_Run_346050_ReEmulated2p5primeweights_KillingMode.root",
+    #         "TagAndKill" : ""
+    #     }
+
+    # }    
 
     return f_path_dict

@@ -113,7 +113,7 @@ private:
 
   //virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
+  //edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
   edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtProducer_; // input tag for L1 uGT DAQ readout record
   bool savePreFireInfo_;
   edm::EDGetTokenT<l1t::EGammaBxCollection> stage2CaloLayer2EGammaToken_;
@@ -124,9 +124,6 @@ private:
 
   edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollectionEB1_;
   edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollectionEE1_;
-
-  const CaloSubdetectorGeometry *theEndcapGeometry_;
-  const CaloSubdetectorGeometry *theBarrelGeometry_;
 
   std::string monitorDir_;
 
@@ -142,12 +139,15 @@ private:
   const std::string algoNameFirstBxInTrain_;
   const std::string algoNameLastBxInTrain_;
   const std::string algoNameIsoBx_;
+  // const auto& TheMapping = c.getData(mappingToken_);
+  // const EcalElectronicsMapping TheMapping = c.getData(mappingToken_);
   //const unsigned int bxrange_; //this is the out bx range
 
   unsigned int useAlgoDecision_;
   edm::Service<TFileService> fs;
   // int myevt;
-  const EcalElectronicsMapping *theMapping_;
+  // const EcalElectronicsMapping *theMapping_;
+  
   // variables for branches
   uint runNb;
   ULong64_t evtNb;
@@ -287,6 +287,16 @@ private:
   // TH2F* ibx_vs_ieta_Iso;
   // TH2F* ibx_vs_ieta_NonIso;
   TTree *ETTAnalyzerTree;
+
+  const edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> mappingToken_;
+  const edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> eTTmapToken_;
+  // const edm::ESGetToken<> CaloGeometryToken_; 
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+  edm::ESGetToken<CaloSubdetectorGeometry, EcalEndcapGeometryRecord> theEndcapGeometryToken_;
+  edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord> theBarrelGeometryToken_;  
+  const CaloSubdetectorGeometry * theEndcapGeometry_;
+  const CaloSubdetectorGeometry * theBarrelGeometry_;  
+  const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
 };
 
 ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet &ps)
@@ -306,7 +316,13 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet &ps)
       algoBitIsoBx_(-1),
       algoNameFirstBxInTrain_(ps.getUntrackedParameter<std::string>("firstBXInTrainAlgo", "")),
       algoNameLastBxInTrain_(ps.getUntrackedParameter<std::string>("lastBXInTrainAlgo", "")),
-      algoNameIsoBx_(ps.getUntrackedParameter<std::string>("isoBXAlgo", ""))
+      algoNameIsoBx_(ps.getUntrackedParameter<std::string>("isoBXAlgo", "")),
+      mappingToken_(esConsumes()),
+      eTTmapToken_(esConsumes()),
+      geometryToken_(esConsumes()),
+      theEndcapGeometryToken_(esConsumes(edm::ESInputTag("", "EcalEndcap"))),
+      theBarrelGeometryToken_(esConsumes(edm::ESInputTag("", "EcalBarrel"))),
+      tok_sevlv_(esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>())
 
 {
   EcalRecHitCollectionEB1_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("EcalRecHitCollectionEB"));

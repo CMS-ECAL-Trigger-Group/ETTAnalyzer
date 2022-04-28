@@ -10,17 +10,15 @@
 //------------------------------------------------------------------------//
 
 #include "ETTAnalyzer/ETTAnalyzer/interface/ETTAnalyzer.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 // ------------ method called for each event  ------------
 void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
 {
   using namespace edm;
-  //  std::cout << "In ETTAnalyzer::analyze()" << std::endl;
 
-  ESHandle<EcalElectronicsMapping> ecalmapping;
-  c.get<EcalMappingRcd>().get(ecalmapping);
-  theMapping_ = ecalmapping.product();
-
+  const EcalElectronicsMapping TheMapping = c.getData(mappingToken_);
+  
   for (int i = 0; i < 4032; i++)
   {
     count_ADC[i] = -999;
@@ -476,7 +474,12 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
   }
   //  std::cout << "Right after Got EBdigis" << std::endl;
 
-  c.get<IdealGeometryRecord>().get(eTTmap_);
+  //c.get<IdealGeometryRecord>().get(eTTmap_);
+
+  // const GeometricDet* 
+  const EcalTrigTowerConstituentsMap eTTmap_ = c.getData(eTTmapToken_);  
+
+  // const EcalElectronicsMapping TheMapping = c.getData(mappingToken_);
 
   // Get EB digis
 
@@ -548,7 +551,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
   //    const EcalTrigTowerDetId towid = (*eTTmap_).towerOf(id);
 
   //   //  const EcalTriggerElectronicsId elId =
-  //   theMapping_->getTriggerElectronicsId(df.id());
+  //   TheMapping.getTriggerElectronicsId(df.id());
   //   //  uint32_t stripid = elId.rawId() & 0xfffffff8;  // from Pascal
   //    //std::cout<<" strip id : "<<stripid<<std::endl;
 
@@ -595,10 +598,10 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
     //   continue;
 
     // https://github.com/cms-ecal-L1TriggerTeam/CMS-ECAL_TPGAnalysis/blob/master/TriggerAnalysis/plugins/EcalTPGAnalyzer.cc#L845
-    tE.TCCid_ = theMapping_->TCCid(TPtowid);
-    tE.TowerInTCC_ = theMapping_->iTT(TPtowid);
+    tE.TCCid_ = TheMapping.TCCid(TPtowid);
+    tE.TowerInTCC_ = TheMapping.iTT(TPtowid);
     // const EcalTriggerElectronicsId elId =
-    // theMapping_->getTriggerElectronicsId(id) ; tE.strip_ =
+    // TheMapping.getTriggerElectronicsId(id) ; tE.strip_ =
     // 0;//elId.pseudoStripId() ;
 
     tE.iphi_ = TPtowid.iphi();
@@ -649,20 +652,21 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
   // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-  ESHandle<CaloGeometry> theGeometry;
+  // ESHandle<CaloGeometry> theGeometry;
   ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle,
       theBarrelGeometry_handle;
 
-  c.get<CaloGeometryRecord>().get(theGeometry);
-  c.get<EcalEndcapGeometryRecord>().get("EcalEndcap", theEndcapGeometry_handle);
-  c.get<EcalBarrelGeometryRecord>().get("EcalBarrel", theBarrelGeometry_handle);
+  // c.get<CaloGeometryRecord>().get(theGeometry);
 
-  c.get<IdealGeometryRecord>().get(eTTmap_);
-  theEndcapGeometry_ = &(*theEndcapGeometry_handle);
-  theBarrelGeometry_ = &(*theBarrelGeometry_handle);
+  const CaloGeometry theGeometry = c.getData(geometryToken_);
 
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlvl;
-  c.get<EcalSeverityLevelAlgoRcd>().get(sevlvl);
+  theEndcapGeometry_ = &c.getData(theEndcapGeometryToken_);
+  theBarrelGeometry_ = &c.getData(theBarrelGeometryToken_);
+
+  // edm::ESHandle<EcalSeverityLevelAlgo> sevlvl;
+  // c.get<EcalSeverityLevelAlgoRcd>().get(sevlvl);
+
+  const EcalSeverityLevelAlgo* sevlvl = &c.getData(tok_sevlv_);
 
   // https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideEcalRecoLocalReco#Mapping_into_severity_levels
 

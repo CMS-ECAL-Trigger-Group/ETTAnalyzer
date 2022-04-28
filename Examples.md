@@ -2,6 +2,12 @@
 
 The purpose of this file is to keep track of examples for running ETTAnalyzer.
 
+## 2022 Beam Splash analysis
+
+```
+cmsRun ETTAnalyzer_cfg_12_3_0.py Debug=0 TPModeSqliteFile=TPModes/output/EcalTPG_TPMode_Tagging.db TPModeTag=EcalTPG_TPMode_Tagging TPinfoPrintout=0 userMaxEvents=-1 BarrelOnly=1 RunETTAnalyzer=1 inFile="file:/afs/cern.ch/user/d/dkonst/work/public/splashes_350966_FEVT.root" OverrideWeights=0 UserGlobalTag=120X_dataRun3_HLT_v3 RecoMethod=weights OddWeightsSqliteFile=weights/output/MinDelta_0p5Prime_OddWeights.db
+```
+
 ## 2021 Beam Splash analysis 
 
 To check global tag from a file:

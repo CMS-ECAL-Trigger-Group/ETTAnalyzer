@@ -4,6 +4,14 @@ The purpose of this file is to keep track of examples for running ETTAnalyzer.
 
 ## 2022 Beam Splash analysis
 
+In 2022, CMS received beam splashes as a part of LHC/CMS commissioning for LHC Run 3. These are very useful for the testing of ECAL Double Weights, which may be useful for out of time tagging, as splashes produce a high energy ECAL hits with a range of timings. In order to re-emulate one of the splashes with the ECAL configuration used at the time of data-taking, one should run:
+
+```
+cmsRun ETTAnalyzer_cfg_12_3_0_updated.py BarrelOnly=1 RunETTAnalyzer=1 inFile="file:/afs/cern.ch/user/d/dkonst/work/public/splashes_350966_FEVT.root" OverrideWeights=0 RecoMethod=weights UserGlobalTag=123X_dataRun3_HLT_v7 era=Run3
+```
+
+One can also run with an old global tag and config, but stil plot the data quantities, using:
+
 ```
 cmsRun ETTAnalyzer_cfg_12_3_0.py Debug=0 TPModeSqliteFile=TPModes/output/EcalTPG_TPMode_Tagging.db TPModeTag=EcalTPG_TPMode_Tagging TPinfoPrintout=0 userMaxEvents=-1 BarrelOnly=1 RunETTAnalyzer=1 inFile="file:/afs/cern.ch/user/d/dkonst/work/public/splashes_350966_FEVT.root" OverrideWeights=0 UserGlobalTag=120X_dataRun3_HLT_v3 RecoMethod=weights OddWeightsSqliteFile=weights/output/MinDelta_0p5Prime_OddWeights.db
 

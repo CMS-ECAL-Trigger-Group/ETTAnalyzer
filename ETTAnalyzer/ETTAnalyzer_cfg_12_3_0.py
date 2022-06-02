@@ -11,7 +11,14 @@ import os
 from ConfigParams import options 
 
 # Define cms process 
-process = cms.Process("ETTAnalyzer",eras.Run2_2017)
+era = options.era
+if(era == "Run2"): Process_Eras = eras.Run2_2017 
+elif(era == "Run3"): Process_Eras = eras.Run3 
+else:
+  raise Exception("Don't know what to set Process_Eras to for the option:",era)
+print("process era:",era)
+
+process = cms.Process("ETTAnalyzer",Process_Eras)
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cff") # Configuration for module which produces an EcalTrigPrimDigiCollection
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -59,44 +66,6 @@ if(options.OverrideWeights):
     if(options.UserGlobalTag == "120X_dataRun3_HLT_v3"): 
         process.es_prefer_tpmode = cms.ESPrefer("PoolDBESSource","EcalOnTheFlyTPGconf") # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToUseESPrefer
 
-
-if(options.UserGlobalTag == "123X_dataRun3_HLT_v7"):
-    process.PCastorOverride = cms.ESSource("PoolDBESSource",
-                                    process.CondDB,
-                                    DumpStat=cms.untracked.bool(True),
-                                    toGet = cms.VPSet(#cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_Extended_TagXX')),
-                                                    # cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECO_Geometry_TagXX')),
-                                                    # cms.PSet(record = cms.string('PEcalBarrelRcd'),   tag = cms.string('EBRECO_Geometry_TagXX')),
-                                                    # cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('EERECO_Geometry_TagXX')),
-                                                    # cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('EPRECO_Geometry_TagXX')),
-                                                    # cms.PSet(record = cms.string('PHcalRcd'),         tag = cms.string('HCALRECO_Geometry_TagXX')),
-                                                    # cms.PSet(record = cms.string('PCaloTowerRcd'),    tag = cms.string('CTRECO_Geometry_TagXX')),
-                                                    # cms.PSet(record = cms.string('PZdcRcd'),          tag = cms.string('ZDCRECO_Geometry_TagXX')),
-                                                    cms.PSet(record = cms.string('PCastorRcd'),       tag = cms.string('CASTORRECO_Geometry_TagXX')),
-                                                    # cms.PSet(record = cms.string('CSCRecoGeometryRcd'),tag = cms.string('CSCRECO_Geometry_TagXX')),
-                                                    # cms.PSet(record = cms.string('CSCRecoDigiParametersRcd'),tag = cms.string('CSCRECODIGI_Geometry_TagXX')),
-                                                    # cms.PSet(record = cms.string('DTRecoGeometryRcd'),tag = cms.string('DTRECO_Geometry_TagXX')),
-                                                    # cms.PSet(record = cms.string('RPCRecoGeometryRcd'),tag = cms.string('RPCRECO_Geometry_TagXX'))
-                                                    )
-    )
-    # process.PoolDBESSourceGeometry = cms.ESSource("PoolDBESSource",
-    #                               process.CondDB,
-    #                               toGet = cms.VPSet(#cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_Extended_TagXX')),
-    #                                                 # cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECO_Geometry_TagXX')),
-    #                                                 # cms.PSet(record = cms.string('PEcalBarrelRcd'),   tag = cms.string('EBRECO_Geometry_TagXX')),
-    #                                                 # cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('EERECO_Geometry_TagXX')),
-    #                                                 # cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('EPRECO_Geometry_TagXX')),
-    #                                                 # cms.PSet(record = cms.string('PHcalRcd'),         tag = cms.string('HCALRECO_Geometry_TagXX')),
-    #                                                 # cms.PSet(record = cms.string('PCaloTowerRcd'),    tag = cms.string('CTRECO_Geometry_TagXX')),
-    #                                                 # cms.PSet(record = cms.string('PZdcRcd'),          tag = cms.string('ZDCRECO_Geometry_TagXX')),
-    #                                                 cms.PSet(record = cms.string('PCastorRcd'),       tag = cms.string('CASTORRECO_Geometry_TagXX')),
-    #                                                 # cms.PSet(record = cms.string('CSCRecoGeometryRcd'),tag = cms.string('CSCRECO_Geometry_TagXX')),
-    #                                                 # cms.PSet(record = cms.string('CSCRecoDigiParametersRcd'),tag = cms.string('CSCRECODIGI_Geometry_TagXX')),
-    #                                                 # cms.PSet(record = cms.string('DTRecoGeometryRcd'),tag = cms.string('DTRECO_Geometry_TagXX')),
-    #                                                 # cms.PSet(record = cms.string('RPCRecoGeometryRcd'),tag = cms.string('RPCRECO_Geometry_TagXX'))
-    #                                                 )
-    #                               )
-    process.es_prefer_geometry = cms.ESPrefer( "PoolDBESSource", "PCastorOverride" )
 
 # ECAL Unpacker
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")

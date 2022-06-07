@@ -116,6 +116,7 @@ private:
   //edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
   edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtProducer_; // input tag for L1 uGT DAQ readout record
   bool savePreFireInfo_;
+  bool BarrelOnly_; 
   edm::EDGetTokenT<l1t::EGammaBxCollection> stage2CaloLayer2EGammaToken_;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpEmulatorCollection_;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpCollection_;
@@ -304,6 +305,7 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet &ps)
 
       l1tStage2uGtProducer_(consumes<GlobalAlgBlkBxCollection>(ps.getParameter<edm::InputTag>("ugtProducer"))),
       savePreFireInfo_(ps.getParameter<bool>("savePreFireInfo")),
+      BarrelOnly_(ps.getParameter<bool>("BarrelOnly")),
       stage2CaloLayer2EGammaToken_(consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2EGammaProducer"))),
       tpEmulatorCollection_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("TPEmulatorCollection"))),
       tpCollection_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("TPCollection"))),

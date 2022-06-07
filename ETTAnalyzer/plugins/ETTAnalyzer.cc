@@ -594,8 +594,10 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
     towerEner tE;
 
     // // SKIP EE
-    // if (TPtowid.ieta() > 17 || TPtowid.ieta() < -17)
-    //   continue;
+    if(BarrelOnly_){
+     if (TPtowid.ieta() > 17 || TPtowid.ieta() < -17)
+       continue;
+    }
 
     // https://github.com/cms-ecal-L1TriggerTeam/CMS-ECAL_TPGAnalysis/blob/master/TriggerAnalysis/plugins/EcalTPGAnalyzer.cc#L845
     tE.TCCid_ = TheMapping.TCCid(TPtowid);
@@ -628,8 +630,10 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
     const EcalTrigTowerDetId TPtowid = d.id();
 
     // SKIP EE
-    if (TPtowid.ieta() > 17 || TPtowid.ieta() < -17)
-      continue;
+    if(BarrelOnly_){
+      if (TPtowid.ieta() > 17 || TPtowid.ieta() < -17)
+        continue;
+    }
 
     itTT = mapTower.find(TPtowid);
     if (itTT != mapTower.end())

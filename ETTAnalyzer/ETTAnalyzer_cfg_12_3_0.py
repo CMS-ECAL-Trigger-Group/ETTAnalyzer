@@ -145,6 +145,7 @@ if(options.RunETTAnalyzer):
     process.tuplizer = cms.EDAnalyzer('ETTAnalyzer', # Name ultimately comes from plugins/ETTAnalyzer.cc final lines with plugin name definition 
                                     ugtProducer = cms.InputTag("gtStage2Digis"),
                                     savePreFireInfo = cms.bool(False), 
+                                    BarrelOnly = cms.bool(options.BarrelOnly),
                                     TPEmulatorCollection =  cms.InputTag("ecalTriggerPrimitiveDigis",""), # Different name for full readout?
                                     # TPEmulatorCollection =  cms.InputTag("ecalTriggerPrimitiveDigis","ecalTriggerPrimitiveDigis"), # Different name for full readout?
                                     useAlgoDecision = cms.untracked.string("initial"),

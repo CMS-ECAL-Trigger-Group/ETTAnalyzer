@@ -10,3 +10,8 @@ inFile="file:/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2022StableBeam
 OverrideWeights=0 RecoMethod=weights UserGlobalTag=123X_dataRun3_HLT_v7 era=Run3 userMaxEvents=100
 ```
 
+After setting the parameters properly in the crab configuration file, one can then run over all files (or one if the param is set) with:
+
+```
+crab submit -c CrabConfig_12_3_0.py 
+```

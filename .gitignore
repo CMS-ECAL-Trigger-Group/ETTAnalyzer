@@ -1,6 +1,7 @@
 *.pyc
 *__init__.py
 *__init__.pyc
+ETTAnalyzer/.__afs*
 ETTAnalyzer/python/__init__.pyc
 ETTAnalyzer/TPinfo.log
 ETTAnalyzer/ETTAnalyzer_output.root

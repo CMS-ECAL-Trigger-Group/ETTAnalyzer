@@ -7,14 +7,14 @@ crab submit -c CrabConfig_12_1_0_pre3.py
 """
 
 # Choose dataset to re-emulate:
-Dataset = "2022_FR"
-# Dataset = "PilotBeam2021" # 2021 Pilot Beam double weights runs: Full Readout
+# Dataset = "2022_FR"
+Dataset = "PilotBeam2021" # 2021 Pilot Beam double weights runs: Full Readout
 # Dataset = "Run2_FR" # 306425: 2017F. 324725: 2018D
 # Dataset = "ZeroBias2018C"
 
 DatasetInfo = {
   "2022_FR" : [["352912"], "Run_352912", "123X_dataRun3_HLT_v7"],
-  "PilotBeam2021" : [["346446", "346447"], "Runs_346446_346447_PilotBeam_2021", "120X_dataRun3_HLT_v3"], 
+  "PilotBeam2021" : [["346446", "346447"], "Runs_346446_346447_PilotBeam_2021", "123X_dataRun3_HLT_v7"], 
   "ZeroBias2018C" : [None, None, None],
   "Run2_FR" : [["324725", "306425"], "Runs_324725_306425_FullReadoutData", "103X_dataRun2_v6"] 
 }
@@ -24,14 +24,17 @@ runs, DatasetLabel, UserGlobalTag = DatasetInfo[Dataset]
 # Configuration parameters 
 # inDir = "/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_12_1_0_pre3/src/ETTAnalyzer/ETTAnalyzer/"
 inDir = "/afs/cern.ch/work/a/atishelm/private/CMSSW_12_3_0/src/ETTAnalyzer/ETTAnalyzer/"
-oneFile = 0 # Run over one file as a test (recommended before running over large datasets to test incompatibility issues)
+OverrideWeights = 0 # override weights and TPmode of global tag with user input sqlite files 
+oneFile = 1 # Run over one file as a test (recommended before running over large datasets to test incompatibility issues)
 WeightsWP = "2p5Prime"  # odd weights working point. Options: [2p5Prime, 0p5Prime] 
 ODD_PF = 1 # 0: No ODD peak finder. 1: With ODD peak finder
 addFilePrefix = 0 # Add "file:" to start of file paths 
 removeEOSprefix = 1 
 RecoMethod = "weights" # options: Multifit, weights
-if(Dataset == "2022_FR"): ERA = "Run3"
-else: ERA = "Run2"
+if(Dataset == "2022_FR" or Dataset == "PilotBeam2021"): 
+  ERA = "Run3"
+else: 
+  ERA = "Run2"
 
 if(ODD_PF): 
   TPMode_file = "EcalTPG_TPMode_Run3_zeroingOddPeakFinder.db"
@@ -104,7 +107,8 @@ config = config()
 oneFileStr = ""
 if(oneFile): oneFileStr = "_oneFile"
 
-requestName = '{DatasetLabel}_{ODD_PF_string}_{RecoMethod}_{WeightsWP}ODDweights{oneFileStr}'.format(DatasetLabel=DatasetLabel, ODD_PF_string=ODD_PF_string, RecoMethod=RecoMethod, WeightsWP=WeightsWP, oneFileStr=oneFileStr)
+if(OverrideWeights): '{DatasetLabel}_{ODD_PF_string}_{RecoMethod}_{WeightsWP}ODDweights{oneFileStr}'.format(DatasetLabel=DatasetLabel, ODD_PF_string=ODD_PF_string, RecoMethod=RecoMethod, WeightsWP=WeightsWP, oneFileStr=oneFileStr)
+else: requestName = '{DatasetLabel}_{RecoMethod}_ReemulateFromGlobalTag{oneFileStr}'.format(DatasetLabel=DatasetLabel, RecoMethod=RecoMethod, oneFileStr=oneFileStr)
 
 config.General.requestName = requestName
 config.General.workArea = 'crab_projects'
@@ -113,8 +117,7 @@ config.General.transferLogs = False
 
 # cmssw configuration file parameters 
 config.JobType.pyCfgParams = [
-                                # 'OverrideWeights=1', # whether or not to override weights from global tag 
-                                'OverrideWeights=0', # whether or not to override weights from global tag 
+                                'OverrideWeights=%s'%(OverrideWeights), # whether or not to override weights from global tag 
                                 'UserGlobalTag=%s'%(UserGlobalTag), # global tag 
                                 'TPModeSqliteFile=%s'%(TPMode_file), # strip zeroing, with or without ODD PF configs to try: [EcalTPG_TPMode_Run3_zeroingOddPeakFinder.db, EcalTPG_TPMode_Run3_zeroing,db]
                                 'OddWeightsGroupSqliteFile=OneEBOneEEset_adding2021Strips.db', # weights group for each strip - defines which set of ODD weights each strip should use 
@@ -134,8 +137,10 @@ config.Data.unitsPerJob = 1
 
 # Output directory / file naming
 config.Data.outputPrimaryDataset = '%s%s'%(DatasetLabel, oneFileStr)
-#config.Data.outputDatasetTag = 'ETTAnalyzer_CMSSW_12_3_0_DoubleWeights_%sRecoMethod_StripZeroingMode_%s_%sODDweights'%(RecoMethod, ODD_PF_string, WeightsWP) # 3 DOF to vary
-config.Data.outputDatasetTag = 'ETTAnalyzer_CMSSW_12_3_0_DoubleWeights'
+
+if(OverrideWeights): outputDatasetTag = 'ETTAnalyzer_CMSSW_12_3_0_DoubleWeights_%sRecoMethod_StripZeroingMode_%s_%sODDweights'%(RecoMethod, ODD_PF_string, WeightsWP) # 3 DOF to vary
+else: outputDatasetTag = 'ETTAnalyzer_CMSSW_12_3_0_DoubleWeights_ReemulateFromGlobalTag'
+config.Data.outputDatasetTag = outputDatasetTag
 config.Data.outLFNDirBase = '/store/group/dpg_ecal/alca_ecalcalib/Trigger/DoubleWeights/' 
 config.Data.publication = False 
 

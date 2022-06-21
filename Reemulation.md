@@ -1,7 +1,7 @@
 # 2022 Data reemulation
 
-On 3 June 2022, during a low intensity 900 GeV collisions run (Run 352912 [[Link to OMS]](https://cmsoms.cern.ch/cms/runs/report?cms_run=352912&cms_run_sequence=GLOBAL-RUN)),
-ECAL ran in full readout mode with double weights in tagging mode with the delta min = 2.5 GeV working point. The files were copied to `/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2022StableBeams/Run_352912/`. One 
+On 3 June 2022, during a low intensity 900 GeV collisions run (Run [352912](https://cmsoms.cern.ch/cms/runs/report?cms_run=352912&cms_run_sequence=GLOBAL-RUN)),
+ECAL ran in full readout mode with double weights in tagging mode with the $\delta_{min}$ = 2.5 GeV working point. The files were copied to `/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2022StableBeams/Run_352912/`. One 
 can run the ETTAnalyzer over 100 events of one file as a test with the following command:
 
 ```
@@ -18,7 +18,7 @@ crab submit -c CrabConfig_12_3_0.py
 
 # 2021 data reemulation
 
-On 29 October 2021, a low intensity 900 GeV collisions run (Runs 346446, 346447) was taken with ECAL in full readout mode, with double weights in tagging mode with the delta min = 2.5 GeV working point. The files were copied to:
+On 29 October 2021, a low intensity 900 GeV collisions run (Runs [346446](https://cmsoms.cern.ch/cms/runs/report?cms_run=346446&cms_run_sequence=GLOBAL-RUN), [346447](https://cmsoms.cern.ch/cms/runs/report?cms_run=346447&cms_run_sequence=GLOBAL-RUN)) was taken with ECAL in full readout mode, with double weights in tagging mode with the $\delta_{min}$ = 2.5 GeV working point. The files were copied to:
 
 ```
 /eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/2021StableBeams/Run_346446/

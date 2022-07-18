@@ -50,17 +50,18 @@ def Add_CMS_Header(plt, isWide, ax, upperRightText, xmin):
 
 
 def GetPathDict():
-    YEAR = "2022"
+    YEAR = "2021"
     MAIN_DIREC = "/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/%sBeamSplashes/ETTAnalyzerOutput/ReEmulation/"%(YEAR)
 
     f_path_dict = {
 
         # 2021 splashes 
-        # "0p5" : {
-        #     "Tagging" : "%s/ETTAnalyzer_output_TPModeTagging_Weights0p5.root"%(MAIN_DIREC),
+         "0p5" : {
+             "Tagging" :{
+		"one" : "%s/ETTAnalyzer_output_TPModeTagging_Weights0p5.root"%(MAIN_DIREC)},
         #     "Killing" : "%s/ETTAnalyzer_output_TPModeKilling_Weights0p5.root"%(MAIN_DIREC),
         #     "KillNTag" : "%s/ETTAnalyzer_output_TPModeKillNTag_Weights0p5.root"%(MAIN_DIREC)
-        # },
+         },
 
         # "2p5" : {
         #     "Tagging" : "%s/ETTAnalyzer_output_TPModeTagging_Weights2p5.root"%(MAIN_DIREC),
@@ -69,20 +70,20 @@ def GetPathDict():
         # },
 
         # 2022 splashes 
-        "0p5" : {
-            "Tagging" : {
-                "one" : "%s/ETTAnalyzer_output_beam1.root"%(MAIN_DIREC),
+        #"0p5" : {
+        #    "Tagging" : {
+        #        "one" : "%s/ETTAnalyzer_output_beam1.root"%(MAIN_DIREC),
                 #"two" : "%s/ETTAnalyzer_output_beam2.root"%(MAIN_DIREC),
-            },
+         #   },
 
-            "KillNTag" : {
+          #  "KillNTag" : {
                 # "one" : "%s/ETTAnalyzer_output_beam1.root"%(MAIN_DIREC),
-                "two" : "%s/ETTAnalyzer_output_beam2.root"%(MAIN_DIREC),
-            }            
+           #     "two" : "%s/ETTAnalyzer_output_beam2.root"%(MAIN_DIREC),
+           # }            
                 
             # "Killing" : "%s/ETTAnalyzer_output_TPModeKilling_Weights0p5.root"%(MAIN_DIREC),
             # "KillNTag" : "%s/ETTAnalyzer_output_TPModeKillNTag_Weights0p5.root"%(MAIN_DIREC)
-        },
+       # },
 
         # "2p5" : {
         #     "Tagging" : "%s/ETTAnalyzer_output_TPModeTagging_Weights2p5.root"%(MAIN_DIREC),

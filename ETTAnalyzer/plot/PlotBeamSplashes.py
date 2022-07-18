@@ -36,8 +36,10 @@ parser.add_argument("--beamNumber", type = str, help = "Beam number (one or two)
 args = parser.parse_args()
 
 f_path_dict = GetPathDict()
-f_path = f_path_dict[args.Weights][args.TPMode][args.beamNumber]
+#f_path = f_path_dict[args.Weights][args.TPMode][args.beamNumber]
 verbose = args.verbose
+
+f_path='ETTAnalyzer_output.root'
 
 f = uproot.open(f_path)
 t = f["tuplizer/ETTAnalyzerTree"]
@@ -58,9 +60,9 @@ isWide = 0
 TTF_clean = 1 
 flatten = 1
 log = 0
-plotRatio = 0
+plotRatio = 0 
 
-event = -1 
+event = 13773 
 
 if(plotRatio):
 
@@ -115,7 +117,7 @@ if(plotRatio):
             else: TTF_values = TTF_values[Event_index]
             
     if(TTF_clean):
-        TTF4_Mask = [val != 4 for val in TTF_values]
+        TTF4_Mask = [val >=0 for val in TTF_values]
         MASK = np.logical_and(True, TTF4_Mask)
         variable_values = variable_values[MASK]
         
@@ -201,7 +203,7 @@ if(plotRatio):
     upper.tick_params(axis = 'y', labelsize = 12)    
     lower.set_ylim(0, 1)
     # plt.show()
-    OUT_DIRECTORY_RATIO = "/eos/user/a/atishelm/www/EcalL1Optimization/BeamSplash%s_Reemulation_DeltaMin%sWeights_beam%s/%s_Mode/"%(args.year, args.Weights, args.beamNumber, args.TPMode)
+    OUT_DIRECTORY_RATIO = "/eos/user/m/mcampana/www/Trigger/BeamSplash%s_Reemulation_new_DeltaMin%sWeights_beam%s/%s_Mode/"%(args.year, args.Weights, args.beamNumber, args.TPMode)
     plt.savefig("%s/TaggedTimesRatio.png"%(OUT_DIRECTORY_RATIO))
     plt.savefig("%s/TaggedTimesRatio.pdf"%(OUT_DIRECTORY_RATIO))
     plt.close()  
@@ -213,6 +215,9 @@ Variable plots
 variables = [
     "twrADC", "twrEmul3ADC", "time", "rawTPEmulFineGrainBit3", "FineGrainBit"
 ]
+#variables = [
+#   "time"
+#]
 
 DATA_VARIABLES = []
 EMU_VARIABLES = []
@@ -224,13 +229,13 @@ lowEvents = args.lowEvents
 N_events = len(events)
 for v_to_plot in variables:
     print("v_to_plot:",v_to_plot)
-    OUT_DIRECTORY = "/eos/user/a/atishelm/www/EcalL1Optimization/BeamSplash%s_Reemulation_DeltaMin%sWeights_beam%s/%s_Mode/%s/"%(args.year, args.Weights, args.beamNumber, args.TPMode, v_to_plot)
+    OUT_DIRECTORY = "/eos/user/m/mcampana/www/Trigger/BeamSplash%s_Reemulation_new_DeltaMin%sWeights_beam%s/%s_Mode/%s/"%(args.year, args.Weights, args.beamNumber, args.TPMode, v_to_plot)
     if(not os.path.isdir(OUT_DIRECTORY)):
         cmd = "mkdir -p %s"%(OUT_DIRECTORY)
         print("$ %s"%(cmd))
         os.system(cmd)
-        cmd_cp = "cp /eos/user/a/atishelm/www/EcalL1Optimization/index.php %s"%(OUT_DIRECTORY)
-        cmd_cp_2 = "cp /eos/user/a/atishelm/www/EcalL1Optimization/index.php %s/../"%(OUT_DIRECTORY)
+        cmd_cp = "cp /eos/user/m/mcampana/www/index.php %s"%(OUT_DIRECTORY)
+        cmd_cp_2 = "cp /eos/user/m/mcampana/www/index.php %s/../"%(OUT_DIRECTORY)
         print("$ %s"%(cmd_cp))
         os.system(cmd_cp)
         os.system(cmd_cp_2)
@@ -278,7 +283,7 @@ for v_to_plot in variables:
         # remove TTs with ttflag 4 
 
         # Define mask 
-        TTF4_notFour = [val != 4 for val in TTF_values]
+        TTF4_notFour = [val !=4 for val in TTF_values]
         TTF4_Mask = np.logical_and(True, TTF4_notFour)
         time_notNull = [val != -999 for val in time_vals]
         time_Mask = np.logical_and(True, time_notNull)
@@ -328,32 +333,35 @@ for v_to_plot in variables:
         fig, ax = plt.subplots()
 
         fig.set_dpi(100)
-        # fig.set_size_inches(8, 6)
+        fig.set_size_inches(8, 6)
         # fig.set_size_inches(8, 16)
 
         # print("ieta_vals_tagged_a:",ieta_vals_tagged_a)
 
         # ieta_vals_tagged_a
-        ieta_vals_tagged_a = [x if x<0 else x-1 for x in ieta_vals_tagged_a]
+        #ieta_vals_tagged_a = [x if x<0 else x-1 for x in ieta_vals_tagged_a]
         # [x+1 if x >= 45 else x+5 for x in l]
 
         ### redefine positive ietas just to remove middle column of ieta = 0 
 
-        ieta_bins = np.linspace(-17, 17, 35)
-        iphi_bins = np.linspace(1, 73, 73)
+        #ieta_bins = np.linspace(-17, 17, 35)
+        #iphi_bins = np.linspace(1, 73, 73)
 
-        # ieta_bins = np.linspace(-17, 18, 36)
-        # iphi_bins = np.linspace(1, 74, 74)
+        ieta_bins = np.linspace(-17, 18, 36)
+        iphi_bins = np.linspace(1, 74, 74)
 
         # print("v_to_plot_vals_a:",v_to_plot_vals_a.tolist())
 
         if(v_to_plot == "twrADC" or v_to_plot == "twrEmul3ADC"):
             zLabel = "Tower ET [ADC]"
             vmin, vmax = 0, 256
-            plt.hist2d(iphi_vals_tagged_a, 
-                    ieta_vals_tagged_a, 
+            plt.hist2d(ieta_vals_tagged_a, 
+                        iphi_vals_tagged_a, 
+            #plt.hist2d(iphi_vals_tagged_a, 
+            #        ieta_vals_tagged_a, 
                     weights = v_to_plot_vals_a,
-                    bins = (iphi_bins, ieta_bins), 
+                    bins = (ieta_bins, iphi_bins), 
+             #       bins = (iphi_bins, ieta_bins), 
                     cmap = plt.cm.jet,
                     vmin = vmin,
                     vmax = vmax,
@@ -364,50 +372,50 @@ for v_to_plot in variables:
             zLabel = "Rec hit time (ns)"
             vmin, vmax = -25, 10
             norm = colors.TwoSlopeNorm(vmin=vmin, vcenter=0, vmax=vmax)
-        #     plt.hist2d(ieta_vals_tagged_a, 
-        #                iphi_vals_tagged_a, 
-            plt.hist2d(iphi_vals_tagged_a, 
-                    ieta_vals_tagged_a, 
-            #            weights = time_vals_tagged_a,
-                    weights = v_to_plot_vals_a,
-        #                bins = (ieta_bins, iphi_bins), 
-                    bins = (iphi_bins, ieta_bins), 
+            plt.hist2d(ieta_vals_tagged_a, 
+                        iphi_vals_tagged_a, 
+        #    plt.hist2d(iphi_vals_tagged_a, 
+        #            ieta_vals_tagged_a, 
+                    weights = time_vals_tagged_a,
+      #              weights = v_to_plot_vals_a,
+                    bins = (ieta_bins, iphi_bins), 
+    #                bins = (iphi_bins, ieta_bins), 
                     cmap=plt.cm.bwr,
                     vmin = vmin,
                     vmax = vmax,
                     norm = norm
-            #            cmin = 1
+        #            cmin = 1
                     )    
 
         elif(v_to_plot == "FineGrainBit" or v_to_plot == "rawTPEmulFineGrainBit3"):
             zLabel = v_to_plot
             vmin, vmax = 0, 2
-        #     plt.hist2d(ieta_vals_tagged_a, 
-        #                iphi_vals_tagged_a, 
-            plt.hist2d(iphi_vals_tagged_a, 
-                    ieta_vals_tagged_a, 
+            plt.hist2d(ieta_vals_tagged_a, 
+                        iphi_vals_tagged_a, 
+        #    plt.hist2d(iphi_vals_tagged_a, 
+         #           ieta_vals_tagged_a, 
                     weights = v_to_plot_vals_a,
-        #                bins = (ieta_bins, iphi_bins), 
-                    bins = (iphi_bins, ieta_bins), 
+                   bins = (ieta_bins, iphi_bins), 
+        #            bins = (iphi_bins, ieta_bins), 
                     cmap = plt.cm.jet,
                     vmin = vmin,
                     vmax = vmax,
                     cmin = 1
                     )      
             
-        if(v_to_plot != "FineGrainBit" and v_to_plot != "rawTPEmulFineGrainBit3"):
-            plt.colorbar().set_label(zLabel, fontsize = 20, labelpad = 11)
+       # if(v_to_plot != "FineGrainBit" and v_to_plot != "rawTPEmulFineGrainBit3"):
+        plt.colorbar().set_label(zLabel, fontsize = 20, labelpad = 11)
 
         # norm = colors.TwoSlopeNorm(vmin=vmin, vcenter=0, vmax=vmax)
         # plt.pcolor(X, Y, Z, vmin=vmin, vmax=vmax, norm=norm)   
 
         # plt.colorbar.set_label("Rec hit time (ns)")
 
-        # plt.ylabel(r'Trigger Tower $\phi$ index', fontsize = 22)
-        # plt.xlabel(r'Trigger Tower $\eta$ index', fontsize = 22)
+        plt.ylabel(r'Trigger Tower $\phi$ index', fontsize = 22)
+        plt.xlabel(r'Trigger Tower $\eta$ index', fontsize = 22)
 
-        plt.ylabel(r'Trigger Tower $\eta$ index', fontsize = 22)
-        plt.xlabel(r'Trigger Tower $\phi$ index', fontsize = 22)
+      #  plt.ylabel(r'Trigger Tower $\eta$ index', fontsize = 22)
+      #  plt.xlabel(r'Trigger Tower $\phi$ index', fontsize = 22)
 
         upperRightText = "Beam Splash 2021"
         # upperRightText = ""
@@ -421,7 +429,7 @@ for v_to_plot in variables:
 
         if(v_to_plot == "FineGrainBit"):
         #     xmin = 0.12
-            xmin = 0.05
+            xmin = 0.15
             plt.text(
                 0.06, 0.9, u"Towers flagged",
                 fontsize=20, fontweight='bold',
@@ -430,26 +438,26 @@ for v_to_plot in variables:
                 transform=ax.transAxes
             )    
             Add_CMS_Header(plt, isWide, ax, upperRightText, xmin)
-            EB_LABEL_COLOR = "black"
-            fig.set_size_inches(16, 8) # time 
+            #EB_LABEL_COLOR = "black"
+            fig.set_size_inches(8, 6) # time 
         else:
-            xmin = 0.06
+            xmin = 0.15
             EB_LABEL_COLOR = "w"
         #     xmin = 0.15
-            fig.set_size_inches(17.5, 8) # time 
-            
-        Add_CMS_Header(plt, isWide, ax, upperRightText, xmin)
-
-        EB_LABEL_XMIN = 0.06
-
-        plt.text(
+            fig.set_size_inches(8, 6) # time 
+            EB_LABEL_XMIN = 0.06
+            plt.text(
         #     EB_LABEL_XMIN, 0.89, u"ECAL Barrel",
-            EB_LABEL_XMIN, 0.95, u"ECAL Barrel",
+            EB_LABEL_XMIN, 0.91, u"ECAL Barrel",
             fontsize=20, fontweight='bold',
             horizontalalignment='left',
             verticalalignment='bottom',
             transform=ax.transAxes, color = EB_LABEL_COLOR
-        )     
+            )     
+            
+        Add_CMS_Header(plt, isWide, ax, upperRightText, xmin)
+
+
 
         fig.tight_layout()
         plt.savefig("%s/BeamSplash%s_%s_Run%s_Event%s.png"%(OUT_DIRECTORY, args.year, v_to_plot, runNumber, event))

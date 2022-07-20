@@ -354,7 +354,7 @@ for v_to_plot in variables:
 
         if(v_to_plot == "twrADC" or v_to_plot == "twrEmul3ADC"):
             zLabel = "Tower ET [ADC]"
-            vmin, vmax = 0, 256
+            vmin, vmax = 0, 257
             plt.hist2d(ieta_vals_tagged_a, 
                         iphi_vals_tagged_a, 
             #plt.hist2d(iphi_vals_tagged_a, 
@@ -417,7 +417,7 @@ for v_to_plot in variables:
       #  plt.ylabel(r'Trigger Tower $\eta$ index', fontsize = 22)
       #  plt.xlabel(r'Trigger Tower $\phi$ index', fontsize = 22)
 
-        upperRightText = "Beam Splash 2021"
+        upperRightText = "Beam Splash 2022"
         # upperRightText = ""
         # xmin = 0.15
         # Add_CMS_Header(plt, isWide, ax, upperRightText, xmin)

@@ -69,6 +69,7 @@ class towerEner
 {
 public:
   float eRec_;
+  float eRec_avg_;
   int crystNb_;
   int tpgEmul_[5];
   int tpgEmulFlag_[5];
@@ -81,7 +82,7 @@ public:
   float time_;
   float maxRecHitEnergy_;
   towerEner()
-      : eRec_(0), crystNb_(0), tpgADC_(0),
+      : eRec_(0), eRec_avg_(0), crystNb_(0), tpgADC_(0),
         iphi_(-999), ieta_(-999), nbXtal_(0), twrADC(0), sFGVB(-999), FineGrainBit(-999), sevlv_(-999), ttFlag_(0), TCCid_(0), TowerInTCC_(0), strip_(0), time_(-999), maxRecHitEnergy_(-999)
   {
     // for (int i=0 ; i<5 ; i ++) { //-- 5 BX window
@@ -209,6 +210,7 @@ private:
   int rawTPEmulFineGrainBit4[4032]; 
   int rawTPEmulFineGrainBit5[4032]; 
   float eRec[4032];
+  float eRec_avg[4032];
   int crystNb[4032];
   float maxRecHitEnergy[4032];
   int sevlv[4032];
@@ -390,7 +392,8 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet &ps)
   ETTAnalyzerTree->Branch("rawTPEmulFineGrainBit3", rawTPEmulFineGrainBit3, "rawTPEmulFineGrainBit3[nbOfTowers]/I");
 
 
-  // ETTAnalyzerTree->Branch("eRec", eRec ,"eRec[nbOfTowers][25]/I"); // Max of 25 xtals per TT
+  ETTAnalyzerTree->Branch("eRec", eRec ,"eRec[nbOfTowers]/F"); // Max of 25 xtals per TT
+  ETTAnalyzerTree->Branch("eRec_avg", eRec_avg,"eRec_avg[nbOfTowers]/F"); // Max of 25 xtals per TT
   ETTAnalyzerTree->Branch("crystNb", crystNb, "crystNb[nbOfTowers]/I");
   ETTAnalyzerTree->Branch("maxRecHitEnergy", maxRecHitEnergy, "maxRecHitEnergy[nbOfTowers]/F");
   ETTAnalyzerTree->Branch("sevlv", sevlv, "sevlv[nbOfTowers]/I");

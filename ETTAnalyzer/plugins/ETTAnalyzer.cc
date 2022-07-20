@@ -696,9 +696,8 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
       // If this recHit is in a mapTower trigger tower
       if (itTT != mapTower.end())
       {
-        // double theta =
-        // theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
-        // (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
+         double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
+        (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
         int sevlvl_tmp = (sevlvl->severityLevel(id, *rechitsEB));
         //  if ( rechitItr->energy() > maxRecHitEnergy &&
         //  ((itTT->second).twrADC>32) ){
@@ -711,6 +710,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
         }
         (itTT->second).crystNb_++;
       }
+     (itTT->second).eRec_avg_=(itTT->second).eRec_/(itTT->second).crystNb_;
     }
   }
 
@@ -768,11 +768,12 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
 
     crystNb[towerNb] = (itTT->second).crystNb_;
 
-    //  for(int ixtal = 0; ixtal < 25; ixtal++){
+    // for(int ixtal = 0; ixtal < 25; ixtal++){
     //    eRec[towerNb][ixtal] = (itTT->second).eRec_ ;
     //  }
 
-    //  eRec[towerNb] = (itTT->second).eRec_ ;
+    eRec[towerNb] = (itTT->second).eRec_;
+    eRec_avg[towerNb] = (itTT->second).eRec_avg_;
     maxRecHitEnergy[towerNb] = (itTT->second).maxRecHitEnergy_;
     sevlv[towerNb] = (itTT->second).sevlv_;
     time[towerNb] = (itTT->second).time_;

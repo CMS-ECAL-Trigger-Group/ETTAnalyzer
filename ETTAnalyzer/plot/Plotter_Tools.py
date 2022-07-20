@@ -50,7 +50,7 @@ def Add_CMS_Header(plt, isWide, ax, upperRightText, xmin):
 
 
 def GetPathDict():
-    YEAR = "2021"
+    YEAR = "2022"
     MAIN_DIREC = "/eos/cms/store/group/dpg_ecal/alca_ecalcalib/Trigger/%sBeamSplashes/ETTAnalyzerOutput/ReEmulation/"%(YEAR)
 
     f_path_dict = {

@@ -697,10 +697,10 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
       if (itTT != mapTower.end())
       {
          double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
-        (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
+        (itTT->second).eRec_ += rechitItr->energy();//*sin(theta) ;
 //	std::cout<<"eRec= "<<rechitItr->energy()*sin(theta)<<std::endl;
-	if ((itTT->second).eRec_>400){	
-	std::cout<<"eRec_total= "<<(itTT->second).eRec_<<std::endl;}
+	//if ((itTT->second).eRec_>400){	
+	//std::cout<<"eRec_total= "<<(itTT->second).eRec_<<std::endl;}
         int sevlvl_tmp = (sevlvl->severityLevel(id, *rechitsEB));
         //  if ( rechitItr->energy() > maxRecHitEnergy &&
         //  ((itTT->second).twrADC>32) ){

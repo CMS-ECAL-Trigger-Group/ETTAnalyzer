@@ -204,7 +204,7 @@ if(options.RunETTAnalyzer):
 
     # Name for output root files 
     process.TFileService = cms.Service("TFileService",
-                                    fileName = cms.string("ETTAnalyzer_output.root")
+                                    fileName = cms.string("ETTAnalyzer_output_Davide.root")
                                     )
 
     # Define Path Which includes necessary modules for ETTAnalyzer 

@@ -39,7 +39,7 @@ f_path_dict = GetPathDict()
 #f_path = f_path_dict[args.Weights][args.TPMode][args.beamNumber]
 verbose = args.verbose
 
-f_path='ETTAnalyzer_output_Davide.root'
+f_path='ETTAnalyzer_output_Full.root'
 
 f = uproot.open(f_path)
 t = f["tuplizer/ETTAnalyzerTree"]

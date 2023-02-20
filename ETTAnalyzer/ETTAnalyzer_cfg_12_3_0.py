@@ -63,7 +63,8 @@ if(options.OverrideWeights):
     )
 
     # If using 120X_dataRun3_HLT_v3 global tag which already has EcalTPGTPMode source defined, and you want to overwrite it, need to use an es_prefer below
-    if(options.UserGlobalTag == "123X_dataRun3_HLT_v7"): 
+    if(options.UserGlobalTag == "124X_dataRun3_HLT_v4"): 
+    #if(options.UserGlobalTag == "123X_dataRun3_HLT_v7"): 
         process.es_prefer_tpmode = cms.ESPrefer("PoolDBESSource","EcalOnTheFlyTPGconf") # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToUseESPrefer
 
 
@@ -103,7 +104,7 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.userMaxEvents) )
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 99999999 ) # Printout run, lumi, event info
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 20 ) # Printout run, lumi, event info
 
 # Save TPinfo
 if(options.TPinfoPrintout or options.Debug):
@@ -204,7 +205,7 @@ if(options.RunETTAnalyzer):
 
     # Name for output root files 
     process.TFileService = cms.Service("TFileService",
-                                    fileName = cms.string("ETTAnalyzer_output_Davide.root")
+                                    fileName = cms.string("ETTAnalyzer_output_Full.root")
                                     )
 
     # Define Path Which includes necessary modules for ETTAnalyzer 

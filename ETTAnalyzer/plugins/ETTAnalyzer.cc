@@ -124,7 +124,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
   //  int bxShiftIso = -999;
    int bxShiftLast = -999;
 
-  std::cout << "algo bit" << algoBitFirstBxInTrain_ << endl;
+  // std::cout << "algo bit" << algoBitFirstBxInTrain_ << endl;
   for (int bx = uGtAlgs->getFirstBX(); bx <= uGtAlgs->getLastBX(); ++bx)
   {
     for (GlobalAlgBlkBxCollection::const_iterator itr = uGtAlgs->begin(bx);
@@ -195,7 +195,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
       }
     }
   }
-  if (bxShiftFirst > -900 || bxShiftLast > -900  ) {  std::cout << bxShiftFirst << " " <<  bxShiftLast << std::endl; }
+  // if (bxShiftFirst > -900 || bxShiftLast > -900  ) {  std::cout << bxShiftFirst << " " <<  bxShiftLast << std::endl; }
   // std::cout<<" bxShiftFirst = " << bxShiftFirst<< " "<<bxShiftIso<< "
   // "<<bxShiftLast<<std::endl;
 
@@ -226,18 +226,18 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
                         EGammaBxCollection->getLastBX() + bxShiftFirst);
        ++itBX)
   {
-     std::cout<<"inside itBx" << itBX << std::endl;
+    //  std::cout<<"inside itBx" << itBX << std::endl;
 
     // int index = itBX - bxShiftFirst - uGtAlgs->getFirstBX();
     for (l1t::EGammaBxCollection::const_iterator egamma =
              EGammaBxCollection->begin(itBX);
          egamma != EGammaBxCollection->end(itBX); ++egamma)
     {
-       std::cout<<"inside egamma" <<std::endl;
+      //  std::cout<<"inside egamma" <<std::endl;
 
       for (size_t i = 0; i < egammaPtCuts_.size(); ++i)
       {
-         std::cout<<" for pt cut "<<egammaPtCuts_[i]<<"  "<<egamma->pt() << std::endl;
+        //  std::cout<<" for pt cut "<<egammaPtCuts_[i]<<"  "<<egamma->pt() << std::endl;
         if (egamma->pt() >= egammaPtCuts_.at(i))
         {
           // if (index >= 0 and index < (int)egamma_eta_phi_firstbunch.size()) {
@@ -248,7 +248,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
           //}
 
           int bxNumberActual = itBX - bxShiftFirst;
-          std::cout << "itBx" << itBX << std::endl;
+          // std::cout << "itBx" << itBX << std::endl;
           // std::cout<< itBX << bxShiftFirst << std::endl;
           //  std::cout<<" all candidates egamma->pt, egamma->hwPt,
           //  egamma->energy, egamma->hwEta, egamma->hwPhi ="<<egamma->pt()<<"
@@ -260,7 +260,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
             //  std::cout<<" isolated bx, eta, counter "<<itBX - bxShiftFirst<<" "<< egamma->hwEta()<<"  "<<isocounterp2<<std::endl;
 
              if(savePreFireInfo_)
-            first_ibx_vs_ieta_Iso->Fill(itBX - bxShiftFirst, egamma->hwEta() );
+            first_ibx_vs_ieta_Iso[i]->Fill(itBX - bxShiftFirst, egamma->hwEta() );
 
             // see the description of variables at the twiki
             // https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TCaloFormats
@@ -310,7 +310,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
           // ----------------------------------------------------------
           // -------- non-isolated branches starts from here. ---------
           // ----------------------------------------------------------
-           first_ibx_vs_ieta_NonIso->Fill(itBX - bxShiftFirst, egamma->hwEta());
+           first_ibx_vs_ieta_NonIso[i]->Fill(itBX - bxShiftFirst, egamma->hwEta());
 
           //  std::cout<<" eta and hweta "<<egamma->hwEta() <<" "<<egamma->eta()
           //  <<std::endl;
@@ -393,12 +393,12 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
            //}
            if ((bool)egamma->hwIso()) {
             //  std::cout<<" isolated "<<correctedBx<<"  "<< egamma->hwEta()<<std::endl;
-             last_ibx_vs_ieta_Iso->Fill(correctedBx, egamma->hwEta() );
+             last_ibx_vs_ieta_Iso[i]->Fill(correctedBx, egamma->hwEta() );
              //egamma_iso_bx_ieta_lastbunch.at(i)->Fill(correctedBx,egamma->hwEta());
            }
            //egamma_noniso_bx_ieta_lastbunch.at(i)->Fill(correctedBx, ma->hwEta()); 
           //  std::cout<<" non-isolated "<<correctedBx<<"  "<<egamma->hwEta()<<std::endl;
-          last_ibx_vs_ieta_NonIso->Fill(correctedBx, egamma->hwEta() );
+          last_ibx_vs_ieta_NonIso[i]->Fill(correctedBx, egamma->hwEta() );
          }
        }
      }

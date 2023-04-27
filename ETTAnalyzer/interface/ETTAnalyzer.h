@@ -286,10 +286,10 @@ private:
   Float_t L1preNonisoPtp2[10];
 
   // Define histograms
-  TH2F* first_ibx_vs_ieta_Iso;
-  TH2F* first_ibx_vs_ieta_NonIso;
-  TH2F* last_ibx_vs_ieta_Iso;
-  TH2F* last_ibx_vs_ieta_NonIso;
+  std::vector<TH2F*> first_ibx_vs_ieta_Iso;
+  std::vector<TH2F*> first_ibx_vs_ieta_NonIso;
+  std::vector<TH2F*> last_ibx_vs_ieta_Iso;
+  std::vector<TH2F*> last_ibx_vs_ieta_NonIso;
   TTree *ETTAnalyzerTree;
 
   const edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> mappingToken_;
@@ -343,19 +343,34 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet &ps)
 
   egammaPtCuts_.clear();
   egammaPtCuts_.push_back(10.0);
-  // egammaPtCuts_.push_back(20.0);
-  // egammaPtCuts_.push_back(30.0);
+  egammaPtCuts_.push_back(20.0);
+  egammaPtCuts_.push_back(30.0);
 
-  first_ibx_vs_ieta_Iso = new TH2F("first_ibx_vs_ieta_Iso","first_ibx_vs_ieta_Iso", 5, -2.5, 2.5, 70, -70, 70);
-  first_ibx_vs_ieta_NonIso = new TH2F("first_ibx_vs_ieta_NonIso","first_ibx_vs_ieta_NonIso", 5, -2.5, 2.5, 70, -70, 70);
-  last_ibx_vs_ieta_Iso = new TH2F("last_ibx_vs_ieta_Iso","last_ibx_vs_ieta_Iso", 5, -2.5, 2.5, 70, -70, 70);
-  last_ibx_vs_ieta_NonIso = new TH2F("last_ibx_vs_ieta_NonIso","last_ibx_vs_ieta_NonIso", 5, -2.5, 2.5, 70, -70, 70);
+  first_ibx_vs_ieta_Iso.clear();
+  first_ibx_vs_ieta_NonIso.clear();
+  last_ibx_vs_ieta_Iso.clear();
+  last_ibx_vs_ieta_NonIso.clear();
+
+  for (size_t i = 0; i < egammaPtCuts_.size(); i++) {
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(1) << egammaPtCuts_[i];
+    std::string pt = stream.str();
+    for (size_t j=0; j< pt.size(); j++) {
+      if (pt[j] == '.') { pt[j] = 'p';}
+    }
+    std::cout << pt << std::endl;
+    first_ibx_vs_ieta_Iso.push_back(new TH2F(("first_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(),("first_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70));
+    first_ibx_vs_ieta_NonIso.push_back(new TH2F(("first_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(),("first_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70));
+    last_ibx_vs_ieta_Iso.push_back(new TH2F(("last_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(),("last_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70));
+    last_ibx_vs_ieta_NonIso.push_back(new TH2F(("last_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(),("last_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70));
+    first_ibx_vs_ieta_Iso.at(i) = fs->make<TH2F>(("first_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(),("first_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70);
+    first_ibx_vs_ieta_NonIso.at(i) = fs->make<TH2F>(("first_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(),("first_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70);
+    last_ibx_vs_ieta_Iso.at(i) = fs->make<TH2F>(("last_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(),("last_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70);
+    last_ibx_vs_ieta_NonIso.at(i) = fs->make<TH2F>(("last_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(),("last_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70);
+  }
   ETTAnalyzerTree = fs->make<TTree>("ETTAnalyzerTree", "ECAL trigger primitive and rec hit information");
 
-  first_ibx_vs_ieta_Iso = fs->make<TH2F>("first_ibx_vs_ieta_Iso","first_ibx_vs_ieta_Iso", 5, -2.5, 2.5, 70, -70, 70);
-  first_ibx_vs_ieta_NonIso = fs->make<TH2F>("first_ibx_vs_ieta_NonIso","first_ibx_vs_ieta_NonIso", 5, -2.5, 2.5, 70, -70, 70);
-  last_ibx_vs_ieta_Iso = fs->make<TH2F>("last_ibx_vs_ieta_Iso","last_ibx_vs_ieta_Iso", 5, -2.5, 2.5, 70, -70, 70);
-  last_ibx_vs_ieta_NonIso = fs->make<TH2F>("last_ibx_vs_ieta_NonIso","last_ibx_vs_ieta_NonIso", 5, -2.5, 2.5, 70, -70, 70);
+  
 
   ETTAnalyzerTree->Branch("runNb", &runNb, "runNb/i");
   ETTAnalyzerTree->Branch("evtNb", &evtNb, "evtNb/L");

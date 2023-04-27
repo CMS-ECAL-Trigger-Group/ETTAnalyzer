@@ -8,7 +8,7 @@ crab submit -c CrabConfig_12_1_0_pre3.py
 
 # Choose dataset to re-emulate:
 # Dataset = "2022_FR"
-Dataset = "PilotBeam2021" # 2021 Pilot Beam double weights runs: Full Readout
+Dataset = "Run scan" # 2021 Pilot Beam double weights runs: Full Readout
 # Dataset = "Run2_FR" # 306425: 2017F. 324725: 2018D
 # Dataset = "ZeroBias2018C"
 
@@ -16,14 +16,15 @@ DatasetInfo = {
   "2022_FR" : [["352912"], "Run_352912", "123X_dataRun3_HLT_v7"],
   "PilotBeam2021" : [["346446", "346447"], "Runs_346446_346447_PilotBeam_2021", "123X_dataRun3_HLT_v7"], 
   "ZeroBias2018C" : [None, None, None],
-  "Run2_FR" : [["324725", "306425"], "Runs_324725_306425_FullReadoutData", "103X_dataRun2_v6"] 
+  "Run2_FR" : [["324725", "306425"], "Runs_324725_306425_FullReadoutData", "103X_dataRun2_v6"],
+  "Run scan" : [["359609"], "Run_359609", "123X_dataRun3_HLT_v7"]
 }
 
 runs, DatasetLabel, UserGlobalTag = DatasetInfo[Dataset]
 
 # Configuration parameters 
 # inDir = "/afs/cern.ch/work/a/atishelm/private/CMS-ECAL-Trigger-Group/CMSSW_12_1_0_pre3/src/ETTAnalyzer/ETTAnalyzer/"
-inDir = "/afs/cern.ch/work/a/atishelm/private/CMSSW_12_3_0/src/ETTAnalyzer/ETTAnalyzer/"
+inDir = "/afs/cern.ch/user/t/tdesrous/CMSSW_13_0_3/src/ETTAnalyzer/ETTAnalyzer/"
 OverrideWeights = 0 # override weights and TPmode of global tag with user input sqlite files 
 oneFile = 1 # Run over one file as a test (recommended before running over large datasets to test incompatibility issues)
 WeightsWP = "2p5Prime"  # odd weights working point. Options: [2p5Prime, 0p5Prime] 
@@ -126,7 +127,8 @@ config.JobType.pyCfgParams = [
                                 'TPModeTag=%s'%(TPMode_Tag), # TPMode, aka electronics configuration
                                 'OddWeightsSqliteFile=MinDelta_%s_OddWeights.db'%(WeightsWP), # Working points to try: [MinDelta_2p5Prime_OddWeights, MinDelta_0p5Prime_OddWeights.db]
                                 'RecoMethod=%s'%(RecoMethod), # offline reco methods to try: [Multifit, weights] 
-                                'era=%s'%(ERA)
+                                'era=%s'%(ERA),
+                                'userMaxEvents=1000'
                              ] 
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = '%s/ETTAnalyzer_cfg_12_3_0.py'%(inDir)

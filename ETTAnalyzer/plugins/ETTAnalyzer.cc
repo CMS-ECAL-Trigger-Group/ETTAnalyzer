@@ -122,7 +122,9 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
   // timing histogram later.
   int bxShiftFirst = -999;
   //  int bxShiftIso = -999;
-  //  int bxShiftLast = -999;
+   int bxShiftLast = -999;
+
+  std::cout << "algo bit" << algoBitFirstBxInTrain_ << endl;
   for (int bx = uGtAlgs->getFirstBX(); bx <= uGtAlgs->getLastBX(); ++bx)
   {
     for (GlobalAlgBlkBxCollection::const_iterator itr = uGtAlgs->begin(bx);
@@ -167,7 +169,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
         }
         if (bit)
         {
-          ; // bxShiftLast = bx;
+          bxShiftLast = bx;
         }
       }
       // isolated bunch
@@ -193,7 +195,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
       }
     }
   }
-
+  if (bxShiftFirst > -900 || bxShiftLast > -900  ) {  std::cout << bxShiftFirst << " " <<  bxShiftLast << std::endl; }
   // std::cout<<" bxShiftFirst = " << bxShiftFirst<< " "<<bxShiftIso<< "
   // "<<bxShiftLast<<std::endl;
 
@@ -216,26 +218,26 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
   int isocounterzero = 0;
   int isocounterp1 = 0;
   int isocounterp2 = 0;
-
+  // std::cout << "firstBX " << EGammaBxCollection->getFirstBX() << " last BX " <<  EGammaBxCollection->getLastBX() << std::endl;
+  // std::cout << EGammaBxCollection->getLastBX() << std::endl;
   for (int itBX = std::max(EGammaBxCollection->getFirstBX(),
                            EGammaBxCollection->getFirstBX() + bxShiftFirst);
        itBX <= std::min(EGammaBxCollection->getLastBX(),
                         EGammaBxCollection->getLastBX() + bxShiftFirst);
        ++itBX)
   {
-    //  std::cout<<"inside itBx" <<std::endl;
+     std::cout<<"inside itBx" << itBX << std::endl;
 
     // int index = itBX - bxShiftFirst - uGtAlgs->getFirstBX();
     for (l1t::EGammaBxCollection::const_iterator egamma =
              EGammaBxCollection->begin(itBX);
          egamma != EGammaBxCollection->end(itBX); ++egamma)
     {
-      //  std::cout<<"inside egamma" <<std::endl;
+       std::cout<<"inside egamma" <<std::endl;
 
       for (size_t i = 0; i < egammaPtCuts_.size(); ++i)
       {
-        //  std::cout<<" for pt cut "<<egammaPtCuts_[i]<<"  "<<egamma->pt() <<
-        //  std::endl;
+         std::cout<<" for pt cut "<<egammaPtCuts_[i]<<"  "<<egamma->pt() << std::endl;
         if (egamma->pt() >= egammaPtCuts_.at(i))
         {
           // if (index >= 0 and index < (int)egamma_eta_phi_firstbunch.size()) {
@@ -246,7 +248,8 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
           //}
 
           int bxNumberActual = itBX - bxShiftFirst;
-
+          std::cout << "itBx" << itBX << std::endl;
+          // std::cout<< itBX << bxShiftFirst << std::endl;
           //  std::cout<<" all candidates egamma->pt, egamma->hwPt,
           //  egamma->energy, egamma->hwEta, egamma->hwPhi ="<<egamma->pt()<<"
           //  "<<egamma->hwPt()<<"  "<<egamma->energy()<<" "<<egamma->hwEta()<<"
@@ -254,11 +257,10 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
 
           if ((bool)egamma->hwIso())
           {
-            //  std::cout<<" isolated bx, eta, counter "<<itBX - bxShiftFirst<<"
-            //  "<< egamma->hwEta()<<"  "<<isocounterp2<<std::endl;
+            //  std::cout<<" isolated bx, eta, counter "<<itBX - bxShiftFirst<<" "<< egamma->hwEta()<<"  "<<isocounterp2<<std::endl;
 
-            //  if(savePreFireInfo_)
-            // ibx_vs_ieta_Iso->Fill(itBX - bxShiftFirst, egamma->hwEta() );
+             if(savePreFireInfo_)
+            first_ibx_vs_ieta_Iso->Fill(itBX - bxShiftFirst, egamma->hwEta() );
 
             // see the description of variables at the twiki
             // https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TCaloFormats
@@ -308,7 +310,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
           // ----------------------------------------------------------
           // -------- non-isolated branches starts from here. ---------
           // ----------------------------------------------------------
-          //  ibx_vs_ieta_NonIso->Fill(itBX - bxShiftFirst, egamma->hwEta());
+           first_ibx_vs_ieta_NonIso->Fill(itBX - bxShiftFirst, egamma->hwEta());
 
           //  std::cout<<" eta and hweta "<<egamma->hwEta() <<" "<<egamma->eta()
           //  <<std::endl;
@@ -374,41 +376,34 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
   }
 
   // for the last bunch crossing
-  /*
 
 
    for (int itBX = std::max(EGammaBxCollection->getFirstBX(),
-   EGammaBxCollection->getFirstBX() + bxShiftLast); itBX <=
-   std::min(EGammaBxCollection->getLastBX(), EGammaBxCollection->getLastBX() +
-   bxShiftLast); ++itBX) { std::cout<<"inside itBx" <<std::endl; auto
-   correctedBx = itBX - bxShiftLast; for
-   (l1t::EGammaBxCollection::const_iterator egamma =
-   EGammaBxCollection->begin(itBX); egamma != EGammaBxCollection->end(itBX);
-   ++egamma) { std::cout<<"inside egamma" <<std::endl; for (size_t i = 0; i <
-   egammaPtCuts_.size(); ++i) { if (egamma->pt() >= egammaPtCuts_.at(i)) {
-           //if (correctedBx >= 0 and correctedBx <
-   (int)egamma_eta_phi_lastbunch.size()) {
-             //denominator_egamma_lastbunch.at(i)->Fill(egamma->eta(),
-   egamma->phi());
-             //egamma_eta_phi_lastbunch.at(i).at(correctedBx)->Fill(egamma->eta(),
-   egamma->phi());
+                            EGammaBxCollection->getFirstBX() + bxShiftLast); 
+            itBX <= std::min(EGammaBxCollection->getLastBX(), EGammaBxCollection->getLastBX() + bxShiftLast); ++itBX) {
+    //  std::cout<<"inside itBx" <<std::endl; 
+     auto correctedBx = itBX - bxShiftLast; 
+     for (l1t::EGammaBxCollection::const_iterator egamma = EGammaBxCollection->begin(itBX); egamma != EGammaBxCollection->end(itBX); ++egamma) { 
+    // std::cout<<"inside egamma" <<std::endl; 
+     for (size_t i = 0; i < egammaPtCuts_.size(); ++i) { 
+      if (egamma->pt() >= egammaPtCuts_.at(i)) {
+           // if (correctedBx >= 0 and correctedBx < (int)egamma_eta_phi_lastbunch.size()) {
+             //denominator_egamma_lastbunch.at(i)->Fill(egamma->eta(), egamma->phi());
+             //egamma_eta_phi_lastbunch.at(i).at(correctedBx)->Fill(egamma->eta(), egamma->phi());
            //}
            if ((bool)egamma->hwIso()) {
-             std::cout<<" isolated "<<correctedBx<<"  "<<
-   egamma->hwEta()<<std::endl;
-             //egamma_iso_bx_ieta_lastbunch.at(i)->Fill(correctedBx,
-   egamma->hwEta());
+            //  std::cout<<" isolated "<<correctedBx<<"  "<< egamma->hwEta()<<std::endl;
+             last_ibx_vs_ieta_Iso->Fill(correctedBx, egamma->hwEta() );
+             //egamma_iso_bx_ieta_lastbunch.at(i)->Fill(correctedBx,egamma->hwEta());
            }
-           //egamma_noniso_bx_ieta_lastbunch.at(i)->Fill(correctedBx,
-   egamma->hwEta()); std::cout<<" non-isolated "<<correctedBx<<"  "<<
-   egamma->hwEta()<<std::endl;
-
+           //egamma_noniso_bx_ieta_lastbunch.at(i)->Fill(correctedBx, ma->hwEta()); 
+          //  std::cout<<" non-isolated "<<correctedBx<<"  "<<egamma->hwEta()<<std::endl;
+          last_ibx_vs_ieta_NonIso->Fill(correctedBx, egamma->hwEta() );
          }
        }
      }
    }
 
-   */
 
   // ------------------------------------------**********----------***-------------------------------------------------------------------------
   // -----------------------------------------------*--------------*--***----------------------------------------------------------------------
@@ -803,11 +798,13 @@ void ETTAnalyzer::beginRun(const edm::Run &r, const edm::EventSetup &c)
   // begin job does not have the event setup infp
   // Get the trigger menu information
   gtUtil_->retrieveL1Setup(c);
+  std::cout << "in beginRun" << std::endl;
 
   // Get the algo bits needed for the timing histograms
   if (!gtUtil_->getAlgBitFromName(algoNameFirstBxInTrain_,
                                   algoBitFirstBxInTrain_))
   {
+    std::cout << "in warning" << std::endl;
     edm::LogWarning("L1TObjectsTiming")
         << "Algo \"" << algoNameFirstBxInTrain_
         << "\" not found in the trigger menu " << gtUtil_->gtTriggerMenuName()
@@ -831,6 +828,7 @@ void ETTAnalyzer::beginRun(const edm::Run &r, const edm::EventSetup &c)
         << ". Could not retrieve algo bit number.";
   }
 }
+void ETTAnalyzer::endRun(const edm::Run &r, const edm::EventSetup &c) {}
 
 // ------------ method called once each job just after ending the event loop
 // ------------

@@ -2,8 +2,11 @@
 *__init__.py
 *__init__.pyc
 ETTAnalyzer/.__afs*
+ETTAnalyzer/Scan_files/.__afs*
+ETTAnalyzer/Scan_files/*.txt
 ETTAnalyzer/python/__init__.pyc
 ETTAnalyzer/TPinfo.log
-ETTAnalyzer/ETTAnalyzer_output.root
+ETTAnalyzer/*.root
 ETTAnalyzer/crab_projects
 ETTAnalyzer/crab.log
+ETTAnalyzer/*.d

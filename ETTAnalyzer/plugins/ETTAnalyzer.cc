@@ -121,7 +121,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
   // BX 2 and this will determine the BX shift that will be applied to the
   // timing histogram later.
   int bxShiftFirst = -999;
-  //  int bxShiftIso = -999;
+   int bxShiftIso = -999;
    int bxShiftLast = -999;
 
   // std::cout << "algo bit" << algoBitFirstBxInTrain_ << endl;
@@ -190,7 +190,7 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
         }
         if (bit)
         {
-          ; // bxShiftIso = bx;
+          bxShiftIso = bx;
         }
       }
     }
@@ -404,6 +404,22 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
      }
    }
 
+  // for the isolated bunch crossing
+  for (int itBX = std::max(EGammaBxCollection->getFirstBX(), EGammaBxCollection->getFirstBX() + bxShiftIso);
+        itBX <= std::min(EGammaBxCollection->getLastBX(), EGammaBxCollection->getLastBX() + bxShiftIso); ++itBX) {
+    for (l1t::EGammaBxCollection::const_iterator egamma = EGammaBxCollection->begin(itBX);
+        egamma != EGammaBxCollection->end(itBX);
+        ++egamma) {
+      for (size_t i = 0; i < egammaPtCuts_.size(); ++i) {
+        if (egamma->pt() >= egammaPtCuts_.at(i)) {
+          if ((bool)egamma->hwIso()) {
+            iso_ibx_vs_ieta_Iso[i]->Fill(itBX - bxShiftIso, egamma->hwEta());
+          }
+          iso_ibx_vs_ieta_Iso[i]->Fill(itBX - bxShiftIso, egamma->hwEta());
+        }
+      }
+    }
+  }
 
   // ------------------------------------------**********----------***-------------------------------------------------------------------------
   // -----------------------------------------------*--------------*--***----------------------------------------------------------------------
@@ -798,7 +814,7 @@ void ETTAnalyzer::beginRun(const edm::Run &r, const edm::EventSetup &c)
   // begin job does not have the event setup infp
   // Get the trigger menu information
   gtUtil_->retrieveL1Setup(c);
-  std::cout << "in beginRun" << std::endl;
+  // std::cout << "in beginRun" << std::endl;
 
   // Get the algo bits needed for the timing histograms
   if (!gtUtil_->getAlgBitFromName(algoNameFirstBxInTrain_,

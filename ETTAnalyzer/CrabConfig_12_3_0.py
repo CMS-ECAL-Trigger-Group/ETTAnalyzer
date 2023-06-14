@@ -8,7 +8,7 @@ crab submit -c CrabConfig_12_1_0_pre3.py
 
 IMPORTANT: must be run with submit_crab.sh or delay scan lines must be commented
 """
-
+# import os
 # Choose dataset to re-emulate:
 # Dataset = "2022_FR"
 Dataset = "Run scan" # 2021 Pilot Beam double weights runs: Full Readout
@@ -75,9 +75,9 @@ print("Adding CMS files...")
 #              CMS_files.append("root://xrootd-cms.infn.it/" + file_path)
 
 # Delay scans : only one delay at a time or all using a bash script
-delay = -6
-# import os
-# delay = int(os.environ["DELAY"])
+# delay = -6
+import os
+delay = int(os.environ["DELAY"])
 
 
 text_file_path = "Scan_files/Scan_delay_%s.txt"%(delay)
@@ -86,6 +86,7 @@ with open(text_file_path) as f:
     content = [x.strip() for x in content] 
     for file in content:
         CMS_files.append("root://xrootd-cms.infn.it/" + file)
+        # CMS_files.append(file)
 
 # To get 2018D ZeroBias data files 
 """
@@ -158,8 +159,7 @@ config.JobType.pyCfgParams = [
                                 'TPModeTag=%s'%(TPMode_Tag), # TPMode, aka electronics configuration
                                 'OddWeightsSqliteFile=ZeroCandidateSet', # Working points to try: [MinDelta_2p5Prime_OddWeights, MinDelta_0p5Prime_OddWeights.db]
                                 'RecoMethod=%s'%(RecoMethod), # offline reco methods to try: [Multifit, weights] 
-                                'era=%s'%(ERA),
-                                'userMaxEvents=100'
+                                'era=%s'%(ERA)
                             ] 
 
 
@@ -176,15 +176,15 @@ config.Data.outputPrimaryDataset = '%s%s'%(DatasetLabel, oneFileStr)
 if(OverrideWeights): outputDatasetTag = 'ETTAnalyzer_CMSSW_12_3_0_DoubleWeights_%sRecoMethod_StripZeroingMode_%s_%sODDweights'%(RecoMethod, ODD_PF_string, WeightsWP) # 3 DOF to vary
 else: outputDatasetTag = 'ETTAnalyzer_CMSSW_12_3_0_DoubleWeights_ReemulateFromGlobalTag'
 config.Data.outputDatasetTag = outputDatasetTag
-# config.Data.outLFNDirBase = '/store/user/tdesrous/' 
+config.Data.outLFNDirBase = '/store/user/tdesrous/Scan_delay_%s/'%(delay) 
 config.Data.publication = False 
 
 config.Data.userInputFiles = CMS_files 
 
 # config.Site.whitelist = ['T2_CH_CERN'] ##-- Eventually had to change from 'T2_FR_GRIF_LLR' whitelist to this 
 # config.Site.storageSite = 'T2_CH_CERN'
-config.Site.whitelist = ['T2_FR_GRIF'] ##-- Eventually had to change from 'T2_FR_GRIF_LLR' whitelist to this 
-config.Site.storageSite = 'T2_FR_GRIF'
+config.Site.whitelist = ['T2_FR_GRIF_LLR'] ##-- Eventually had to change from 'T2_FR_GRIF_LLR' whitelist to this 
+config.Site.storageSite = 'T2_FR_GRIF_LLR'
 
 # input files 
 config.JobType.inputFiles = [
@@ -200,3 +200,5 @@ config.JobType.inputFiles = [
                             '%s/weights/output/OneEBOneEEset_adding2021Strips.db'%(inDir), # OddWeightsGroup - defines odd weights to be used by each ECAL strip 
                             '%s/ConfigParams.py'%(inDir) # To define cmssw config options 
                             ]    
+
+# print("hostname: " + os.uname()[1])

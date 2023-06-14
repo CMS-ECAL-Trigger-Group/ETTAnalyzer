@@ -17,7 +17,7 @@ void timingscan (char const *era, int thresh) {
   
   char txt[80];
 
-  sprintf(txt,"./data/%s/l1tHistograms_%s.root",era,era);
+  sprintf(txt,"./l1tHistograms_%s.root",era);
 
   
   TFile fin(txt,"READ");

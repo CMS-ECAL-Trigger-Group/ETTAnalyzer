@@ -11,7 +11,7 @@ To run a full analysis of the scans:
 python FindScanFiles.py
 ```
 
-    This command will compute .txt files for each time delay.
+This command will compute .txt files for each time delay.
 
 - Run the Crab job:
     - Check the following parameters in the CrabConfig file:

@@ -3,48 +3,48 @@
 
 To run a full analysis of the scans:
 
-    - Retrieve the name of the files for the analysis:
-        - Modify the runs and lumisections in Scan_files/FindScanFiles.py (and possibly the path to the files on DAS)
-        - Run :
+- Retrieve the name of the files for the analysis:
+    - Modify the runs and lumisections in Scan_files/FindScanFiles.py (and possibly the path to the files on DAS)
+    - Run :
 
-        ```
-        python FindScanFiles.py
-        ```
+```
+python FindScanFiles.py
+```
 
-        This command will compute .txt files for each time delay.
+    This command will compute .txt files for each time delay.
 
-	- Run the Crab job:
-        - Check the following parameters in the CrabConfig file:
-            - inDir
-            - config.Data.outLFNDirBase
-            - config.Site.whitelist
-            - config.Site.storageSite
+- Run the Crab job:
+    - Check the following parameters in the CrabConfig file:
+        - inDir
+        - config.Data.outLFNDirBase
+        - config.Site.whitelist
+        - config.Site.storageSite
 
-        - Run :
+    - Run :
 
-        ```
-        submit_crab.sh
-        ```
+```
+submit_crab.sh
+```
 
 
-	- Once the jobs are done, retrieve the output with the script (once again be careful to the paths):
+- Once the jobs are done, retrieve the output with the script (once again be careful to the paths):
 
-	```
-	./crab_get_scan_output.sh
-	```
+```
+./crab_get_scan_output.sh
+```
 
-	It will merge the files and delete them afterwards.
+It will merge the files and delete them afterwards.
 
-    - Run the following macros (check the paths):
+- Run the following macros (check the paths):
 
-    ```
-	root DQM_extract.C
-	```
+```
+root DQM_extract.C
+```
 
-    ```
-	.L timingscan_prefire_23Sept2018_egamma_v2.C
-    timingscan(era, threshold)
-	```
+```
+.L timingscan_prefire_23Sept2018_egamma_v2.C
+timingscan(era, threshold)
+```
 
 ## Run single file analysis
 

@@ -95,7 +95,7 @@ public:
   }
 };
 
-class ETTAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>
+class ETTAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns>
 {
 
 public:
@@ -109,9 +109,10 @@ private:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
   virtual void endJob() override;
-  void beginRun(edm::Run const &iEvent, edm::EventSetup const &);
+  // void beginRun(edm::Run const &iEvent, edm::EventSetup const &);
 
-  //virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
 
   //edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
   edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtProducer_; // input tag for L1 uGT DAQ readout record
@@ -285,8 +286,12 @@ private:
   Float_t L1preNonisoPtp2[10];
 
   // Define histograms
-  // TH2F* ibx_vs_ieta_Iso;
-  // TH2F* ibx_vs_ieta_NonIso;
+  std::vector<TH2F*> first_ibx_vs_ieta_Iso;
+  std::vector<TH2F*> first_ibx_vs_ieta_NonIso;
+  std::vector<TH2F*> last_ibx_vs_ieta_Iso;
+  std::vector<TH2F*> last_ibx_vs_ieta_NonIso;
+  std::vector<TH2F*> iso_ibx_vs_ieta_Iso;
+  std::vector<TH2F*> iso_ibx_vs_ieta_NonIso;
   TTree *ETTAnalyzerTree;
 
   const edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> mappingToken_;
@@ -313,9 +318,9 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet &ps)
       EEdigistoken_(consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigis"))),
       gtUtil_(new l1t::L1TGlobalUtil(ps, consumesCollector(), *this, ps.getParameter<edm::InputTag>("ugtProducer"), ps.getParameter<edm::InputTag>("ugtProducer"))),
 
-      algoBitFirstBxInTrain_(-1),
-      algoBitLastBxInTrain_(-1),
-      algoBitIsoBx_(-1),
+      algoBitFirstBxInTrain_(-1), //479
+      algoBitLastBxInTrain_(-1), //478
+      algoBitIsoBx_(-1), //471
       algoNameFirstBxInTrain_(ps.getUntrackedParameter<std::string>("firstBXInTrainAlgo", "")),
       algoNameLastBxInTrain_(ps.getUntrackedParameter<std::string>("lastBXInTrainAlgo", "")),
       algoNameIsoBx_(ps.getUntrackedParameter<std::string>("isoBXAlgo", "")),
@@ -330,18 +335,51 @@ ETTAnalyzer::ETTAnalyzer(const edm::ParameterSet &ps)
   EcalRecHitCollectionEB1_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("EcalRecHitCollectionEB"));
   EcalRecHitCollectionEE1_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("EcalRecHitCollectionEE"));
 
-  useAlgoDecision_ = 0;
-  egammaPtCuts_.clear();
-  //egammaPtCuts_.push_back(10.0);
-  //egammaPtCuts_.push_back(20.0);
-  //egammaPtCuts_.push_back(30.0);
+  if (ps.getUntrackedParameter<std::string>("useAlgoDecision").find("final") == 0) {
+    useAlgoDecision_ = 2;
+  } else if (ps.getUntrackedParameter<std::string>("useAlgoDecision").find("intermediate") == 0) {
+    useAlgoDecision_ = 1;
+  } else {
+    useAlgoDecision_ = 0;  
+  }
 
-  //ibx_vs_ieta_Iso = new TH2F("ibx_vs_ieta_Iso","ibx_vs_ieta_Iso", 5, -2.5, 2.5, 70, -70, 70);
-  //ibx_vs_ieta_NonIso = new TH2F("ibx_vs_ieta_NonIso","ibx_vs_ieta_NonIso", 5, -2.5, 2.5, 70, -70, 70);
+  egammaPtCuts_.clear();
+  egammaPtCuts_.push_back(10.0);
+  egammaPtCuts_.push_back(20.0);
+  egammaPtCuts_.push_back(30.0);
+
+  first_ibx_vs_ieta_Iso.clear();
+  first_ibx_vs_ieta_NonIso.clear();
+  last_ibx_vs_ieta_Iso.clear();
+  last_ibx_vs_ieta_NonIso.clear();
+  iso_ibx_vs_ieta_Iso.clear();
+  iso_ibx_vs_ieta_NonIso.clear();
+
+  for (size_t i = 0; i < egammaPtCuts_.size(); i++) {
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(1) << egammaPtCuts_[i];
+    std::string pt = stream.str();
+    for (size_t j=0; j< pt.size(); j++) {
+      if (pt[j] == '.') { pt[j] = 'p';}
+    }
+    std::cout << pt << std::endl;
+    first_ibx_vs_ieta_Iso.push_back(new TH2F(("first_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(),("first_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70));
+    first_ibx_vs_ieta_NonIso.push_back(new TH2F(("first_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(),("first_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70));
+    last_ibx_vs_ieta_Iso.push_back(new TH2F(("last_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(),("last_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70));
+    last_ibx_vs_ieta_NonIso.push_back(new TH2F(("last_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(),("last_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70));
+    iso_ibx_vs_ieta_Iso.push_back(new TH2F(("iso_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(),("iso_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70));
+    iso_ibx_vs_ieta_NonIso.push_back(new TH2F(("iso_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(),("iso_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70));
+    first_ibx_vs_ieta_Iso.at(i) = fs->make<TH2F>(("first_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(),("first_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70);
+    first_ibx_vs_ieta_NonIso.at(i) = fs->make<TH2F>(("first_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(),("first_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70);
+    last_ibx_vs_ieta_Iso.at(i) = fs->make<TH2F>(("last_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(),("last_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70);
+    last_ibx_vs_ieta_NonIso.at(i) = fs->make<TH2F>(("last_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(),("last_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70);
+    iso_ibx_vs_ieta_Iso.at(i) = fs->make<TH2F>(("iso_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(),("iso_ibx_vs_ieta_Iso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70);
+    iso_ibx_vs_ieta_NonIso.at(i) = fs->make<TH2F>(("iso_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(),("iso_ibx_vs_ieta_NonIso_ptmin"+ pt).c_str(), 5, -2.5, 2.5, 70, -70, 70);
+
+  }
   ETTAnalyzerTree = fs->make<TTree>("ETTAnalyzerTree", "ECAL trigger primitive and rec hit information");
 
-  // ibx_vs_ieta_Iso = fs->make<TH2F>("ibx_vs_ieta_Iso","ibx_vs_ieta_Iso", 5, -2.5, 2.5, 70, -70, 70);
-  // ibx_vs_ieta_NonIso = fs->make<TH2F>("ibx_vs_ieta_NonIso","ibx_vs_ieta_NonIso", 5, -2.5, 2.5, 70, -70, 70);
+  
 
   ETTAnalyzerTree->Branch("runNb", &runNb, "runNb/i");
   ETTAnalyzerTree->Branch("evtNb", &evtNb, "evtNb/L");

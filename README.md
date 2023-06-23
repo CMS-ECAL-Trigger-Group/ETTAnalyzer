@@ -6,15 +6,15 @@ The purpose of the ETT (ECAL Trigger Team) Analyzer is to process RAW CMS data f
 - Studies of 5BX L1 TP readout
 - `<Your creative idea here>` 
 
-Current CMSSW version compatibility: `CMSSW_12_3_0`
+Current CMSSW version compatibility: `CMSSW_13_0_3`
 
 ## Setup
 
-To setup the repository in `CMSSW_12_3_0`:
+To setup the repository in `CMSSW_13_0_3`:
 
 	export SCRAM_ARCH=slc7_amd64_gcc900 
-	cmsrel CMSSW_12_3_0
-	cd CMSSW_12_3_0/src
+	cmsrel CMSSW_13_0_3
+	cd CMSSW_13_0_3/src
 	cmsenv
 	git cms-init
 	
@@ -33,7 +33,9 @@ And proceed to build:
 	
 ## Examples and functionalities 
 
+- Perform time scans analysis for pre-firing [Pre-firing README](Prefiring.md).
 - Some ETTAnalyzer running examples can be found in the [Examples README](Examples.md).
 - Encode and save custom ODD FENIX weights as SQLite files to use for re-emulation in the [weights directory](https://github.com/CMS-ECAL-Trigger-Group/ETTAnalyzer/tree/main/ETTAnalyzer/weights).
 - Save custom TPModes as SQLite files to use for re-emulation in the [TPModes directory](https://github.com/CMS-ECAL-Trigger-Group/ETTAnalyzer/tree/main/ETTAnalyzer/TPModes).
 - Re-emulate CMS data: [Instructions](https://github.com/CMS-ECAL-Trigger-Group/ETTAnalyzer/blob/main/Reemulation.md).
+

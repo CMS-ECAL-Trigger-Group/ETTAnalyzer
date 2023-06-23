@@ -1,0 +1,1 @@
+cms://store/data/Run2022E/SpecialHLTPhysics1/RAW/v1/000/359/605/00000/e2489c9d-2547-40cc-a660-29860239f693.root

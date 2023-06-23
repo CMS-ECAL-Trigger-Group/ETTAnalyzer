@@ -799,7 +799,9 @@ void ETTAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c)
   }
 
   nbOfTowers = towerNb;
-  ETTAnalyzerTree->Fill();
+
+  //Uncomment to write the tree
+  // ETTAnalyzerTree->Fill();
 }
 
 // ------------ method called once each job just before starting event loop

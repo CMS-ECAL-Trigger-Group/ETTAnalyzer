@@ -259,7 +259,7 @@ void timingscan (char const *era, int thresh) {
 
   frame->SetXTitle("Time offset [ns]");
   frame->SetYTitle("Probability");
-  
+  frame->SetStats(0);
   frame->Draw();
   eg_eb_prefire->Draw("mlep");
 

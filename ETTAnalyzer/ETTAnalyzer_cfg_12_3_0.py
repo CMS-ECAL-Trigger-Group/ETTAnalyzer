@@ -41,31 +41,30 @@ if(options.OverrideWeights):
     print("Setting double weights records to user input values")
     process.load("CondCore.CondDB.CondDB_cfi")
     # input database (in this case the local sqlite file)
-
+    db = process.CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
     process.EcalOnTheFlyTPGconf = cms.ESSource("PoolDBESSource",
-        DumpStat=cms.untracked.bool(True),
-        toGet = cms.VPSet(cms.PSet(
-                                record = cms.string('EcalTPGOddWeightIdMapRcd'),
-                                tag = cms.string("EcalTPGOddWeightIdMap_test"),
-                                connect = cms.string('sqlite_file:%s'%(options.OddWeightsSqliteFile))
-                            ),
-                        cms.PSet(
-                                record = cms.string('EcalTPGOddWeightGroupRcd'),
-                                tag = cms.string("EcalTPGOddWeightGroup_test"),
-                                connect = cms.string('sqlite_file:%s'%(options.OddWeightsGroupSqliteFile))
-                            ),
+                                               db,
+                                               DumpStat=cms.untracked.bool(True),
+        toGet = cms.VPSet(# cms.PSet(
+                        #         record = cms.string('EcalTPGOddWeightIdMapRcd'),
+                        #         tag = cms.string("EcalTPGOddWeightIdMap_test"),
+                        #         connect = cms.string('sqlite_file:%s'%(options.OddWeightsSqliteFile))
+                        #     ),
+                        # cms.PSet(
+                        #         record = cms.string('EcalTPGOddWeightGroupRcd'),
+                        #         tag = cms.string("EcalTPGOddWeightGroup_test"),
+                        #         connect = cms.string('sqlite_file:%s'%(options.OddWeightsGroupSqliteFile))
+                        #     ),
                         cms.PSet(
                                 record = cms.string('EcalTPGTPModeRcd'),
                                 tag = cms.string(options.TPModeTag),
-                                connect = cms.string('sqlite_file:%s'%(options.TPModeSqliteFile))
+                                #connect = cms.string('sqlite_file:%s'%(options.TPModeSqliteFile))
                             )
         ),
     )
 
     # If using 120X_dataRun3_HLT_v3 global tag which already has EcalTPGTPMode source defined, and you want to overwrite it, need to use an es_prefer below
-    if(options.UserGlobalTag == "124X_dataRun3_HLT_v4"): 
-    #if(options.UserGlobalTag == "123X_dataRun3_HLT_v7"): 
-    	process.es_prefer_tpmode = cms.ESPrefer("PoolDBESSource","EcalOnTheFlyTPGconf") # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToUseESPrefer
+    process.es_prefer_tpmode = cms.ESPrefer("PoolDBESSource","EcalOnTheFlyTPGconf") # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToUseESPrefer
 
 
 # ECAL Unpacker
@@ -132,7 +131,7 @@ if(options.inFile != ""):
 
 # If not file is passed, process a default file from 2018 Zerobias data 
 else:
-    files = ["/store/data/Run2018C/ZeroBias/RAW/v1/000/320/063/00000/62F3929A-F08D-E811-8133-FA163E19E543.root"]
+    files = ["/store/data/Run2022E/SpecialHLTPhysics10/RAW/v1/000/359/608/00000/0c810e7c-0454-46d0-9960-dfba54701bdb.root"]
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(

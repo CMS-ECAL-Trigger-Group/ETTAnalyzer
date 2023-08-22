@@ -65,7 +65,7 @@ if(options.OverrideWeights):
     # If using 120X_dataRun3_HLT_v3 global tag which already has EcalTPGTPMode source defined, and you want to overwrite it, need to use an es_prefer below
     if(options.UserGlobalTag == "124X_dataRun3_HLT_v4"): 
     #if(options.UserGlobalTag == "123X_dataRun3_HLT_v7"): 
-        process.es_prefer_tpmode = cms.ESPrefer("PoolDBESSource","EcalOnTheFlyTPGconf") # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToUseESPrefer
+    	process.es_prefer_tpmode = cms.ESPrefer("PoolDBESSource","EcalOnTheFlyTPGconf") # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToUseESPrefer
 
 
 # ECAL Unpacker
@@ -103,8 +103,9 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
    TPinfoPrintout = cms.bool(options.TPinfoPrintout),
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.userMaxEvents) )
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 20 ) # Printout run, lumi, event info
+process.maxEvents = cms.untracked.PSet( input=cms.untracked.int32(-1) )
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.userMaxEvents) )
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 2000 ) # Printout run, lumi, event info
 
 # Save TPinfo
 if(options.TPinfoPrintout or options.Debug):

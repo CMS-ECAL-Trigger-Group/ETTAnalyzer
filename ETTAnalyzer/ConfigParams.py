@@ -11,7 +11,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing('analysis')
 
 options.register ('era',
-                'Run2',
+                'Run3',
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "era")    
@@ -83,7 +83,7 @@ options.register ('OverrideWeights',
                 VarParsing.VarParsing.varType.bool,           
                 "OverrideWeights")    
 options.register ('UserGlobalTag', ##-- global tag                           
-                '113X_dataRun2_relval_v1', 
+                '124X_dataRun3_HLT_v4', 
                 VarParsing.VarParsing.multiplicity.singleton, 
                 VarParsing.VarParsing.varType.string,          
                 "UserGlobalTag") 
